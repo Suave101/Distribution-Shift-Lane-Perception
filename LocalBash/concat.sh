@@ -4,13 +4,13 @@
 #SBATCH --job-name=distTestassist
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --output=distributionShiftAssist.log
+#SBATCH --output=distributionShiftAssistNoBatchSize.log
 #SBATCH --partition=gpu2
 #SBATCH --gres=gpu:4
 #SBATCH --cpus-per-task=16        # Request 16 CPUs (4 per GPU is a good ratio)
 #SBATCH --mem=128G                # Increase memory to handle larger batches
 #
-    
+
 # --- Job Execution ---
 echo "----------------------------------------------------"
 echo "Slurm Job ID: $SLURM_JOB_ID"
@@ -42,12 +42,12 @@ python shift_concat_experiment.py \
     --src_samples 10 \
     --tgt_samples 10 \
     --ratio_src_samples 0 \
-    --ratio_tgt_samples 100 \
+    --ratio_tgt_samples 10 \
     --num_runs 10 \
     --block_idx 4 \
     --seed_base 32 \
-    --batch_size 4096 \
-    --file_name "mixed_shift_experiment_results_baby3.json"
+    --batch_size 0 \
+    --file_name "noBatchSize.json"
 
 echo "----------------------------------------------------"
 echo "Job finished: $(date)"
