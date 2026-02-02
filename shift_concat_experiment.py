@@ -104,6 +104,12 @@ class ShiftExperiment:
         self.zoom_factor = zoom_factor
         self.save_all_image_paths = save_all_image_paths
 
+        # Ensure tgt samples is consistent with ratio
+        if self.tgt_samples != (self.ratio_src_samples + self.ratio_tgt_samples):
+            raise ValueError(
+                f"tgt_samples ({self.tgt_samples}) must equal ratio_src_samples + ratio_tgt_samples ({self.ratio_src_samples} + {self.ratio_tgt_samples})"
+            )
+
         # --- Data Logger ---
         self.datalogger = JsonExperimentManager(
             file_location=file_location, file_name=file_name, style=file_style
