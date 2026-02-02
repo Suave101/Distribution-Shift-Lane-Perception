@@ -198,6 +198,7 @@ class ShiftExperiment:
 
     # STEP 0 — Load Source Features
     def load_source_features(self):
+        # Get the images
         loaderReturn = get_dataloader(
             root_dir=self.source_dir,
             list_path=self.source_list_dir,
@@ -209,7 +210,10 @@ class ShiftExperiment:
         )
         loader = loaderReturn[0]
         image_paths = loaderReturn[1]
+
+        # Extract features (using the autoencoder)
         self.src_feats = extract_features(self.model, loader, self.device)
+
         print(f"{self.source_dir} features loaded. Shape = {self.src_feats.shape}\n")
         self.loggerExperimentalData["Source Training Feature Shape"] = list(
             self.src_feats.shape
@@ -219,6 +223,7 @@ class ShiftExperiment:
         )
 
     def load_source_test_features(self):
+        # Get the images
         loaderReturn = get_dataloader(
             root_dir=self.source_dir,
             list_path=self.source_test_list_dir,
@@ -230,7 +235,10 @@ class ShiftExperiment:
         )
         loader = loaderReturn[0]
         image_paths = loaderReturn[1]
+
+        # Extract features (using the autoencoder)
         self.src_test_feats = extract_features(self.model, loader, self.device)
+
         print(
             f"{self.source_dir} features loaded. Shape = {self.src_test_feats.shape}\n"
         )
@@ -249,8 +257,11 @@ class ShiftExperiment:
         null_stats = []
         all_image_dirs = {}
 
+        # Create Null Distribution with num_calib samples
         for i in trange(self.num_calib, desc="Calibrating"):
             seed = self.seed_base + i
+
+            # Get images from source for calibration
             dataloaderReturn = get_seeded_random_dataloader(
                 root_dir=self.source_dir,
                 list_path=self.source_test_list_dir,
@@ -263,13 +274,17 @@ class ShiftExperiment:
             )
             calib_src_test_loader = dataloaderReturn[0]
             all_image_dirs[f"Calibrating with seed {seed}"] = dataloaderReturn[1]
+
+            # Extract features
             calib_src_test_feats = extract_features(
                 self.model, calib_src_test_loader, self.device
             )
 
+            # Compute MMD statistic
             t_stat = mmd_test(self.src_feats, calib_src_test_feats)
             null_stats.append(t_stat)
 
+        # Compute tau threshold, mean MMD, and MMD std
         self.null_stats = np.array(null_stats)
         self.tau = np.percentile(self.null_stats, 100 * (1 - self.alpha))
 
@@ -289,6 +304,7 @@ class ShiftExperiment:
         sanityCheckData: JsonDict = {}
         print("[STEP 2] Sanity Check...")
 
+        # Get images from source for sanity check
         loaderReturn = get_seeded_random_dataloader(
             root_dir=self.source_dir,
             list_path=self.source_test_list_dir,
@@ -302,8 +318,10 @@ class ShiftExperiment:
         sanity_src_loader = loaderReturn[0]
         sanityCheckData["Image Paths"] = loaderReturn[1]
 
+        # Extract features
         sanity_src_feats = extract_features(self.model, sanity_src_loader, self.device)
 
+        # Run MMD for sanity check
         mmd_val = mmd_test(self.src_feats, sanity_src_feats)
         print(
             f"[SANITY CHECK] MMD({self.source_dir}to{self.source_dir}) = {mmd_val:.6f}, τ = {self.tau:.6f}"
@@ -314,6 +332,7 @@ class ShiftExperiment:
             "Tau": float(self.tau),
         }
 
+        # Determine if shift is detected
         if mmd_val <= self.tau:
             sanityCheckData["Shift Detected"] = bool(False)
             print("No shift detected.\n")
@@ -340,9 +359,11 @@ class ShiftExperiment:
 
         dataShiftTestDataTests: list[JsonDict] = []
 
+        # Run self.num_runs tests
         for i in trange(self.num_runs, desc="Shift Testing"):
             testData: JsonDict = {}
 
+            # Get concatenated dataloader with both source and target samples
             loaderReturn = get_concat_dataloader(
                 root_dirs=[self.source_dir, self.target_dir],
                 list_paths=[self.source_list_dir, self.target_list_dir],
@@ -358,11 +379,17 @@ class ShiftExperiment:
             testData["Source Samples"] = self.ratio_src_samples
             testData["Target Samples"] = self.ratio_tgt_samples
             testData["Image Paths"] = loaderReturn[1]
+
+            # Extract features
             tgt_feats_cross = extract_features(
                 self.model, tgt_loader_cross, self.device
             )
+
+            # Run MMD test
             mmd_cross = mmd_test(self.src_feats, tgt_feats_cross)
             mmd_values.append(mmd_cross)
+
+            # Determine if shift is detected
             detected: bool = mmd_cross > self.tau
             tpr_list.append(int(detected))
 
@@ -378,6 +405,7 @@ class ShiftExperiment:
 
         dataShiftTestData["Individual Test Data"] = dataShiftTestDataTests
 
+        # Compute Average TPR
         tpr_result = np.mean(tpr_list)
         print("\n[RESULTS] Data Shift detection summary")
         print(f"Noise Applied: {self.shift_object}")
