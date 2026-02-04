@@ -78,7 +78,7 @@ class ShiftExperiment:
         file_location: str = "./",
         file_style: JsonStyle = 4,
         save_all_image_paths: bool = False,
-        32dimensional: bool = False,
+        thirty_two_dimensional: bool = False,
     ):
         self.source_dir = source_dir
         self.target_dir = target_dir
@@ -140,7 +140,7 @@ class ShiftExperiment:
             "height_shift_frac": height_shift_frac,
             "shear_angle": shear_angle,
             "zoom_factor": zoom_factor,
-            "32dimensional": 32dimensional
+            "thirty_two_dimensional": thirty_two_dimensional
         }
 
         self.loggerExperimentalData: JsonDict = {}
@@ -152,7 +152,7 @@ class ShiftExperiment:
         
         # --- Model Initialization ---
         print("\nInitializing autoencoder on 4 GPUs...")
-        if 32dimensional:
+        if thirty_two_dimensional:
             base_model = ConvAutoencoderFC32(latent_dim=512, pretrained=True).to(self.device)
         else:
             base_model = ConvAutoencoderFC(latent_dim=512, pretrained=True).to(self.device)
@@ -492,7 +492,7 @@ if __name__ == "__main__":
     parser.add_argument("--width_shift_frac", type=float, default=0.2)
     parser.add_argument("--height_shift_frac", type=float, default=0.2)
     parser.add_argument("--save_all_image_paths", type=bool, default=False)
-    parser.add_argument("--32dimensional", type=bool, default=False)
+    parser.add_argument("--thirty_two_dimensional", type=bool, default=False)
     parser.add_argument(
         "--file_location",
         type=str,
