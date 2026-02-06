@@ -7,13 +7,16 @@ Includes experiment configuration from bash scripts
 """
 
 import re
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import numpy as np
-from pathlib import Path
+import os
 import argparse
 import time
-import os
+from pathlib import Path
+
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 # Set style
 plt.rcParams['figure.figsize'] = (15, 10)
@@ -90,47 +93,61 @@ def parse_bash_script(bash_path):
         return None
     
     try:
-        with open(bash_path, 'r') as f:
+        # Try UTF-8 first
+        with open(bash_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
-        config = {}
-        
-        # Extract various parameters
-        params = {
-            'src_samples': r'--src_samples\s+(\d+)',
-            'tgt_samples': r'--tgt_samples\s+(\d+)',
-            'ratio_src_samples': r'--ratio_src_samples\s+(\d+)',
-            'ratio_tgt_samples': r'--ratio_tgt_samples\s+(\d+)',
-            'num_runs': r'--num_runs\s+(\d+)',
-            'block_idx': r'--block_idx\s+(\d+)',
-            'seed_base': r'--seed_base\s+(\d+)',
-            'batch_size': r'--batch_size\s+(\d+)',
-            'file_name': r'--file_name\s+"([^"]+)"',
-        }
-        
-        for param, pattern in params.items():
-            match = re.search(pattern, content)
-            if match:
-                config[param] = int(match.group(1)) if param != 'file_name' else match.group(1)
-        
-        # Check for dimensionality configuration
-        thirty_two_match = re.search(r'--thirty_two_dimensional\s+True', content)
-        dconfig_match = re.search(r'--dConfig\s+"([^"]+)"', content)
-        
-        if dconfig_match:
-            config['dim_config'] = dconfig_match.group(1)
-            config['dim_type'] = 'dConfig'
-        elif thirty_two_match:
-            config['dim_config'] = 'd32'
-            config['dim_type'] = 'thirty_two_dimensional'
-        else:
-            config['dim_config'] = 'orig'
-            config['dim_type'] = 'default'
-        
-        return config
+    except UnicodeDecodeError:
+        try:
+            # Try latin-1 as fallback
+            with open(bash_path, 'r', encoding='latin-1') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            try:
+                # Try cp1252 (Windows encoding)
+                with open(bash_path, 'r', encoding='cp1252') as f:
+                    content = f.read()
+            except Exception as e:
+                print(f"  ⚠ Error reading bash script {bash_path.name}: {e}")
+                return None
     except Exception as e:
         print(f"  ⚠ Error parsing bash script {bash_path.name}: {e}")
         return None
+    
+    config = {}
+    
+    # Extract various parameters
+    params = {
+        'src_samples': r'--src_samples\s+(\d+)',
+        'tgt_samples': r'--tgt_samples\s+(\d+)',
+        'ratio_src_samples': r'--ratio_src_samples\s+(\d+)',
+        'ratio_tgt_samples': r'--ratio_tgt_samples\s+(\d+)',
+        'num_runs': r'--num_runs\s+(\d+)',
+        'block_idx': r'--block_idx\s+(\d+)',
+        'seed_base': r'--seed_base\s+(\d+)',
+        'batch_size': r'--batch_size\s+(\d+)',
+        'file_name': r'--file_name\s+"([^"]+)"',
+    }
+    
+    for param, pattern in params.items():
+        match = re.search(pattern, content)
+        if match:
+            config[param] = int(match.group(1)) if param != 'file_name' else match.group(1)
+    
+    # Check for dimensionality configuration
+    thirty_two_match = re.search(r'--thirty_two_dimensional\s+True', content)
+    dconfig_match = re.search(r'--dConfig\s+"([^"]+)"', content)
+    
+    if dconfig_match:
+        config['dim_config'] = dconfig_match.group(1)
+        config['dim_type'] = 'dConfig'
+    elif thirty_two_match:
+        config['dim_config'] = 'd32'
+        config['dim_type'] = 'thirty_two_dimensional'
+    else:
+        config['dim_config'] = 'orig'
+        config['dim_type'] = 'default'
+    
+    return config
 
 def get_config_description(dim_config):
     """Get human-readable description of dimension config"""
@@ -150,8 +167,24 @@ def get_config_description(dim_config):
 
 def parse_log_file(log_path):
     """Parse a single log file to extract experiment metrics"""
-    with open(log_path, 'r') as f:
-        content = f.read()
+    try:
+        # Try UTF-8 first
+        with open(log_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except UnicodeDecodeError:
+        try:
+            # Try latin-1 as fallback
+            with open(log_path, 'r', encoding='latin-1') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            try:
+                # Try cp1252 (Windows encoding)
+                with open(log_path, 'r', encoding='cp1252') as f:
+                    content = f.read()
+            except Exception:
+                # Last resort: read with errors='ignore'
+                with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
     
     metrics = {}
     
@@ -372,101 +405,149 @@ def generate_filename(ae_dim, src_calib, tgt_calib, n_experiments, dim_config=No
     return base
 
 def plot_architecture_diagram(dim_config, output_dir, base_filename):
-    """Create a neural network architecture diagram"""
+    """Create a professional neural network architecture diagram"""
     if dim_config not in ARCHITECTURE_CONFIGS:
         print(f"  ⚠ No architecture diagram for config: {dim_config}")
         return
     
     layers = ARCHITECTURE_CONFIGS[dim_config]
     
-    fig, ax = plt.subplots(figsize=(12, 8))
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, len(layers) + 1)
+    fig, ax = plt.subplots(figsize=(14, 10))
+    ax.set_xlim(0, 14)
+    ax.set_ylim(0, 12)
     ax.axis('off')
     
     # Title
     config_desc = get_config_description(dim_config)
-    plt.title(f'Autoencoder Architecture: {config_desc}', fontsize=18, fontweight='bold', pad=20)
+    ax.text(7, 11.5, f'Autoencoder Architecture: {config_desc}', 
+            fontsize=20, fontweight='bold', ha='center')
     
-    y_pos = len(layers)
-    max_width = 8
+    # Legend
+    legend_x = 10.5
+    legend_y = 10.8
+    
+    # Input layer legend
+    input_rect = mpatches.Rectangle((legend_x, legend_y), 0.4, 0.25, 
+                                     facecolor='#06A77D', edgecolor='black', linewidth=2)
+    ax.add_patch(input_rect)
+    ax.text(legend_x + 0.6, legend_y + 0.125, 'Input Layer', 
+            fontsize=11, va='center')
+    
+    # Hidden layer legend
+    hidden_rect = mpatches.Rectangle((legend_x, legend_y - 0.4), 0.4, 0.25, 
+                                      facecolor='#5A9BD5', edgecolor='black', linewidth=2)
+    ax.add_patch(hidden_rect)
+    ax.text(legend_x + 0.6, legend_y - 0.275, 'Hidden Layers', 
+            fontsize=11, va='center')
+    
+    # Output layer legend
+    output_rect = mpatches.Rectangle((legend_x, legend_y - 0.8), 0.4, 0.25, 
+                                      facecolor='#E8A84F', edgecolor='black', linewidth=2)
+    ax.add_patch(output_rect)
+    ax.text(legend_x + 0.6, legend_y - 0.675, 'Output Layer (Latent)', 
+            fontsize=11, va='center')
+    
+    # Calculate layer positions and sizes
+    y_start = 9.5
+    y_spacing = 2.0
+    max_width = 10.0
+    x_center = 7.0
+    
+    # Get all dimension values for scaling
+    all_dims = []
+    for input_dim, output_dim, _ in layers:
+        if isinstance(output_dim, int):
+            all_dims.append(output_dim)
+    max_dim = max(all_dims) if all_dims else 4096
+    
+    # Draw layers from top to bottom
+    prev_y = None
+    prev_width = None
     
     for i, (input_dim, output_dim, activation) in enumerate(layers):
-        # Determine box width based on dimension size
-        if isinstance(output_dim, int):
-            if output_dim >= 4096:
-                width = max_width
-            elif output_dim >= 1024:
-                width = max_width * 0.75
-            elif output_dim >= 512:
-                width = max_width * 0.5
-            elif output_dim >= 256:
-                width = max_width * 0.35
-            elif output_dim >= 128:
-                width = max_width * 0.25
-            elif output_dim >= 64:
-                width = max_width * 0.18
-            else:
-                width = max_width * 0.12
+        # Determine layer properties
+        if i == 0:
+            color = '#06A77D'  # Green for input
+            layer_label = "Input: flatten_dim"
+        elif activation == "Output":
+            color = '#E8A84F'  # Orange for output
+            layer_label = "Latent Space"
         else:
-            width = max_width * 0.8
+            color = '#5A9BD5'  # Blue for hidden
+            layer_label = ""
         
-        x_center = 5
+        # Calculate width based on dimension size (logarithmic scale for better visualization)
+        if isinstance(output_dim, int):
+            width = max_width * (np.log(output_dim + 1) / np.log(max_dim + 1))
+            width = max(width, 1.5)  # Minimum width
+        else:
+            width = max_width * 0.9
+        
+        height = 0.6
+        y_pos = y_start - (i * y_spacing)
         x_left = x_center - width / 2
         
-        # Choose color based on layer type
-        if activation == "Output":
-            color = '#F18F01'  # Orange for output
-        elif i == 0:
-            color = '#06A77D'  # Green for input
-        else:
-            color = '#2E86AB'  # Blue for hidden layers
-        
-        # Draw rectangle
+        # Draw the rectangle
         rect = mpatches.FancyBboxPatch(
-            (x_left, y_pos - 0.4), width, 0.8,
-            boxstyle="round,pad=0.05",
-            edgecolor='black',
+            (x_left, y_pos), width, height,
+            boxstyle="round,pad=0.02",
             facecolor=color,
-            linewidth=2,
-            alpha=0.7
+            edgecolor='black',
+            linewidth=2.5
         )
         ax.add_patch(rect)
         
-        # Add text
+        # Add dimension text inside the box
         if isinstance(input_dim, str):
-            dim_text = f"Input: {input_dim}"
+            dim_text = f"Input: flatten_dim"
         else:
             dim_text = f"{input_dim} → {output_dim}"
         
-        ax.text(x_center, y_pos, dim_text,
+        ax.text(x_center, y_pos + height/2, dim_text,
                 ha='center', va='center',
-                fontsize=14, fontweight='bold', color='white')
+                fontsize=16, fontweight='bold', color='white')
         
-        # Add activation info below
-        if activation != "Output":
-            ax.text(x_center, y_pos - 0.55, activation,
+        # Add activation function label above the box (not for first layer)
+        if activation != "Output" and i > 0:
+            ax.text(x_center, y_pos + height + 0.15, activation,
+                    ha='center', va='bottom',
+                    fontsize=10, style='italic', color='#333')
+        
+        # Add layer label below the box
+        if layer_label:
+            ax.text(x_center, y_pos - 0.15, layer_label,
                     ha='center', va='top',
-                    fontsize=10, style='italic', color='#555')
-        else:
-            ax.text(x_center, y_pos - 0.55, 'Latent Space',
-                    ha='center', va='top',
-                    fontsize=10, fontweight='bold', color='#555')
+                    fontsize=12, fontweight='bold', color='#333')
         
-        # Draw arrow to next layer
-        if i < len(layers) - 1:
-            ax.annotate('', xy=(x_center, y_pos - 0.5), xytext=(x_center, y_pos - 1.5),
-                       arrowprops=dict(arrowstyle='->', lw=2, color='black'))
+        # Draw arrow from previous layer
+        if prev_y is not None:
+            arrow_start_y = prev_y
+            arrow_end_y = y_pos + height
+            
+            ax.annotate('', 
+                       xy=(x_center, arrow_end_y), 
+                       xytext=(x_center, arrow_start_y),
+                       arrowprops=dict(
+                           arrowstyle='->', 
+                           lw=3, 
+                           color='black',
+                           shrinkA=0,
+                           shrinkB=0
+                       ))
+            
+            # Add activation label on the arrow
+            if i > 0 and activation != "Output":
+                mid_y = (arrow_start_y + arrow_end_y) / 2
+                ax.text(x_center + 0.3, mid_y, activation,
+                        ha='left', va='center',
+                        fontsize=9, style='italic', color='#555',
+                        bbox=dict(boxstyle='round,pad=0.3', facecolor='white', 
+                                 edgecolor='none', alpha=0.8))
         
-        y_pos -= 1
+        prev_y = y_pos
+        prev_width = width
     
-    # Add legend
-    legend_elements = [
-        mpatches.Patch(facecolor='#06A77D', edgecolor='black', label='Input Layer', alpha=0.7),
-        mpatches.Patch(facecolor='#2E86AB', edgecolor='black', label='Hidden Layers', alpha=0.7),
-        mpatches.Patch(facecolor='#F18F01', edgecolor='black', label='Output Layer (Latent)', alpha=0.7)
-    ]
-    ax.legend(handles=legend_elements, loc='upper right', fontsize=11)
+    plt.tight_layout()
     
     # Save architecture diagram
     base_path = Path(output_dir)
