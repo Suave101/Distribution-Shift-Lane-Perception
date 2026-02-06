@@ -156,6 +156,7 @@ class ShiftExperiment:
         if thirty_two_dimensional:
             dConfig = "d32"
             raise Warning("This arg is about to be deprecated. Please use dConfig directly.")
+        
         base_model = ConfConvAutoencoderFC32(config=dConfig, pretrained=True).to(self.device)
 
         if num_gpus >= 4:

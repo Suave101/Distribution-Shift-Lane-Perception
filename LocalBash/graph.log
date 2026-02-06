@@ -1,7 +1,7 @@
 ----------------------------------------------------
-Slurm Job ID: 157980
-Running on host: node14
-Start Time: Sun Feb  1 11:19:57 PM EST 2026
+Slurm Job ID: 158975
+Running on host: node01
+Start Time: Thu Feb  5 11:11:06 PM EST 2026
 ----------------------------------------------------
 Initializing conda for script...
 Conda environment activated and isolated:
@@ -21,12 +21,27 @@ test_env                 /home1/adoyle2025/miniconda3/envs/test_env
 tf_a100                  /home1/adoyle2025/miniconda3/envs/tf_a100
 
 Starting Unit Test...
-============================================================
-MIXED SHIFT EXPERIMENT VISUALIZER
-= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-Found 16 CCE*.log files:
+============================================================
+Found 13 directories with log files
+============================================================
+
+============================================================
+PROCESSING: LocalBash
+============================================================
+Log path: LocalBash
+Pattern: *.log
+Output dir: figures
+
+Found 20 log files:
   - CCE1.log
+  - CCE10.log
+  - CCE11.log
+  - CCE12.log
+  - CCE13.log
+  - CCE14.log
+  - CCE15.log
+  - CCE16.log
   - CCE2.log
   - CCE3.log
   - CCE4.log
@@ -35,6 +50,245 @@ Found 16 CCE*.log files:
   - CCE7.log
   - CCE8.log
   - CCE9.log
+  - bashGen.log
+  - distributionShiftAssist.log
+  - distributionShiftAssistNoBatchSize.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=1000, Tgt=0, TPR=0.0%)
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=400, Tgt=600, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=450, Tgt=550, TPR=100.0%)
+[Exp 12] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=300, Tgt=700, TPR=100.0%)
+[Exp 13] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=440, Tgt=560, TPR=100.0%)
+[Exp 14] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=430, Tgt=570, TPR=98.0%)
+[Exp 15] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=420, Tgt=580, TPR=100.0%)
+[Exp 16] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=455, Tgt=545, TPR=100.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=990, Tgt=10, TPR=0.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=900, Tgt=100, TPR=0.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=750, Tgt=250, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=500, Tgt=500, TPR=0.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=250, Tgt=750, TPR=100.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=100, Tgt=900, TPR=100.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=10, Tgt=990, TPR=100.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=10, Tgt=990, TPR=100.0%)
+[Exp 17] ✗ Failed to parse
+[Exp 17] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=100, Src=0, Tgt=100, TPR=100.0%)
+[Exp 18] ✗ Failed to parse
+[Exp 18] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 17 experiments
+✓ Processing 17 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim256_src1000_tgt1000_n17.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim256_src1000_tgt1000_n17.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim256_src1000_tgt1000_n17.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim256_src1000_tgt1000_n17.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim256_src1000_tgt1000_n17.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp 1 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 1000, Tgt: 0, Ratio: 0.00)
+   2 → Exp 2 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 990, Tgt: 10, Ratio: 0.01)
+   3 → Exp 3 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 900, Tgt: 100, Ratio: 0.11)
+   4 → Exp 4 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 750, Tgt: 250, Ratio: 0.33)
+   5 → Exp 5 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 500, Tgt: 500, Ratio: 1.00)
+   6 → Exp16 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 455, Tgt: 545, Ratio: 1.20)
+   7 → Exp11 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 450, Tgt: 550, Ratio: 1.22)
+   8 → Exp13 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 440, Tgt: 560, Ratio: 1.27)
+   9 → Exp14 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 430, Tgt: 570, Ratio: 1.33)
+  10 → Exp15 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 420, Tgt: 580, Ratio: 1.38)
+  11 → Exp10 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 400, Tgt: 600, Ratio: 1.50)
+  12 → Exp12 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 300, Tgt: 700, Ratio: 2.33)
+  13 → Exp 6 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 250, Tgt: 750, Ratio: 3.00)
+  14 → Exp 7 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 100, Tgt: 900, Ratio: 9.00)
+  15 → Exp 8 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 10, Tgt: 990, Ratio: 99.00)
+  16 → Exp 9 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 10, Tgt: 990, Ratio: 99.00)
+  17 → Exp17 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 100, Src: 0, Tgt: 100, Ratio: ∞)
+
+============================================================
+PROCESSING: hundred32d
+============================================================
+Log path: LocalBash/32dimension/hundred32d
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - graph.log
+  - hundred32d1.log
+  - hundred32d10.log
+  - hundred32d11.log
+  - hundred32d2.log
+  - hundred32d3.log
+  - hundred32d4.log
+  - hundred32d5.log
+  - hundred32d6.log
+  - hundred32d7.log
+  - hundred32d8.log
+  - hundred32d9.log
+
+Processing files:
+[Exp  1] ✗ Failed to parse
+[Exp  1] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=0, Tgt=100, TPR=79.0%)
+[Exp 10] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=90, Tgt=10, TPR=0.0%)
+[Exp 11] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=100, Tgt=0, TPR=0.0%)
+[Exp  2] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=10, Tgt=90, TPR=98.0%)
+[Exp  3] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=20, Tgt=80, TPR=73.0%)
+[Exp  4] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=30, Tgt=70, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=40, Tgt=60, TPR=0.0%)
+[Exp  6] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=50, Tgt=50, TPR=100.0%)
+[Exp  7] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=60, Tgt=40, TPR=97.0%)
+[Exp  8] ✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=70, Tgt=30, TPR=10.0%)
+[Exp  9] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✓ (AE_Dim=32, Src_Calib=100, Tgt_Calib=100, Src=80, Tgt=20, TPR=0.0%)
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim32_src100_tgt100_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim32_src100_tgt100_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim32_src100_tgt100_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim32_src100_tgt100_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim32_src100_tgt100_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp11 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 100, Tgt: 0, Ratio: 0.00)
+   2 → Exp10 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 90, Tgt: 10, Ratio: 0.11)
+   3 → Exp 9 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 80, Tgt: 20, Ratio: 0.25)
+   4 → Exp 8 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 70, Tgt: 30, Ratio: 0.43)
+   5 → Exp 7 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 60, Tgt: 40, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 50, Tgt: 50, Ratio: 1.00)
+   7 → Exp 5 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 40, Tgt: 60, Ratio: 1.50)
+   8 → Exp 4 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 30, Tgt: 70, Ratio: 2.33)
+   9 → Exp 3 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 20, Tgt: 80, Ratio: 4.00)
+  10 → Exp 2 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 10, Tgt: 90, Ratio: 9.00)
+  11 → Exp 1 (AE_Dim: 32, Src_Calib: 100, Tgt_Calib: 100, Src: 0, Tgt: 100, Ratio: ∞)
+
+============================================================
+PROCESSING: ten32d
+============================================================
+Log path: LocalBash/32dimension/ten32d
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - graph.log
+  - ten32d1.log
+  - ten32d10.log
+  - ten32d11.log
+  - ten32d2.log
+  - ten32d3.log
+  - ten32d4.log
+  - ten32d5.log
+  - ten32d6.log
+  - ten32d7.log
+  - ten32d8.log
+  - ten32d9.log
+
+Processing files:
+[Exp  1] ✗ Failed to parse
+[Exp  1] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=0, Tgt=10, TPR=58.0%)
+[Exp 10] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=9, Tgt=1, TPR=6.0%)
+[Exp 11] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=10, Tgt=0, TPR=16.0%)
+[Exp  2] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=1, Tgt=9, TPR=74.0%)
+[Exp  3] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=2, Tgt=8, TPR=94.0%)
+[Exp  4] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=3, Tgt=7, TPR=18.0%)
+[Exp  5] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=4, Tgt=6, TPR=10.0%)
+[Exp  6] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=5, Tgt=5, TPR=7.0%)
+[Exp  7] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=6, Tgt=4, TPR=0.0%)
+[Exp  8] ✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=7, Tgt=3, TPR=10.0%)
+[Exp  9] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✓ (AE_Dim=32, Src_Calib=10, Tgt_Calib=10, Src=8, Tgt=2, TPR=26.0%)
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim32_src10_tgt10_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim32_src10_tgt10_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim32_src10_tgt10_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim32_src10_tgt10_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim32_src10_tgt10_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp11 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 10, Tgt: 0, Ratio: 0.00)
+   2 → Exp10 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 9, Tgt: 1, Ratio: 0.11)
+   3 → Exp 9 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 8, Tgt: 2, Ratio: 0.25)
+   4 → Exp 8 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 7, Tgt: 3, Ratio: 0.43)
+   5 → Exp 7 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 6, Tgt: 4, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 5, Tgt: 5, Ratio: 1.00)
+   7 → Exp 5 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 4, Tgt: 6, Ratio: 1.50)
+   8 → Exp 4 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 3, Tgt: 7, Ratio: 2.33)
+   9 → Exp 3 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 2, Tgt: 8, Ratio: 4.00)
+  10 → Exp 2 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 1, Tgt: 9, Ratio: 9.00)
+  11 → Exp 1 (AE_Dim: 32, Src_Calib: 10, Tgt_Calib: 10, Src: 0, Tgt: 10, Ratio: ∞)
+
+============================================================
+PROCESSING: thousand32d
+============================================================
+Log path: LocalBash/32dimension/thousand32d
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - 32TH1.log
+  - 32TH10.log
+  - 32TH11.log
+  - 32TH2.log
+  - 32TH3.log
+  - 32TH4.log
+  - 32TH5.log
+  - 32TH6.log
+  - 32TH7.log
+  - 32TH8.log
+  - 32TH9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=1000, Tgt=0, TPR=0.0%)
+[Exp 10] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=100, Tgt=900, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=0, Tgt=1000, TPR=100.0%)
+[Exp  2] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=900, Tgt=100, TPR=0.0%)
+[Exp  3] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=800, Tgt=200, TPR=19.0%)
+[Exp  4] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=700, Tgt=300, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=600, Tgt=400, TPR=0.0%)
+[Exp  6] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=500, Tgt=500, TPR=0.0%)
+[Exp  7] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=400, Tgt=600, TPR=100.0%)
+[Exp  8] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=300, Tgt=700, TPR=100.0%)
+[Exp  9] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=1000, Src=200, Tgt=800, TPR=100.0%)
+[Exp 12] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim32_src1000_tgt1000_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim32_src1000_tgt1000_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim32_src1000_tgt1000_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim32_src1000_tgt1000_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim32_src1000_tgt1000_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp 1 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 1000, Tgt: 0, Ratio: 0.00)
+   2 → Exp 2 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 900, Tgt: 100, Ratio: 0.11)
+   3 → Exp 3 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 800, Tgt: 200, Ratio: 0.25)
+   4 → Exp 4 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 700, Tgt: 300, Ratio: 0.43)
+   5 → Exp 5 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 600, Tgt: 400, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 500, Tgt: 500, Ratio: 1.00)
+   7 → Exp 7 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 400, Tgt: 600, Ratio: 1.50)
+   8 → Exp 8 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 300, Tgt: 700, Ratio: 2.33)
+   9 → Exp 9 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 200, Tgt: 800, Ratio: 4.00)
+  10 → Exp10 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 100, Tgt: 900, Ratio: 9.00)
+  11 → Exp11 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 1000, Src: 0, Tgt: 1000, Ratio: ∞)
+
+============================================================
+PROCESSING: CCE_IncorrectLog
+============================================================
+Log path: LocalBash/CCE_IncorrectLog
+Pattern: *.log
+Output dir: figures
+
+Found 39 log files:
+  - CCE1.log
   - CCE10.log
   - CCE11.log
   - CCE12.log
@@ -42,50 +296,602 @@ Found 16 CCE*.log files:
   - CCE14.log
   - CCE15.log
   - CCE16.log
+  - CCE2.log
+  - CCE3.log
+  - CCE4.log
+  - CCE5.log
+  - CCE6.log
+  - CCE7.log
+  - CCE8.log
+  - CCE9.log
+  - CSE10_mini.log
+  - CSE11_mini.log
+  - CSE1_mini.log
+  - CSE2_mini.log
+  - CSE3_mini.log
+  - CSE4_mini.log
+  - CSE5_mini.log
+  - CSE6_mini.log
+  - CSE7_mini.log
+  - CSE8_mini.log
+  - CSE9_mini.log
+  - MCE1.log
+  - MCE10.log
+  - MCE11.log
+  - MCE2.log
+  - MCE3.log
+  - MCE4.log
+  - MCE5.log
+  - MCE6.log
+  - MCE7.log
+  - MCE8.log
+  - MCE9.log
+  - graph.log
 
 Processing files:
-[CCE 1] ✓ (Src=1000, Tgt=0, TPR=0.0%)
-[CCE 2] ✓ (Src=990, Tgt=10, TPR=0.0%)
-[CCE 3] ✓ (Src=900, Tgt=100, TPR=0.0%)
-[CCE 4] ✓ (Src=750, Tgt=250, TPR=0.0%)
-[CCE 5] ✓ (Src=500, Tgt=500, TPR=0.0%)
-[CCE 6] ✓ (Src=250, Tgt=750, TPR=100.0%)
-[CCE 7] ✓ (Src=100, Tgt=900, TPR=100.0%)
-[CCE 8] ✓ (Src=10, Tgt=990, TPR=100.0%)
-[CCE 9] ✓ (Src=10, Tgt=990, TPR=100.0%)
-[CCE10] ✓ (Src=400, Tgt=600, TPR=100.0%)
-[CCE11] ✓ (Src=450, Tgt=550, TPR=100.0%)
-[CCE12] ✓ (Src=300, Tgt=700, TPR=100.0%)
-[CCE13] ✓ (Src=440, Tgt=560, TPR=100.0%)
-[CCE14] ✓ (Src=430, Tgt=570, TPR=98.0%)
-[CCE15] ✓ (Src=420, Tgt=580, TPR=100.0%)
-[CCE16] ✓ (Src=455, Tgt=545, TPR=100.0%)
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=1000, Tgt=0, TPR=0.0%)
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=400, Tgt=600, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=450, Tgt=550, TPR=0.0%)
+[Exp 12] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=300, Tgt=700, TPR=100.0%)
+[Exp 13] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=440, Tgt=560, TPR=100.0%)
+[Exp 14] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=430, Tgt=570, TPR=100.0%)
+[Exp 15] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=420, Tgt=580, TPR=100.0%)
+[Exp 16] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=455, Tgt=545, TPR=100.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=990, Tgt=10, TPR=0.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=900, Tgt=100, TPR=0.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=750, Tgt=250, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=500, Tgt=500, TPR=0.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=250, Tgt=750, TPR=100.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=100, Tgt=900, TPR=100.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=10, Tgt=990, TPR=100.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=10, Tgt=990, TPR=100.0%)
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=10, Tgt=90, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=0, Tgt=100, TPR=100.0%)
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=100, Tgt=0, TPR=0.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=90, Tgt=10, TPR=0.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=80, Tgt=20, TPR=0.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=70, Tgt=30, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=60, Tgt=40, TPR=1.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=50, Tgt=50, TPR=44.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=40, Tgt=60, TPR=48.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=30, Tgt=70, TPR=100.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=20, Tgt=80, TPR=100.0%)
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=10, Tgt=0, TPR=1.0%)
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=1, Tgt=9, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=0, Tgt=10, TPR=100.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=9, Tgt=1, TPR=3.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=8, Tgt=2, TPR=9.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=7, Tgt=3, TPR=5.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=6, Tgt=4, TPR=15.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=5, Tgt=5, TPR=56.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=4, Tgt=6, TPR=66.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=3, Tgt=7, TPR=97.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=10, Src=2, Tgt=8, TPR=100.0%)
+[Exp 17] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
 
-✓ Successfully loaded 16 experiments: CCE[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+✓ Successfully loaded 16 experiments
 ✓ Processing 16 experiments
 
+✓ Saved SVG: figures/svg/mmd_analysis_dim256_src1000_tgt10_n16.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim256_src1000_tgt10_n16.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim256_src1000_tgt10_n16.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim256_src1000_tgt10_n16.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim256_src1000_tgt10_n16.eps
 
-✓ Saved to: figures/mixed_shift_experiments_analysis.png
-
-Mapping (Sequential → CCE):
-   1 → CCE 1 (ratio: 0.00)
-   2 → CCE 2 (ratio: 0.01)
-   3 → CCE 3 (ratio: 0.11)
-   4 → CCE 4 (ratio: 0.33)
-   5 → CCE 5 (ratio: 1.00)
-   6 → CCE16 (ratio: 1.20)
-   7 → CCE11 (ratio: 1.22)
-   8 → CCE13 (ratio: 1.27)
-   9 → CCE14 (ratio: 1.33)
-  10 → CCE15 (ratio: 1.38)
-  11 → CCE10 (ratio: 1.50)
-  12 → CCE12 (ratio: 2.33)
-  13 → CCE 6 (ratio: 3.00)
-  14 → CCE 7 (ratio: 9.00)
-  15 → CCE 8 (ratio: 99.00)
-  16 → CCE 9 (ratio: 99.00)
+Mapping (Sequential → Experiment):
+   1 → Exp 1 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 10, Tgt: 0, Ratio: 0.00)
+   2 → Exp 2 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 9, Tgt: 1, Ratio: 0.11)
+   3 → Exp 3 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 8, Tgt: 2, Ratio: 0.25)
+   4 → Exp 4 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 7, Tgt: 3, Ratio: 0.43)
+   5 → Exp 5 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 6, Tgt: 4, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 5, Tgt: 5, Ratio: 1.00)
+   7 → Exp16 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 455, Tgt: 545, Ratio: 1.20)
+   8 → Exp13 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 440, Tgt: 560, Ratio: 1.27)
+   9 → Exp14 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 430, Tgt: 570, Ratio: 1.33)
+  10 → Exp15 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 420, Tgt: 580, Ratio: 1.38)
+  11 → Exp 7 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 4, Tgt: 6, Ratio: 1.50)
+  12 → Exp 8 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 3, Tgt: 7, Ratio: 2.33)
+  13 → Exp12 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 300, Tgt: 700, Ratio: 2.33)
+  14 → Exp 9 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 2, Tgt: 8, Ratio: 4.00)
+  15 → Exp10 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 1, Tgt: 9, Ratio: 9.00)
+  16 → Exp11 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 10, Src: 0, Tgt: 10, Ratio: ∞)
 
 ============================================================
-✓ Complete!
+PROCESSING: additiveTgt
+============================================================
+Log path: LocalBash/CCE_IncorrectLog/additiveTgt
+Pattern: *.log
+Output dir: figures
+
+Found 17 log files:
+  - AT1.log
+  - AT10.log
+  - AT11.log
+  - AT12.log
+  - AT13.log
+  - AT14.log
+  - AT15.log
+  - AT16.log
+  - AT2.log
+  - AT3.log
+  - AT4.log
+  - AT5.log
+  - AT6.log
+  - AT7.log
+  - AT8.log
+  - AT9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1000, Src=1000, Tgt=0, TPR=0.0%)
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1900, Src=1000, Tgt=900, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=2000, Src=1000, Tgt=1000, TPR=0.0%)
+[Exp 12] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=2100, Src=1000, Tgt=1100, TPR=0.0%)
+[Exp 13] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=2200, Src=1000, Tgt=1200, TPR=100.0%)
+[Exp 14] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=2300, Src=1000, Tgt=1300, TPR=100.0%)
+[Exp 15] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=2400, Src=1000, Tgt=1400, TPR=100.0%)
+[Exp 16] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=2500, Src=1000, Tgt=1500, TPR=3.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1100, Src=1000, Tgt=100, TPR=0.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1200, Src=1000, Tgt=200, TPR=0.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1300, Src=1000, Tgt=300, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1400, Src=1000, Tgt=400, TPR=0.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1500, Src=1000, Tgt=500, TPR=0.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1600, Src=1000, Tgt=600, TPR=0.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1700, Src=1000, Tgt=700, TPR=0.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=1800, Src=1000, Tgt=800, TPR=0.0%)
+[Exp 17] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 16 experiments
+✓ Processing 16 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim256_src1000_tgt1600_n16.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim256_src1000_tgt1600_n16.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim256_src1000_tgt1600_n16.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim256_src1000_tgt1600_n16.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim256_src1000_tgt1600_n16.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp 1 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1000, Src: 1000, Tgt: 0, Ratio: 0.00)
+   2 → Exp 2 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1100, Src: 1000, Tgt: 100, Ratio: 0.10)
+   3 → Exp 3 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1200, Src: 1000, Tgt: 200, Ratio: 0.20)
+   4 → Exp 4 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1300, Src: 1000, Tgt: 300, Ratio: 0.30)
+   5 → Exp 5 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1400, Src: 1000, Tgt: 400, Ratio: 0.40)
+   6 → Exp 6 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1500, Src: 1000, Tgt: 500, Ratio: 0.50)
+   7 → Exp 7 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1600, Src: 1000, Tgt: 600, Ratio: 0.60)
+   8 → Exp 8 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1700, Src: 1000, Tgt: 700, Ratio: 0.70)
+   9 → Exp 9 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1800, Src: 1000, Tgt: 800, Ratio: 0.80)
+  10 → Exp10 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 1900, Src: 1000, Tgt: 900, Ratio: 0.90)
+  11 → Exp11 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 2000, Src: 1000, Tgt: 1000, Ratio: 1.00)
+  12 → Exp12 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 2100, Src: 1000, Tgt: 1100, Ratio: 1.10)
+  13 → Exp13 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 2200, Src: 1000, Tgt: 1200, Ratio: 1.20)
+  14 → Exp14 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 2300, Src: 1000, Tgt: 1300, Ratio: 1.30)
+  15 → Exp15 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 2400, Src: 1000, Tgt: 1400, Ratio: 1.40)
+  16 → Exp16 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 2500, Src: 1000, Tgt: 1500, Ratio: 1.50)
+
+============================================================
+PROCESSING: additiveTgtMini
+============================================================
+Log path: LocalBash/CCE_IncorrectLog/additiveTgtMini
+Pattern: *.log
+Output dir: figures
+
+Found 17 log files:
+  - ATM1.log
+  - ATM10.log
+  - ATM11.log
+  - ATM12.log
+  - ATM13.log
+  - ATM14.log
+  - ATM15.log
+  - ATM16.log
+  - ATM2.log
+  - ATM3.log
+  - ATM4.log
+  - ATM5.log
+  - ATM6.log
+  - ATM7.log
+  - ATM8.log
+  - ATM9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=100, Src=100, Tgt=0, TPR=0.0%)
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=190, Src=100, Tgt=90, TPR=0.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=200, Src=100, Tgt=100, TPR=21.0%)
+[Exp 12] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=210, Src=100, Tgt=110, TPR=33.0%)
+[Exp 13] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=220, Src=100, Tgt=120, TPR=70.0%)
+[Exp 14] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=230, Src=100, Tgt=130, TPR=91.0%)
+[Exp 15] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=240, Src=100, Tgt=140, TPR=79.0%)
+[Exp 16] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=250, Src=100, Tgt=150, TPR=45.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=110, Src=100, Tgt=10, TPR=0.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=120, Src=100, Tgt=20, TPR=0.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=130, Src=100, Tgt=30, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=140, Src=100, Tgt=40, TPR=0.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=150, Src=100, Tgt=50, TPR=0.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=160, Src=100, Tgt=60, TPR=1.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=170, Src=100, Tgt=70, TPR=1.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=1000, Tgt_Calib=180, Src=100, Tgt=80, TPR=51.0%)
+[Exp 17] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 16 experiments
+✓ Processing 16 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim256_src1000_tgt160_n16.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim256_src1000_tgt160_n16.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim256_src1000_tgt160_n16.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim256_src1000_tgt160_n16.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim256_src1000_tgt160_n16.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp 1 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 100, Src: 100, Tgt: 0, Ratio: 0.00)
+   2 → Exp 2 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 110, Src: 100, Tgt: 10, Ratio: 0.10)
+   3 → Exp 3 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 120, Src: 100, Tgt: 20, Ratio: 0.20)
+   4 → Exp 4 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 130, Src: 100, Tgt: 30, Ratio: 0.30)
+   5 → Exp 5 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 140, Src: 100, Tgt: 40, Ratio: 0.40)
+   6 → Exp 6 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 150, Src: 100, Tgt: 50, Ratio: 0.50)
+   7 → Exp 7 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 160, Src: 100, Tgt: 60, Ratio: 0.60)
+   8 → Exp 8 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 170, Src: 100, Tgt: 70, Ratio: 0.70)
+   9 → Exp 9 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 180, Src: 100, Tgt: 80, Ratio: 0.80)
+  10 → Exp10 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 190, Src: 100, Tgt: 90, Ratio: 0.90)
+  11 → Exp11 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 200, Src: 100, Tgt: 100, Ratio: 1.00)
+  12 → Exp12 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 210, Src: 100, Tgt: 110, Ratio: 1.10)
+  13 → Exp13 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 220, Src: 100, Tgt: 120, Ratio: 1.20)
+  14 → Exp14 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 230, Src: 100, Tgt: 130, Ratio: 1.30)
+  15 → Exp15 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 240, Src: 100, Tgt: 140, Ratio: 1.40)
+  16 → Exp16 (AE_Dim: 256, Src_Calib: 1000, Tgt_Calib: 250, Src: 100, Tgt: 150, Ratio: 1.50)
+
+============================================================
+PROCESSING: asym32dthousandFifty
+============================================================
+Log path: LocalBash/asym32dthousandFifty
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - a32tf1.log
+  - a32tf10.log
+  - a32tf11.log
+  - a32tf2.log
+  - a32tf3.log
+  - a32tf4.log
+  - a32tf5.log
+  - a32tf6.log
+  - a32tf7.log
+  - a32tf8.log
+  - a32tf9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=0, Tgt=50, TPR=100.0%)
+[Exp 10] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=45, Tgt=5, TPR=0.0%)
+[Exp 11] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=50, Tgt=0, TPR=0.0%)
+[Exp  2] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=5, Tgt=45, TPR=100.0%)
+[Exp  3] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=10, Tgt=40, TPR=100.0%)
+[Exp  4] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=15, Tgt=35, TPR=82.0%)
+[Exp  5] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=20, Tgt=30, TPR=31.0%)
+[Exp  6] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=25, Tgt=25, TPR=37.0%)
+[Exp  7] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=30, Tgt=20, TPR=0.0%)
+[Exp  8] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=35, Tgt=15, TPR=1.0%)
+[Exp  9] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=50, Src=40, Tgt=10, TPR=0.0%)
+[Exp 12] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim32_src1000_tgt50_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim32_src1000_tgt50_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim32_src1000_tgt50_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim32_src1000_tgt50_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim32_src1000_tgt50_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp11 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 50, Tgt: 0, Ratio: 0.00)
+   2 → Exp10 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 45, Tgt: 5, Ratio: 0.11)
+   3 → Exp 9 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 40, Tgt: 10, Ratio: 0.25)
+   4 → Exp 8 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 35, Tgt: 15, Ratio: 0.43)
+   5 → Exp 7 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 30, Tgt: 20, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 25, Tgt: 25, Ratio: 1.00)
+   7 → Exp 5 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 20, Tgt: 30, Ratio: 1.50)
+   8 → Exp 4 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 15, Tgt: 35, Ratio: 2.33)
+   9 → Exp 3 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 10, Tgt: 40, Ratio: 4.00)
+  10 → Exp 2 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 5, Tgt: 45, Ratio: 9.00)
+  11 → Exp 1 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 50, Src: 0, Tgt: 50, Ratio: ∞)
+
+============================================================
+PROCESSING: asym32dthousandHundred
+============================================================
+Log path: LocalBash/asym32dthousandHundred
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - a32th1.log
+  - a32th10.log
+  - a32th11.log
+  - a32th2.log
+  - a32th3.log
+  - a32th4.log
+  - a32th5.log
+  - a32th6.log
+  - a32th7.log
+  - a32th8.log
+  - a32th9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=0, Tgt=100, TPR=100.0%)
+[Exp 10] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=90, Tgt=10, TPR=0.0%)
+[Exp 11] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=100, Tgt=0, TPR=0.0%)
+[Exp  2] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=10, Tgt=90, TPR=100.0%)
+[Exp  3] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=20, Tgt=80, TPR=100.0%)
+[Exp  4] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=30, Tgt=70, TPR=76.0%)
+[Exp  5] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=40, Tgt=60, TPR=67.0%)
+[Exp  6] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=50, Tgt=50, TPR=53.0%)
+[Exp  7] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=60, Tgt=40, TPR=9.0%)
+[Exp  8] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=70, Tgt=30, TPR=0.0%)
+[Exp  9] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=100, Src=80, Tgt=20, TPR=0.0%)
+[Exp 12] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim32_src1000_tgt100_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim32_src1000_tgt100_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim32_src1000_tgt100_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim32_src1000_tgt100_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim32_src1000_tgt100_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp11 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 100, Tgt: 0, Ratio: 0.00)
+   2 → Exp10 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 90, Tgt: 10, Ratio: 0.11)
+   3 → Exp 9 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 80, Tgt: 20, Ratio: 0.25)
+   4 → Exp 8 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 70, Tgt: 30, Ratio: 0.43)
+   5 → Exp 7 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 60, Tgt: 40, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 50, Tgt: 50, Ratio: 1.00)
+   7 → Exp 5 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 40, Tgt: 60, Ratio: 1.50)
+   8 → Exp 4 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 30, Tgt: 70, Ratio: 2.33)
+   9 → Exp 3 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 20, Tgt: 80, Ratio: 4.00)
+  10 → Exp 2 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 10, Tgt: 90, Ratio: 9.00)
+  11 → Exp 1 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 100, Src: 0, Tgt: 100, Ratio: ∞)
+
+============================================================
+PROCESSING: asym32dthousandTen
+============================================================
+Log path: LocalBash/asym32dthousandTen
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - a32tt1.log
+  - a32tt10.log
+  - a32tt11.log
+  - a32tt2.log
+  - a32tt3.log
+  - a32tt4.log
+  - a32tt5.log
+  - a32tt6.log
+  - a32tt7.log
+  - a32tt8.log
+  - a32tt9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=0, Tgt=10, TPR=95.0%)
+[Exp 10] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=9, Tgt=1, TPR=1.0%)
+[Exp 11] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=10, Tgt=0, TPR=2.0%)
+[Exp  2] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=1, Tgt=9, TPR=85.0%)
+[Exp  3] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=2, Tgt=8, TPR=67.0%)
+[Exp  4] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=3, Tgt=7, TPR=39.0%)
+[Exp  5] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=4, Tgt=6, TPR=43.0%)
+[Exp  6] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=5, Tgt=5, TPR=3.0%)
+[Exp  7] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=6, Tgt=4, TPR=15.0%)
+[Exp  8] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=7, Tgt=3, TPR=6.0%)
+[Exp  9] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=10, Src=8, Tgt=2, TPR=13.0%)
+[Exp 12] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim32_src1000_tgt10_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim32_src1000_tgt10_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim32_src1000_tgt10_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim32_src1000_tgt10_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim32_src1000_tgt10_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp11 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 10, Tgt: 0, Ratio: 0.00)
+   2 → Exp10 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 9, Tgt: 1, Ratio: 0.11)
+   3 → Exp 9 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 8, Tgt: 2, Ratio: 0.25)
+   4 → Exp 8 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 7, Tgt: 3, Ratio: 0.43)
+   5 → Exp 7 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 6, Tgt: 4, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 5, Tgt: 5, Ratio: 1.00)
+   7 → Exp 5 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 4, Tgt: 6, Ratio: 1.50)
+   8 → Exp 4 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 3, Tgt: 7, Ratio: 2.33)
+   9 → Exp 3 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 2, Tgt: 8, Ratio: 4.00)
+  10 → Exp 2 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 1, Tgt: 9, Ratio: 9.00)
+  11 → Exp 1 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 10, Src: 0, Tgt: 10, Ratio: ∞)
+
+============================================================
+PROCESSING: asym32dthousandTwenty
+============================================================
+Log path: LocalBash/asym32dthousandTwenty
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - a32ttw1.log
+  - a32ttw10.log
+  - a32ttw11.log
+  - a32ttw2.log
+  - a32ttw3.log
+  - a32ttw4.log
+  - a32ttw5.log
+  - a32ttw6.log
+  - a32ttw7.log
+  - a32ttw8.log
+  - a32ttw9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=0, Tgt=20, TPR=100.0%)
+[Exp 10] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=18, Tgt=2, TPR=4.0%)
+[Exp 11] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=20, Tgt=0, TPR=2.0%)
+[Exp  2] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=2, Tgt=18, TPR=92.0%)
+[Exp  3] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=4, Tgt=16, TPR=94.0%)
+[Exp  4] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=6, Tgt=14, TPR=13.0%)
+[Exp  5] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=8, Tgt=12, TPR=34.0%)
+[Exp  6] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=10, Tgt=10, TPR=64.0%)
+[Exp  7] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=12, Tgt=8, TPR=1.0%)
+[Exp  8] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=14, Tgt=6, TPR=0.0%)
+[Exp  9] ✓ (AE_Dim=32, Src_Calib=1000, Tgt_Calib=20, Src=16, Tgt=4, TPR=2.0%)
+[Exp 12] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim32_src1000_tgt20_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim32_src1000_tgt20_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim32_src1000_tgt20_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim32_src1000_tgt20_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim32_src1000_tgt20_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp11 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 20, Tgt: 0, Ratio: 0.00)
+   2 → Exp10 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 18, Tgt: 2, Ratio: 0.11)
+   3 → Exp 9 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 16, Tgt: 4, Ratio: 0.25)
+   4 → Exp 8 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 14, Tgt: 6, Ratio: 0.43)
+   5 → Exp 7 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 12, Tgt: 8, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 10, Tgt: 10, Ratio: 1.00)
+   7 → Exp 5 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 8, Tgt: 12, Ratio: 1.50)
+   8 → Exp 4 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 6, Tgt: 14, Ratio: 2.33)
+   9 → Exp 3 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 4, Tgt: 16, Ratio: 4.00)
+  10 → Exp 2 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 2, Tgt: 18, Ratio: 9.00)
+  11 → Exp 1 (AE_Dim: 32, Src_Calib: 1000, Tgt_Calib: 20, Src: 0, Tgt: 20, Ratio: ∞)
+
+============================================================
+PROCESSING: micro
+============================================================
+Log path: LocalBash/micro
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - MCE1.log
+  - MCE10.log
+  - MCE11.log
+  - MCE2.log
+  - MCE3.log
+  - MCE4.log
+  - MCE5.log
+  - MCE6.log
+  - MCE7.log
+  - MCE8.log
+  - MCE9.log
+  - graph.log
+
+Processing files:
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=10, Tgt=0, TPR=3.0%)
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=1, Tgt=9, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=0, Tgt=10, TPR=100.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=9, Tgt=1, TPR=8.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=8, Tgt=2, TPR=5.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=7, Tgt=3, TPR=13.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=6, Tgt=4, TPR=47.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=5, Tgt=5, TPR=45.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=4, Tgt=6, TPR=74.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=3, Tgt=7, TPR=79.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=10, Tgt_Calib=10, Src=2, Tgt=8, TPR=63.0%)
+[Exp 12] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim256_src10_tgt10_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim256_src10_tgt10_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim256_src10_tgt10_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim256_src10_tgt10_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim256_src10_tgt10_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp 1 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 10, Tgt: 0, Ratio: 0.00)
+   2 → Exp 2 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 9, Tgt: 1, Ratio: 0.11)
+   3 → Exp 3 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 8, Tgt: 2, Ratio: 0.25)
+   4 → Exp 4 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 7, Tgt: 3, Ratio: 0.43)
+   5 → Exp 5 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 6, Tgt: 4, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 5, Tgt: 5, Ratio: 1.00)
+   7 → Exp 7 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 4, Tgt: 6, Ratio: 1.50)
+   8 → Exp 8 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 3, Tgt: 7, Ratio: 2.33)
+   9 → Exp 9 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 2, Tgt: 8, Ratio: 4.00)
+  10 → Exp10 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 1, Tgt: 9, Ratio: 9.00)
+  11 → Exp11 (AE_Dim: 256, Src_Calib: 10, Tgt_Calib: 10, Src: 0, Tgt: 10, Ratio: ∞)
+
+============================================================
+PROCESSING: mini
+============================================================
+Log path: LocalBash/mini
+Pattern: *.log
+Output dir: figures
+
+Found 12 log files:
+  - CSE10_mini.log
+  - CSE11_mini.log
+  - CSE1_mini.log
+  - CSE2_mini.log
+  - CSE3_mini.log
+  - CSE4_mini.log
+  - CSE5_mini.log
+  - CSE6_mini.log
+  - CSE7_mini.log
+  - CSE8_mini.log
+  - CSE9_mini.log
+  - graph.log
+
+Processing files:
+[Exp 10] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=10, Tgt=90, TPR=100.0%)
+[Exp 11] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=0, Tgt=100, TPR=100.0%)
+[Exp  1] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=100, Tgt=0, TPR=0.0%)
+[Exp  2] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=90, Tgt=10, TPR=0.0%)
+[Exp  3] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=80, Tgt=20, TPR=0.0%)
+[Exp  4] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=70, Tgt=30, TPR=0.0%)
+[Exp  5] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=60, Tgt=40, TPR=0.0%)
+[Exp  6] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=50, Tgt=50, TPR=18.0%)
+[Exp  7] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=40, Tgt=60, TPR=96.0%)
+[Exp  8] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=30, Tgt=70, TPR=100.0%)
+[Exp  9] ✓ (AE_Dim=256, Src_Calib=100, Tgt_Calib=100, Src=20, Tgt=80, TPR=100.0%)
+[Exp 12] The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+✗ Failed to parse
+
+✓ Successfully loaded 11 experiments
+✓ Processing 11 experiments
+
+✓ Saved SVG: figures/svg/mmd_analysis_dim256_src100_tgt100_n11.svg
+✓ Saved PNG: figures/png/mmd_analysis_dim256_src100_tgt100_n11.png
+✓ Saved JPEG: figures/jpeg/mmd_analysis_dim256_src100_tgt100_n11.jpeg
+✓ Saved PDF: figures/pdf/mmd_analysis_dim256_src100_tgt100_n11.pdf
+✓ Saved EPS: figures/eps/mmd_analysis_dim256_src100_tgt100_n11.eps
+
+Mapping (Sequential → Experiment):
+   1 → Exp 1 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 100, Tgt: 0, Ratio: 0.00)
+   2 → Exp 2 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 90, Tgt: 10, Ratio: 0.11)
+   3 → Exp 3 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 80, Tgt: 20, Ratio: 0.25)
+   4 → Exp 4 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 70, Tgt: 30, Ratio: 0.43)
+   5 → Exp 5 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 60, Tgt: 40, Ratio: 0.67)
+   6 → Exp 6 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 50, Tgt: 50, Ratio: 1.00)
+   7 → Exp 7 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 40, Tgt: 60, Ratio: 1.50)
+   8 → Exp 8 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 30, Tgt: 70, Ratio: 2.33)
+   9 → Exp 9 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 20, Tgt: 80, Ratio: 4.00)
+  10 → Exp10 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 10, Tgt: 90, Ratio: 9.00)
+  11 → Exp11 (AE_Dim: 256, Src_Calib: 100, Tgt_Calib: 100, Src: 0, Tgt: 100, Ratio: ∞)
+
+============================================================
+✓ All processing complete!
 ============================================================
 Done!
