@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # --- Slurm Job Configuration ---
-#SBATCH --job-name=graphing
+#SBATCH --job-name=graph
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --output=graph.log
-#SBATCH --partition=eternity
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=8GB
-#
+#SBATCH --partition=gpu2
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=8G
     
 # --- Job Execution ---
 echo "----------------------------------------------------"
