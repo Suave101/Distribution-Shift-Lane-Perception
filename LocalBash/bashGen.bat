@@ -101,7 +101,7 @@ for /L %%p in (0,10,100) do (
     set /a ratio_src=K*%%p/100
     set /a ratio_tgt=K*!tgt_percent!/100
     
-    REM Define script filename
+    REM Define script filename with experiment number at front
     set script_name=%OUTPUT_DIR%\!exp_num!%SCRIPT_PREFIX%.sh
     set log_name=!exp_num!%SCRIPT_PREFIX%.log
     set job_name=!exp_num!%SCRIPT_PREFIX%
@@ -111,7 +111,7 @@ for /L %%p in (0,10,100) do (
     REM Generate the Slurm bash script
     (
         echo #!/bin/bash
-        echo.
+        echo(
         echo # --- Slurm Job Configuration ---
         echo #SBATCH --job-name=!job_name!
         echo #SBATCH --nodes=1
@@ -122,7 +122,7 @@ for /L %%p in (0,10,100) do (
         echo #SBATCH --cpus-per-task=16
         echo #SBATCH --mem=128G
         echo #
-        echo.    
+        echo(    
         echo # --- Job Execution ---
         echo echo "----------------------------------------------------"
         echo echo "Slurm Job ID: $SLURM_JOB_ID"
@@ -130,22 +130,22 @@ for /L %%p in (0,10,100) do (
         echo echo "Start Time: $(date)"
         echo echo "Experiment !exp_num!: Src=%%p%% (!ratio_src! samples), Tgt=!tgt_percent!%% (!ratio_tgt! samples)"
         echo echo "----------------------------------------------------"
-        echo.
-        echo.
+        echo(
+        echo(
         echo export PYTHONNOUSERSITE=1
-        echo.
+        echo(
         echo echo "Initializing conda for script..."
         echo source /home1/adoyle2025/miniconda3/etc/profile.d/conda.sh
-        echo.
+        echo(
         echo conda activate ml_project
-        echo.
+        echo(
         echo echo "Conda environment activated and isolated:"
         echo conda info --env
-        echo.
+        echo(
         echo cd /home1/adoyle2025/Distribution-Shift-Lane-Perception
-        echo.
+        echo(
         echo echo "Starting Unit Test..."
-        echo.
+        echo(
         echo python shift_concat_experiment.py \
         echo     --source_dir /home1/adoyle2025/Datasets/Datasets/CULane \
         echo     --target_dir /home1/adoyle2025/Datasets/Datasets/Curvelanes \
@@ -163,7 +163,7 @@ for /L %%p in (0,10,100) do (
         echo     --dConfig "%DCONFIG%" \
         echo     --save_all_image_paths True \
         echo     --file_name "%SCRIPT_PREFIX%.json"
-        echo.
+        echo(
         echo echo "----------------------------------------------------"
         echo echo "Job finished: $(date)"
         echo echo "----------------------------------------------------"
@@ -179,7 +179,7 @@ echo ========================================
 echo Generated %total_scripts% scripts successfully!
 echo.
 echo Generated files:
-dir /b "%OUTPUT_DIR%\%SCRIPT_PREFIX%*.sh"
+dir /b "%OUTPUT_DIR%\*%SCRIPT_PREFIX%.sh"
 echo.
 echo To submit all jobs on the cluster:
 echo   for script in *%SCRIPT_PREFIX%.sh; do sbatch $script; done
