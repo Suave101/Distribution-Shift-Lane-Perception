@@ -8,7 +8,6 @@
 #SBATCH --partition=eternity
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8GB
-#SBATCH --nice=100
 #
     
 # --- Job Execution ---
