@@ -88,6 +88,7 @@ def extract_config_from_filename(filename):
     
     config = {
         'dim_config': 'unknown',
+        'arch_type': 'unknown',  # Just the type: ids, gdd, rel
         'calibration_samples': 'unknown',
         'experiment_num': None
     }
@@ -99,6 +100,7 @@ def extract_config_from_filename(filename):
         dim_size = dim_match.group(1)
         dim_type = dim_match.group(2).lower()
         config['dim_config'] = f"d{dim_size}{dim_type}"
+        config['arch_type'] = dim_type  # Store just the type (ids, gdd, rel)
     
     # Extract calibration samples (K100, K1000, or just digits)
     # First try K pattern
@@ -162,9 +164,15 @@ def parse_log_file(log_path):
         metrics['tgt_samples'] = int(exp_header.group(3))
     
     # Extract autoencoder dimensions from features loaded line
+    # This is the ACTUAL dimension loaded, not the intended one
     ae_dim_match = re.search(r'features loaded\. Shape = \(\d+, (\d+)\)', content)
     if ae_dim_match:
         metrics['autoencoder_dim'] = int(ae_dim_match.group(1))
+    
+    # Also check for intended dimensionality from the config line
+    intended_dim_match = re.search(r'\[ResNet-AE\] dimensionallity: (\d+)', content)
+    if intended_dim_match:
+        metrics['intended_dim'] = int(intended_dim_match.group(1))
     
     # Extract source calibration samples (from CULane features loaded line)
     src_calib_match = re.search(r'CULane features loaded\. Shape = \((\d+), \d+\)', content)
@@ -210,52 +218,67 @@ def parse_log_file(log_path):
     
     return metrics if metrics else None
 
-def get_config_description(dim_config):
-    """Get human-readable description of dimension config"""
-    if not dim_config or dim_config == 'orig':
-        return "Original (256D)"
+def get_config_description(arch_type, ae_dim):
+    """
+    Get human-readable description of dimension config.
     
-    # Extract dimension and type
-    match = re.match(r'd(\d+)(.+)?', dim_config)
-    if match:
-        dim = match.group(1)
-        config_type = match.group(2) if match.group(2) else ""
-        
-        # Simple mapping for common types
-        type_mapping = {
-            "rel": "Remove Extra Layer",
-            "ids": "Increase Dimension Size",
-            "gdd": "Gradually Decrease Dimensions",
-            "": "Standard"
-        }
-        type_name = type_mapping.get(config_type, config_type.upper() if config_type else "Standard")
-        return f"{dim}D - {type_name}"
+    Args:
+        arch_type: Architecture type from filename (ids, gdd, rel)
+        ae_dim: Actual autoencoder dimension from log file
+    """
+    if not arch_type or arch_type == 'unknown':
+        return f"{ae_dim}D - Original" if ae_dim != 'unknown' else "Unknown"
     
-    return dim_config
+    # Simple mapping for common types
+    type_mapping = {
+        "rel": "Remove Extra Layer",
+        "ids": "Increase Dimension Size",
+        "gdd": "Gradually Decrease Dimensions",
+    }
+    type_name = type_mapping.get(arch_type, arch_type.upper())
+    return f"{ae_dim}D - {type_name}"
 
-def get_architecture_text(dim_config):
-    """Get architecture text for display at bottom of graph"""
-    if not dim_config or dim_config not in ARCHITECTURE_CONFIGS:
-        # Default/unknown config
-        if dim_config == 'orig' or not dim_config:
-            return "Original Architecture\n4096 → 1024 → 256"
-        return f"Architecture: {dim_config}\n(Configuration details not available)"
+def get_architecture_text(arch_type, ae_dim):
+    """
+    Get architecture text for display at bottom of graph.
+    Uses the architecture type from filename and actual dimension from log.
+    """
+    # Build a config key to look up in ARCHITECTURE_CONFIGS
+    config_key = f"d{ae_dim}{arch_type}" if arch_type != 'unknown' else f"d{ae_dim}"
     
-    config = ARCHITECTURE_CONFIGS[dim_config]
-    name = config['name']
-    layers = config['layers']
-    layer_text = " → ".join(str(layer) for layer in layers)
+    if config_key in ARCHITECTURE_CONFIGS:
+        config = ARCHITECTURE_CONFIGS[config_key]
+        name = config['name']
+        layers = config['layers']
+        layer_text = " → ".join(str(layer) for layer in layers)
+        return f"{name}\n{layer_text}"
     
-    return f"{name}\n{layer_text}"
+    # Fallback: construct from type
+    type_mapping = {
+        "rel": "Remove Extra Layer",
+        "ids": "Increase Dimension Size",
+        "gdd": "Gradually Decrease Dimensions",
+    }
+    type_name = type_mapping.get(arch_type, "Unknown Architecture")
+    return f"{type_name}\n(Configuration: {ae_dim}D)"
 
 def create_config_key(file_config, log_metrics):
-    """Create a unique key for grouping experiments by configuration"""
-    dim_config = file_config.get('dim_config', 'unknown')
+    """
+    Create a unique key for grouping experiments by configuration.
+    Uses architecture type from filename and actual dimensions from log.
+    """
+    # Get architecture type from filename (ids, gdd, rel)
+    arch_type = file_config.get('arch_type', 'unknown')
+    
+    # Get ACTUAL dimensions from log file
+    ae_dim = log_metrics.get('autoencoder_dim', 'unknown')
     src_calib = log_metrics.get('src_calib', file_config.get('calibration_samples', 'unknown'))
     tgt_calib = log_metrics.get('tgt_calib', file_config.get('calibration_samples', 'unknown'))
-    ae_dim = log_metrics.get('autoencoder_dim', 'unknown')
     
-    return f"{dim_config}__ae{ae_dim}_src{src_calib}_tgt{tgt_calib}"
+    # Build config key using arch type and actual dimensions
+    config_descriptor = f"{arch_type}{ae_dim}d" if arch_type != 'unknown' else f"{ae_dim}d"
+    
+    return f"{config_descriptor}__ae{ae_dim}_src{src_calib}_tgt{tgt_calib}"
 
 def load_experiment_data_grouped(logs_dirs, log_pattern='*.log', recursive=True):
     """
@@ -273,6 +296,7 @@ def load_experiment_data_grouped(logs_dirs, log_pattern='*.log', recursive=True)
         logs_dirs = [logs_dirs]
     
     errors = []
+    warnings = []
     grouped_data = defaultdict(lambda: {'experiments': {}, 'metadata': {}, 'source_dirs': set()})
     
     total_files = 0
@@ -321,8 +345,8 @@ def load_experiment_data_grouped(logs_dirs, log_pattern='*.log', recursive=True)
         try:
             metrics = parse_log_file(log_file)
             
-            if file_config['dim_config'] != 'unknown':
-                print(f"[Config: {file_config['dim_config']}] ", end='', flush=True)
+            if file_config['arch_type'] != 'unknown':
+                print(f"[Type: {file_config['arch_type']}] ", end='', flush=True)
             
             if metrics:
                 src = metrics.get('src_samples', None)
@@ -330,8 +354,15 @@ def load_experiment_data_grouped(logs_dirs, log_pattern='*.log', recursive=True)
                 mmd = metrics.get('test_avg_mmd', None)
                 tpr = metrics.get('tpr', None)
                 ae_dim = metrics.get('autoencoder_dim', None)
+                intended_dim = metrics.get('intended_dim', None)
                 src_calib = metrics.get('src_calib', None)
                 tgt_calib = metrics.get('tgt_calib', None)
+                
+                # Check for dimension mismatch and warn
+                if intended_dim is not None and ae_dim is not None and intended_dim != ae_dim:
+                    warning_msg = f"{display_path}: Dimension mismatch! Intended={intended_dim}D, Loaded={ae_dim}D"
+                    warnings.append(warning_msg)
+                    print(f"⚠️ [DIM MISMATCH: intended {intended_dim}D, loaded {ae_dim}D] ", end='', flush=True)
                 
                 # Use experiment number from log if available, otherwise from filename
                 exp_num = metrics.get('experiment_num', file_config.get('experiment_num', 0))
@@ -339,7 +370,7 @@ def load_experiment_data_grouped(logs_dirs, log_pattern='*.log', recursive=True)
                 if src is not None and tgt is not None and mmd is not None:
                     # Merge file config and metrics
                     metrics['file_config'] = file_config
-                    metrics['dim_config'] = file_config['dim_config']
+                    metrics['arch_type'] = file_config['arch_type']
                     
                     # Create configuration key for grouping
                     config_key = create_config_key(file_config, metrics)
@@ -363,7 +394,7 @@ def load_experiment_data_grouped(logs_dirs, log_pattern='*.log', recursive=True)
                             'ae_dim': ae_dim,
                             'src_calib': src_calib,
                             'tgt_calib': tgt_calib,
-                            'dim_config': file_config['dim_config']
+                            'arch_type': file_config['arch_type']
                         }
                     
                     print(f"✓ Group: {config_key} (Exp={exp_num}, Src={src}, Tgt={tgt}, TPR={tpr}%)")
@@ -396,14 +427,23 @@ def load_experiment_data_grouped(logs_dirs, log_pattern='*.log', recursive=True)
         source_dirs = group_data['source_dirs']
         
         print(f"\nGroup: {config_key}")
-        print(f"  Configuration: {metadata.get('dim_config', 'unknown')}")
-        print(f"  AE Dimension: {metadata.get('ae_dim', 'unknown')}")
+        print(f"  Architecture Type: {metadata.get('arch_type', 'unknown')}")
+        print(f"  AE Dimension (actual): {metadata.get('ae_dim', 'unknown')}")
         print(f"  Source Calibration: {metadata.get('src_calib', 'unknown')}")
         print(f"  Target Calibration: {metadata.get('tgt_calib', 'unknown')}")
         print(f"  Number of experiments: {n_experiments}")
         print(f"  Source directories: {len(source_dirs)}")
         for src_dir in source_dirs:
             print(f"    - {src_dir}")
+    
+    if warnings:
+        print(f"\n{'='*60}")
+        print(f"⚠️  WARNINGS ({len(warnings)} dimension mismatches detected):")
+        print(f"{'='*60}")
+        for warning in warnings[:20]:  # Show first 20
+            print(f"  {warning}")
+        if len(warnings) > 20:
+            print(f"  ... and {len(warnings) - 20} more warnings")
     
     return result, errors
 
@@ -423,7 +463,7 @@ def extract_metrics_from_group(group_data):
         'autoencoder_dim': [],
         'src_calib': [],
         'tgt_calib': [],
-        'dim_config': [],
+        'arch_type': [],
         'file_paths': [],
         'source_dirs': []
     }
@@ -454,8 +494,8 @@ def extract_metrics_from_group(group_data):
         metrics['src_calib'].append(exp_metrics.get('src_calib', 0))
         metrics['tgt_calib'].append(exp_metrics.get('tgt_calib', 0))
         
-        dim_config = exp_metrics.get('dim_config', 'unknown')
-        metrics['dim_config'].append(dim_config)
+        arch_type = exp_metrics.get('arch_type', 'unknown')
+        metrics['arch_type'].append(arch_type)
         metrics['file_paths'].append(str(exp_data['file_path']))
         metrics['source_dirs'].append(exp_data.get('source_dir', 'unknown'))
     
@@ -472,11 +512,13 @@ def create_output_directories(base_dir='figures'):
     
     return base_path
 
-def generate_filename(ae_dim, src_calib, tgt_calib, n_experiments, dim_config=None):
+def generate_filename(ae_dim, src_calib, tgt_calib, n_experiments, arch_type=None):
     """Generate a descriptive filename based on experiment parameters"""
-    base = f"mmd_analysis_dim{ae_dim}_src{src_calib}_tgt{tgt_calib}_n{n_experiments}"
-    if dim_config and dim_config != 'unknown' and dim_config != 'orig':
-        base += f"_{dim_config}"
+    # Use architecture type and actual dimension
+    if arch_type and arch_type != 'unknown':
+        base = f"mmd_analysis_{arch_type}_dim{ae_dim}_src{src_calib}_tgt{tgt_calib}_n{n_experiments}"
+    else:
+        base = f"mmd_analysis_dim{ae_dim}_src{src_calib}_tgt{tgt_calib}_n{n_experiments}"
     return base
 
 def plot_comprehensive_analysis(metrics, output_dir='figures', group_name='experiment'):
@@ -497,7 +539,7 @@ def plot_comprehensive_analysis(metrics, output_dir='figures', group_name='exper
     sorted_ae_dim = [metrics['autoencoder_dim'][i] for i in sorted_indices]
     sorted_src_calib = [metrics['src_calib'][i] for i in sorted_indices]
     sorted_tgt_calib = [metrics['tgt_calib'][i] for i in sorted_indices]
-    sorted_dim_config = [metrics['dim_config'][i] for i in sorted_indices]
+    sorted_arch_type = [metrics['arch_type'][i] for i in sorted_indices]
     sorted_file_paths = [metrics['file_paths'][i] for i in sorted_indices]
     sorted_source_dirs = [metrics['source_dirs'][i] for i in sorted_indices]
     
@@ -505,7 +547,7 @@ def plot_comprehensive_analysis(metrics, output_dir='figures', group_name='exper
     ae_dim_mode = sorted_ae_dim[0] if sorted_ae_dim else 0
     src_calib_mode = sorted_src_calib[0] if sorted_src_calib else 0
     tgt_calib_mode = sorted_tgt_calib[0] if sorted_tgt_calib else 0
-    dim_config_mode = sorted_dim_config[0] if sorted_dim_config else 'unknown'
+    arch_type_mode = sorted_arch_type[0] if sorted_arch_type else 'unknown'
     
     sequential_labels = [f"{i+1}" for i in range(n_experiments)]
     
@@ -579,7 +621,7 @@ def plot_comprehensive_analysis(metrics, output_dir='figures', group_name='exper
     plt.grid(True, alpha=0.3, axis='y')
     
     # Scientific title with configuration information
-    config_desc = get_config_description(dim_config_mode)
+    config_desc = get_config_description(arch_type_mode, ae_dim_mode)
     
     # Count unique source directories
     unique_sources = set(sorted_source_dirs)
@@ -596,7 +638,7 @@ def plot_comprehensive_analysis(metrics, output_dir='figures', group_name='exper
     )
     
     # Add architecture text at the bottom
-    arch_text = get_architecture_text(dim_config_mode)
+    arch_text = get_architecture_text(arch_type_mode, ae_dim_mode)
     fig.text(0.5, 0.02, arch_text, 
              ha='center', va='bottom',
              fontsize=13, fontweight='bold',
@@ -605,7 +647,7 @@ def plot_comprehensive_analysis(metrics, output_dir='figures', group_name='exper
     plt.tight_layout(rect=[0, 0.06, 1, 0.94])
     
     # Generate descriptive filename
-    base_filename = generate_filename(ae_dim_mode, src_calib_mode, tgt_calib_mode, n_experiments, dim_config_mode)
+    base_filename = generate_filename(ae_dim_mode, src_calib_mode, tgt_calib_mode, n_experiments, arch_type_mode)
     
     # Save in multiple formats
     formats = {
@@ -633,10 +675,10 @@ def plot_comprehensive_analysis(metrics, output_dir='figures', group_name='exper
             ratio_str = '∞'
         else:
             ratio_str = f'{sorted_ratio[i]:.2f}'
-        config_str = sorted_dim_config[i] if sorted_dim_config[i] != 'unknown' else 'N/A'
+        arch_str = sorted_arch_type[i] if sorted_arch_type[i] != 'unknown' else 'N/A'
         file_path = Path(sorted_file_paths[i])
         source_dir = Path(sorted_source_dirs[i]).name if sorted_source_dirs[i] != 'unknown' else 'N/A'
-        print(f"  {i+1:2d} → Exp{actual_exp:2d} [{file_path.name}] from [{source_dir}] (Config: {config_str}, Src: {sorted_src[i]}, Tgt: {sorted_tgt[i]}, Ratio: {ratio_str})")
+        print(f"  {i+1:2d} → Exp{actual_exp:2d} [{file_path.name}] from [{source_dir}] (Type: {arch_str}, Dim: {sorted_ae_dim[i]}, Src: {sorted_src[i]}, Tgt: {sorted_tgt[i]}, Ratio: {ratio_str})")
     
     plt.close()
 
