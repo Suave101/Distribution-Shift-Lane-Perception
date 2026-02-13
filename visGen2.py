@@ -1,182 +1,211 @@
 #!/usr/bin/env python3
-import re, argparse, sys
+import json, argparse, sys, re
 from pathlib import Path
 from collections import defaultdict
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import numpy as np
 
-def slugify(txt): return re.sub(r'[^A-Za-z0-9._-]+','_',str(txt)).strip('_')
+EXPECTED_RATIOS = [(0,10),(1,9),(2,8),(3,7),(4,6),(5,5),(6,4),(7,3),(8,2),(9,1),(10,0)]
 
-# ---------- Parsing helpers ----------
-def parse_slurm_script(script_path: Path):
-    """Return dict with log_name, dconfig, src, tgt; None if no log target."""
-    c = script_path.read_text(errors='ignore')
-    def g(pat):
-        m = re.search(pat, c); return m.group(1) if m else None
-    # log name: SBATCH --output/-o or shell redirect
-    out = g(r"#SBATCH\s+(?:--output|-o)[=\s]+(\S+)")
-    if not out:
-        out = g(r">\s*([^\s]+\.log)")
-    if not out:
-        return None
-    dconfig = g(r'--dConfig[=\s]+"?([A-Za-z0-9_]+)"?')
-    src     = g(r'--src_samples[=\s]+"?(\d+)"?')
-    tgt     = g(r'--tgt_samples[=\s]+"?(\d+)"?')
-    return {
-        "log_name": Path(out).name,
-        "dconfig": dconfig,
-        "src": int(src) if src else None,
-        "tgt": int(tgt) if tgt else None,
-        "__sh": str(script_path),
-    }
+def slugify(txt: str) -> str:
+    return re.sub(r'[^A-Za-z0-9._-]+', '_', str(txt)).strip('_')
 
-def parse_log_metrics(log_path: Path):
-    """Return dict with avg_mmd, std_mmd, tpr, tau (if found), else None."""
-    txt = log_path.read_text(errors='ignore')
-    m = {}
-    tpr = re.search(r'TPR \(true positive rate\) over \d+ runs: ([\d.]+)%', txt)
-    if tpr: m['tpr'] = float(tpr.group(1))
-    testavg = re.search(r'Average MMD: ([\d.]+) ± ([\d.]+)', txt)
-    if testavg:
-        m['avg_mmd'] = float(testavg.group(1))
-        m['std_mmd'] = float(testavg.group(2))
-    tau = re.search(r'\[RESULT\] τ\([\d.]+\) = ([\d.]+)', txt)
-    if tau: m['tau'] = float(tau.group(1))
-    return m if m else None
+def load_json(path: Path):
+    with path.open('r', encoding='utf-8') as f:
+        return json.load(f)
 
-# ---------- Load + enforce mapping ----------
-def load_and_validate(log_roots, sh_roots, pattern='*.log', recursive=True):
-    # 1. Collect all sh scripts
-    sh_files = []
-    for root in sh_roots:
-        p = Path(root)
-        if p.is_file() and p.suffix == '.sh':
-            sh_files.append(p)
-        elif p.is_dir():
-            sh_files.extend(p.rglob('*.sh'))
-    # 2. Parse sh -> truth, and build expected map
-    truth = {}
-    missing_fields = []
-    for sh in sh_files:
-        parsed = parse_slurm_script(sh)
-        if not parsed:
-            missing_fields.append(f"{sh}: no log target (#SBATCH --output or redirect)")
+def collect_from_experiment(exp: dict, source_file: Path, exp_idx: int):
+    args = exp.get("arguments", {})
+    data = exp.get("data", {})
+    dcfg = args.get("dConfig")
+    if not dcfg:
+        return None, f"{source_file}[exp#{exp_idx}]: missing dConfig"
+
+    test = data.get("Data Shift Test Data", {}) or {}
+    runs = test.get("Individual Test Data", []) or []
+    if not runs:
+        return None, f"{source_file}[exp#{exp_idx}]: no Individual Test Data runs"
+
+    groups = defaultdict(lambda: {"mmds": [], "det": 0, "n": 0})
+    for r in runs:
+        ss = r.get("Source Samples")
+        ts = r.get("Target Samples")
+        m = r.get("MMD")
+        if ss is None or ts is None or m is None:
             continue
-        if parsed['dconfig'] is None or parsed['src'] is None or parsed['tgt'] is None:
-            missing_fields.append(f"{sh}: missing dconfig/src/tgt")
+        groups[(ss, ts)]["mmds"].append(m)
+        groups[(ss, ts)]["n"] += 1
+        if r.get("Shift Detected") is True:
+            groups[(ss, ts)]["det"] += 1
+
+    if not groups:
+        return None, f"{source_file}[exp#{exp_idx}]: no valid runs with Source/Target/MMD"
+
+    tau = None
+    calib = data.get("Calibration", {})
+    if isinstance(calib, dict):
+        tau = calib.get("Result", {}).get("Tau")
+    if tau is None:
+        sanity = data.get("Sanity Check", {})
+        if isinstance(sanity, dict):
+            tau = sanity.get("Results", {}).get("Tau")
+
+    records = []
+    for (ss, ts), g in groups.items():
+        mmds = g["mmds"]
+        if not mmds:
             continue
-        truth[parsed['log_name']] = parsed
+        avg_mmd = float(np.mean(mmds))
+        std_mmd = float(np.std(mmds))
+        tpr = (g["det"] / g["n"] * 100.0) if g["n"] else 0.0
+        records.append({
+            "dconfig": dcfg,
+            "src_samples": ss,
+            "tgt_samples": ts,
+            "avg_mmd": avg_mmd,
+            "std_mmd": std_mmd,
+            "tpr": tpr,
+            "tau": tau,
+            "runs": g["n"],
+            "source_file": str(source_file),
+            "exp_idx": exp_idx,
+        })
+    if not records:
+        return None, f"{source_file}[exp#{exp_idx}]: no records after grouping"
+    return records, None
 
-    # Collect all logs
-    logs = []
-    for root in log_roots:
-        p = Path(root)
-        if not p.exists(): continue
-        logs.extend(list(p.rglob(pattern)) if recursive else [f for f in p.iterdir() if f.match(pattern)])
+def plot_dconfig(dcfg, items, outdir: Path, warn_missing: list):
+    agg = {}
+    for it in items:
+        key = (it["src_samples"], it["tgt_samples"])
+        n = it["runs"]
+        mean = it["avg_mmd"]
+        std = it["std_mmd"]
+        s = mean * n
+        ssq = (std**2 + mean**2) * n
+        if key not in agg:
+            agg[key] = {"sum":0.0,"sumsq":0.0,"n":0,"dets":0.0,"taus":[]}
+        agg[key]["sum"] += s
+        agg[key]["sumsq"] += ssq
+        agg[key]["n"] += n
+        agg[key]["dets"] += (it["tpr"]/100.0) * n
+        if it["tau"] is not None:
+            agg[key]["taus"].append(it["tau"])
 
-    # 3. Enforce mapping: every truth log must exist and parse metrics; no extras used
-    errors = []
-    groups = defaultdict(lambda: {"truth": None, "items": []})
+    rows = []
+    for (ss, ts), g in agg.items():
+        n = g["n"]
+        mean = g["sum"] / n
+        var = max(g["sumsq"]/n - mean**2, 0.0)
+        std = var**0.5
+        tpr = (g["dets"] / n) * 100.0
+        tau = float(np.mean(g["taus"])) if g["taus"] else None
+        rows.append({"src": ss, "tgt": ts, "avg_mmd": mean, "std_mmd": std, "tpr": tpr, "tau": tau, "n": n})
 
-    # Index logs by name for quick lookup
-    log_index = {f.name: f for f in logs}
+    missing = [pair for pair in EXPECTED_RATIOS if pair not in agg]
+    if missing:
+        warn_missing.append(f"{dcfg}: missing ratios -> " + ", ".join([f"{s}:{t}" for s,t in missing]))
 
-    # Check every truth entry has a log file
-    for lname, tr in truth.items():
-        if lname not in log_index:
-            errors.append(f"Missing log file for {lname} (from {tr['__sh']})")
-            continue
-        lf = log_index[lname]
-        metrics = parse_log_metrics(lf)
-        if not metrics:
-            errors.append(f"Metrics not found in {lname} (from {tr['__sh']})")
-            continue
-        key = f"{tr['dconfig']}_src{tr['src']}_tgt{tr['tgt']}"
-        groups[key]["truth"] = tr
-        groups[key]["items"].append({"log": lf, "metrics": metrics})
+    rows.sort(key=lambda r: EXPECTED_RATIOS.index((r["src"], r["tgt"])) if (r["src"], r["tgt"]) in EXPECTED_RATIOS else 999)
+    if not rows:
+        return
 
-    # Any logs with no matching sh are ignored but warned
-    for lname, lf in log_index.items():
-        if lname not in truth:
-            errors.append(f"Orphan log with no matching .sh: {lname}")
+    x = np.arange(len(rows))
+    labels = [f"{r['src']}:{r['tgt']}" for r in rows]
+    tpr = [r["tpr"] for r in rows]
+    avg = [r["avg_mmd"] for r in rows]
+    std = [r["std_mmd"] for r in rows]
+    tau = [r["tau"] if r["tau"] is not None else None for r in rows]
 
-    # Accumulate missing field issues
-    errors.extend(missing_fields)
-
-    return groups, errors
-
-# ---------- Plotting ----------
-def plot_group(key, group, outdir):
-    tr = group["truth"]
-    items = group["items"]
-    n = len(items)
-    x = np.arange(n)
-    tpr = [it["metrics"].get("tpr", 0) for it in items]
-    avg = [it["metrics"].get("avg_mmd", 0) for it in items]
-    tau = [it["metrics"].get("tau", 0) for it in items]
-    seq_labels = [str(i+1) for i in range(n)]
-
-    fig = plt.figure(figsize=(14,5))
+    fig = plt.figure(figsize=(16,6))
     ax1 = plt.subplot(1,2,1)
     bars = ax1.bar(x, tpr, color='#D62828', edgecolor='black')
     for b, v in zip(bars, tpr):
         ax1.text(b.get_x()+b.get_width()/2., b.get_height()+1, f'{v:.0f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
-    ax1.set_title('TPR (%)'); ax1.set_xticks(x); ax1.set_xticklabels(seq_labels); ax1.set_ylim(0, 110); ax1.axhline(100, ls='--', c='green', alpha=0.5)
+    ax1.set_title('TPR (%)'); ax1.set_xticks(x); ax1.set_xticklabels(labels, rotation=45, ha='right'); ax1.set_ylim(0,110); ax1.axhline(100, ls='--', c='green', alpha=0.5)
 
     ax2 = plt.subplot(1,2,2)
-    ax2.plot(x, avg, 'o-', color='#F18F01', label='Average MMD')
-    if any(tau): ax2.plot(x, tau, 's--', color='#2E86AB', alpha=0.7, label='Tau')
-    ax2.set_title('Average MMD'); ax2.set_xticks(x); ax2.set_xticklabels(seq_labels); ax2.legend()
+    ax2.errorbar(x, avg, yerr=std, fmt='o-', color='#F18F01', label='Avg MMD ± std')
+    if any(t is not None for t in tau):
+        tau_vals = [t if t is not None else 0 for t in tau]
+        ax2.plot(x, tau_vals, 's--', color='#2E86AB', alpha=0.7, label='Tau (where present)')
+    ax2.set_title('MMD'); ax2.set_xticks(x); ax2.set_xticklabels(labels, rotation=45, ha='right'); ax2.legend()
 
-    plt.suptitle(f"{tr['dconfig']} | Src={tr['src']} Tgt={tr['tgt']} | N={n}", fontweight='bold')
-    plt.tight_layout(rect=[0,0,1,0.95])
+    plt.suptitle(f"{dcfg} | Experiments={len(rows)}", fontweight='bold')
+    plt.tight_layout(rect=[0,0,1,0.93])
 
-    base = Path(outdir); base.mkdir(parents=True, exist_ok=True)
-    fname_base = f"{slugify(key)}__n{n}"
+    base = f"{slugify(dcfg)}__n{len(rows)}"
     for fmt, dpi in [('png',300), ('svg',None), ('pdf',None), ('jpeg',300)]:
-        out = base / f"{fname_base}.{fmt}"
+        subdir = outdir / fmt
+        subdir.mkdir(parents=True, exist_ok=True)
+        out = subdir / f"{base}.{fmt}"
         plt.savefig(out, dpi=dpi if dpi else None, bbox_inches='tight', format=fmt)
     plt.close()
 
-# ---------- Main ----------
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--log-path', nargs='+', required=True)
-    ap.add_argument('--sh-path', nargs='+', required=True)
     ap.add_argument('--recursive', action='store_true')
-    ap.add_argument('--output-dir', default='figures_organized')
-    ap.add_argument('--pattern', default='*.log')
-    ap.add_argument('--expect-groups', type=int, default=None, help='Optional: abort if group count differs')
+    ap.add_argument('--pattern', default='*.json')
+    ap.add_argument('--output-dir', default='figures_json_per_dconfig')
+    ap.add_argument('--expect-dconfigs', type=int, default=None, help='Abort if dConfig count differs')
     args = ap.parse_args()
 
-    groups, errors = load_and_validate(args.log_path, args.sh_path, args.pattern, args.recursive)
-    total_groups = len(groups)
+    json_files = []
+    for root in args.log_path:
+        p = Path(root)
+        if not p.exists(): continue
+        json_files.extend(list(p.rglob(args.pattern)) if args.recursive else [f for f in p.iterdir() if f.match(args.pattern)])
 
-    print(f"\nDetected groups (key -> log count):")
-    for k, g in groups.items():
-        print(f"  {k} -> {len(g['items'])}")
+    errors = []
+    by_dcfg = defaultdict(list)
+
+    for jf in json_files:
+        try:
+            obj = load_json(jf)
+        except Exception as e:
+            errors.append(f"{jf}: failed to parse JSON ({e})")
+            continue
+        exps = obj.get("experiments", [])
+        if not exps:
+            continue
+        for i, exp in enumerate(exps):
+            recs, err = collect_from_experiment(exp, jf, i)
+            if err:
+                if "missing dConfig" not in err:
+                    errors.append(err)
+                continue
+            by_dcfg[recs[0]["dconfig"]].extend(recs)
 
     if errors:
-        print(f"\n❌ Abort: {len(errors)} issues found. Fix these and rerun:")
+        print(f"\n⚠️ Issues found ({len(errors)}):")
         for e in errors[:50]:
             print("  " + e)
         if len(errors) > 50:
             print(f"  ... and {len(errors)-50} more")
+
+    dcfg_list = sorted(by_dcfg.keys())
+    if args.expect_dconfigs is not None and len(dcfg_list) != args.expect_dconfigs:
+        print(f"\n❌ Abort: found {len(dcfg_list)} dConfigs, expected {args.expect_dconfigs}. dConfigs: {dcfg_list}")
         sys.exit(1)
 
-    if args.expect_groups is not None and total_groups != args.expect_groups:
-        print(f"\n❌ Abort: will produce {total_groups} groups, expected {args.expect_groups}.")
-        sys.exit(1)
+    outdir = Path(args.output_dir)
+    warn_missing = []
+    for dcfg, items in by_dcfg.items():
+        try:
+            plot_dconfig(dcfg, items, outdir, warn_missing)
+        except Exception as e:
+            print(f"\n❌ Abort for {dcfg}: {e}")
+            sys.exit(1)
 
-    # Proceed to plot
-    for key, group in groups.items():
-        if not group["items"]:
-            print(f"Skipping empty group {key}")
-            continue
-        plot_group(key, group, args.output_dir)
-    print(f"\n✓ Generated {total_groups} groups; PNGs in {args.output_dir}")
+    if warn_missing:
+        print("\n⚠️ Missing ratios detected:")
+        for w in warn_missing:
+            print("  " + w)
+
+    print(f"\n✓ Done. Figures in {outdir}/[png|svg|pdf|jpeg]")
 
 if __name__ == "__main__":
     main()

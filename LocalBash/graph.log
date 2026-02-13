@@ -1,7 +1,7 @@
 ----------------------------------------------------
-Slurm Job ID: 161459
+Slurm Job ID: 161475
 Running on host: node02
-Start Time: Thu Feb 12 11:54:15 PM EST 2026
+Start Time: Fri Feb 13 12:28:27 AM EST 2026
 ----------------------------------------------------
 Initializing conda for script...
 Conda environment activated and isolated:
@@ -21,18 +21,34 @@ test_env                 /home1/adoyle2025/miniconda3/envs/test_env
 tf_a100                  /home1/adoyle2025/miniconda3/envs/tf_a100
 
 Starting Unit Test...
-
-Detected groups (key -> log count):
-  d128ids_src1000_tgt1000 -> 88
-  d128rel_src10_tgt10 -> 11
-  d128ids_src100_tgt100 -> 88
-  d64rel_src10_tgt10 -> 11
-  d32rel_src10_tgt10 -> 11
-  d32gdd_src10_tgt10 -> 11
-  d128gdd_src10_tgt10 -> 11
-  d64gdd_src10_tgt10 -> 11
-  d64ids_src10_tgt10 -> 11
-  d128ids_src10_tgt10 -> 11
-
-❌ Abort: will produce 10 groups, expected 24.
+Checking file parity (SH vs LOG) in: .
+------------------------------------------------
+Directory                      | SH    | LOG   | Status
+------------------------------------------------
+./RemoveExtraLayer/thousand32d | 11    | 11    | MATCH
+./RemoveExtraLayer/ten128d     | 11    | 11    | MATCH
+./RemoveExtraLayer/hundred32d  | 11    | 11    | MATCH
+./RemoveExtraLayer/ten64d      | 11    | 11    | MATCH
+./RemoveExtraLayer/hundred64d  | 11    | 11    | MATCH
+./RemoveExtraLayer/thousand128 | 11    | 11    | MATCH
+./RemoveExtraLayer/thousand64d | 11    | 11    | MATCH
+./RemoveExtraLayer/hundred128d | 11    | 11    | MATCH
+./RemoveExtraLayer/ten32d      | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./GraduallyDecreaseDimensions/ | 11    | 11    | MATCH
+./IncreaseDimentionallity/ten6 | 11    | 11    | MATCH
+./IncreaseDimentionallity/thou | 11    | 11    | MATCH
+./IncreaseDimentionallity/hund | 11    | 11    | MATCH
+./IncreaseDimentionallity/ten1 | 11    | 11    | MATCH
+./IncreaseDimentionallity/hund | 11    | 11    | MATCH
+./IncreaseDimentionallity/thou | 11    | 11    | MATCH
+------------------------------------------------
+Audit complete.
 Done!
