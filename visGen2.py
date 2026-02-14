@@ -1,211 +1,197 @@
 #!/usr/bin/env python3
-import json, argparse, sys, re
+"""
+Visualize Mixed Shift Experiment Results
+- Title: Distribution Shift Study
+- Subtitle: {Parent Folder Name} | {Dims} Dimensions | Sample Size: {K}
+- Sorting: Clean Data (Left) -> 100% Shift (Right, Exp 1)
+- Architecture string footer with bottom padding.
+"""
+
+import re
+import os
+import argparse
 from pathlib import Path
-from collections import defaultdict
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-EXPECTED_RATIOS = [(0,10),(1,9),(2,8),(3,7),(4,6),(5,5),(6,4),(7,3),(8,2),(9,1),(10,0)]
+# Global Configuration
+plt.rcParams['figure.figsize'] = (18, 10)
+plt.style.use('seaborn-v0_8-whitegrid' if 'seaborn-v0_8-whitegrid' in plt.style.available else 'default')
 
-def slugify(txt: str) -> str:
-    return re.sub(r'[^A-Za-z0-9._-]+', '_', str(txt)).strip('_')
+ARCH_STRINGS = {
+    "d128rel": "4096 -> 1024 -> 128", "d64rel": "4096 -> 1024 -> 64", "d32rel": "4096 -> 1024 -> 32",
+    "d128gdd": "4096 -> 512 -> 128", "d64gdd": "4096 -> 512 -> 64", "d32gdd": "4096 -> 512 -> 32",
+    "d64ids": "4096 -> 1024 -> 256 -> 64", "d128ids": "4096 -> 1024 -> 256 -> 128",
+    "orig": "4096 -> 1024 -> 256 -> 128", "d32": "4096 -> 1024 -> 256 -> 32",
+}
 
-def load_json(path: Path):
-    with path.open('r', encoding='utf-8') as f:
-        return json.load(f)
+def camel_to_title(text):
+    """Converts CamelCase or underscore_strings to Title Case (e.g. 'GraduallyDecrease' -> 'Gradually Decrease')"""
+    # Replace underscores with spaces
+    text = text.replace('_', ' ')
+    # Insert space before capital letters if not already preceded by space
+    return re.sub(r'(?<!^)(?<!\s)(?=[A-Z])', ' ', text).strip()
 
-def collect_from_experiment(exp: dict, source_file: Path, exp_idx: int):
-    args = exp.get("arguments", {})
-    data = exp.get("data", {})
-    dcfg = args.get("dConfig")
-    if not dcfg:
-        return None, f"{source_file}[exp#{exp_idx}]: missing dConfig"
+def parse_bash_script(bash_path):
+    if not bash_path.exists(): return {}
+    try:
+        with open(bash_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+    except Exception: return {}
+    
+    config = {}
+    dconfig_match = re.search(r'--dConfig\s+"([^"]+)"', content)
+    dconf = dconfig_match.group(1) if dconfig_match else "orig"
+    
+    config['arch_key'] = dconf
+    
+    # Extract Dimension Count
+    dim_match = re.search(r'd(\d+)', dconf)
+    if dim_match:
+        config['dims'] = dim_match.group(1)
+    else:
+        config['dims'] = "32" if "d32" in dconf else "128"
+    
+    return config
 
-    test = data.get("Data Shift Test Data", {}) or {}
-    runs = test.get("Individual Test Data", []) or []
-    if not runs:
-        return None, f"{source_file}[exp#{exp_idx}]: no Individual Test Data runs"
+def parse_log_file(log_path):
+    try:
+        with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+    except Exception: return None
+    
+    metrics = {}
+    # Sample Size K usually matches total target pool or initial setup
+    k_match = re.search(r'K(\d+)', log_path.stem)
+    metrics['sample_size'] = k_match.group(1) if k_match else "Unknown"
 
-    groups = defaultdict(lambda: {"mmds": [], "det": 0, "n": 0})
-    for r in runs:
-        ss = r.get("Source Samples")
-        ts = r.get("Target Samples")
-        m = r.get("MMD")
-        if ss is None or ts is None or m is None:
-            continue
-        groups[(ss, ts)]["mmds"].append(m)
-        groups[(ss, ts)]["n"] += 1
-        if r.get("Shift Detected") is True:
-            groups[(ss, ts)]["det"] += 1
+    tau = re.search(r'\[RESULT\] τ\([\d.]+\) = ([\d.]+)', content)
+    mmd = re.search(r'Average MMD: ([\d.]+) ± ([\d.]+)', content)
+    tpr = re.search(r'TPR \(true positive rate\) over \d+ runs: ([\d.]+)%', content)
+    shift = re.search(r'\[STEP 3\] Data Shift Test:.*?\((\d+)\).*?Curvelanes.*?\((\d+)\).*?CULane', content)
+    
+    if tau: metrics['tau'] = float(tau.group(1))
+    if mmd: metrics['avg_mmd'], metrics['std_mmd'] = float(mmd.group(1)), float(mmd.group(2))
+    if tpr: metrics['tpr'] = float(tpr.group(1))
+    if shift: 
+        metrics['tgt_samples'], metrics['src_samples'] = int(shift.group(1)), int(shift.group(2))
+    
+    return metrics if 'avg_mmd' in metrics else None
 
-    if not groups:
-        return None, f"{source_file}[exp#{exp_idx}]: no valid runs with Source/Target/MMD"
+def load_folder_data(logs_dir):
+    experiments = []
+    path = Path(logs_dir)
+    log_files = sorted([f for f in path.iterdir() if f.is_file() and f.suffix == '.log'])
+    
+    # Capture Parent Folder Name for the Title (e.g. "GraduallyDecreaseDimensions")
+    # If logs are in .../GraduallyDecreaseDimensions/thousand64d/, parent is 'GraduallyDecreaseDimensions'
+    parent_folder_name = path.parent.name
+    
+    for log_file in log_files:
+        metrics = parse_log_file(log_file)
+        if metrics:
+            bash_file = path / f"{log_file.stem}.sh"
+            metrics['bash'] = parse_bash_script(bash_file)
+            metrics['parent_folder'] = parent_folder_name # Store for plotting
+            experiments.append(metrics)
+    
+    # SORTING: Clean (High Src) -> Shifted (Low Src)
+    experiments.sort(key=lambda x: x.get('src_samples', 0), reverse=False)
+    for i, exp in enumerate(experiments):
+        exp['id'] = i + 1
+    
+    experiments.sort(key=lambda x: x.get('src_samples', 0), reverse=True)
+    return experiments
 
-    tau = None
-    calib = data.get("Calibration", {})
-    if isinstance(calib, dict):
-        tau = calib.get("Result", {}).get("Tau")
-    if tau is None:
-        sanity = data.get("Sanity Check", {})
-        if isinstance(sanity, dict):
-            tau = sanity.get("Results", {}).get("Tau")
+def plot_comprehensive_analysis(experiments, output_dir, folder_name):
+    if not experiments: return
+    n = len(experiments)
+    x = np.arange(n)
+    
+    # Extract Plotting Data
+    tprs = [e.get('tpr', 0) for e in experiments]
+    mmds = [e.get('avg_mmd', 0) for e in experiments]
+    stds = [e.get('std_mmd', 0) for e in experiments]
+    taus = [e.get('tau', 0) for e in experiments]
+    srcs = [e.get('src_samples', 0) for e in experiments]
+    tgts = [e.get('tgt_samples', 0) for e in experiments]
+    ids = [e.get('id', 0) for e in experiments]
+    ratios = [tgts[i] / max(1, srcs[i]) for i in range(n)]
+    
+    # Metadata for labels
+    config = experiments[0].get('bash', {})
+    
+    # Title Logic: Use Parent Folder Name
+    raw_title = experiments[0].get('parent_folder', "Unknown")
+    pretty_arch = camel_to_title(raw_title)
+    
+    dims = config.get('dims', "???")
+    sample_size = experiments[0].get('sample_size', "Unknown")
+    arch_str = ARCH_STRINGS.get(config.get('arch_key', 'orig'), "Architecture Not Found")
 
-    records = []
-    for (ss, ts), g in groups.items():
-        mmds = g["mmds"]
-        if not mmds:
-            continue
-        avg_mmd = float(np.mean(mmds))
-        std_mmd = float(np.std(mmds))
-        tpr = (g["det"] / g["n"] * 100.0) if g["n"] else 0.0
-        records.append({
-            "dconfig": dcfg,
-            "src_samples": ss,
-            "tgt_samples": ts,
-            "avg_mmd": avg_mmd,
-            "std_mmd": std_mmd,
-            "tpr": tpr,
-            "tau": tau,
-            "runs": g["n"],
-            "source_file": str(source_file),
-            "exp_idx": exp_idx,
-        })
-    if not records:
-        return None, f"{source_file}[exp#{exp_idx}]: no records after grouping"
-    return records, None
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(20, 8.8))
 
-def plot_dconfig(dcfg, items, outdir: Path, warn_missing: list):
-    agg = {}
-    for it in items:
-        key = (it["src_samples"], it["tgt_samples"])
-        n = it["runs"]
-        mean = it["avg_mmd"]
-        std = it["std_mmd"]
-        s = mean * n
-        ssq = (std**2 + mean**2) * n
-        if key not in agg:
-            agg[key] = {"sum":0.0,"sumsq":0.0,"n":0,"dets":0.0,"taus":[]}
-        agg[key]["sum"] += s
-        agg[key]["sumsq"] += ssq
-        agg[key]["n"] += n
-        agg[key]["dets"] += (it["tpr"]/100.0) * n
-        if it["tau"] is not None:
-            agg[key]["taus"].append(it["tau"])
+    # Panel 1: TPR
+    colors = ['#06A77D' if t == 100 else '#D62828' for t in tprs]
+    ax1.bar(x, tprs, color=colors, alpha=0.7, edgecolor='black', linewidth=1.2)
+    ax1.set_title('True Positive Rate (%)', fontweight='bold', fontsize=14)
+    ax1.set_ylim(0, 115)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels([f"Exp {i}" for i in ids], rotation=45)
 
-    rows = []
-    for (ss, ts), g in agg.items():
-        n = g["n"]
-        mean = g["sum"] / n
-        var = max(g["sumsq"]/n - mean**2, 0.0)
-        std = var**0.5
-        tpr = (g["dets"] / n) * 100.0
-        tau = float(np.mean(g["taus"])) if g["taus"] else None
-        rows.append({"src": ss, "tgt": ts, "avg_mmd": mean, "std_mmd": std, "tpr": tpr, "tau": tau, "n": n})
+    # Panel 2: MMD vs Threshold
+    ax2.errorbar(x, mmds, yerr=stds, fmt='o-', color='#F18F01', linewidth=2, markersize=8, label='Avg MMD', capsize=4)
+    ax2.step(x, taus, where='mid', color='#2E86AB', linestyle='--', linewidth=2, label='Threshold (τ)')
+    ax2.set_title('MMD Metric vs τ', fontweight='bold', fontsize=14)
+    ax2.legend(loc='upper right')
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([f"{r:.2f}R" if r < 100 else "MaxR" for r in ratios], rotation=45)
 
-    missing = [pair for pair in EXPECTED_RATIOS if pair not in agg]
-    if missing:
-        warn_missing.append(f"{dcfg}: missing ratios -> " + ", ".join([f"{s}:{t}" for s,t in missing]))
+    # Panel 3: Sample Sizes
+    width = 0.35
+    ax3.bar(x - width/2, srcs, width, label='Source (Clean)', color='#06A77D', alpha=0.8)
+    ax3.bar(x + width/2, tgts, width, label='Target (Shift)', color='#F18F01', alpha=0.8)
+    ax3.set_title('Sample Sizes', fontweight='bold', fontsize=14)
+    ax3.legend()
+    ax3.set_xticks(x)
+    ax3.set_xticklabels([f"Exp {i}" for i in ids], rotation=45)
 
-    rows.sort(key=lambda r: EXPECTED_RATIOS.index((r["src"], r["tgt"])) if (r["src"], r["tgt"]) in EXPECTED_RATIOS else 999)
-    if not rows:
-        return
+    # Titles and Subtitles
+    plt.suptitle("Distribution Shift Study", fontsize=26, fontweight='bold', y=0.98)
+    
+    # Subtitle now uses the folder-based title
+    subtitle_str = f"{pretty_arch} | {dims} Dimensions | Sample Size: {sample_size}"
+    plt.figtext(0.5, 0.92, subtitle_str, ha='center', fontsize=18, fontstyle='italic', color='#333333')
 
-    x = np.arange(len(rows))
-    labels = [f"{r['src']}:{r['tgt']}" for r in rows]
-    tpr = [r["tpr"] for r in rows]
-    avg = [r["avg_mmd"] for r in rows]
-    std = [r["std_mmd"] for r in rows]
-    tau = [r["tau"] if r["tau"] is not None else None for r in rows]
+    # Architecture Footer
+    fig.text(0.5, 0.03, f"Network Architecture: {arch_str}", ha='center', fontsize=15, fontweight='bold', 
+             bbox=dict(facecolor='#FBFCFC', alpha=0.9, edgecolor='#AEB6BF', boxstyle='round,pad=1.2'))
 
-    fig = plt.figure(figsize=(16,6))
-    ax1 = plt.subplot(1,2,1)
-    bars = ax1.bar(x, tpr, color='#D62828', edgecolor='black')
-    for b, v in zip(bars, tpr):
-        ax1.text(b.get_x()+b.get_width()/2., b.get_height()+1, f'{v:.0f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
-    ax1.set_title('TPR (%)'); ax1.set_xticks(x); ax1.set_xticklabels(labels, rotation=45, ha='right'); ax1.set_ylim(0,110); ax1.axhline(100, ls='--', c='green', alpha=0.5)
-
-    ax2 = plt.subplot(1,2,2)
-    ax2.errorbar(x, avg, yerr=std, fmt='o-', color='#F18F01', label='Avg MMD ± std')
-    if any(t is not None for t in tau):
-        tau_vals = [t if t is not None else 0 for t in tau]
-        ax2.plot(x, tau_vals, 's--', color='#2E86AB', alpha=0.7, label='Tau (where present)')
-    ax2.set_title('MMD'); ax2.set_xticks(x); ax2.set_xticklabels(labels, rotation=45, ha='right'); ax2.legend()
-
-    plt.suptitle(f"{dcfg} | Experiments={len(rows)}", fontweight='bold')
-    plt.tight_layout(rect=[0,0,1,0.93])
-
-    base = f"{slugify(dcfg)}__n{len(rows)}"
-    for fmt, dpi in [('png',300), ('svg',None), ('pdf',None), ('jpeg',300)]:
-        subdir = outdir / fmt
-        subdir.mkdir(parents=True, exist_ok=True)
-        out = subdir / f"{base}.{fmt}"
-        plt.savefig(out, dpi=dpi if dpi else None, bbox_inches='tight', format=fmt)
+    plt.tight_layout(rect=[0, 0.15, 1, 0.90])
+    
+    out_path = Path(output_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+    plt.savefig(out_path / f"{folder_name}_summary.png", dpi=300)
     plt.close()
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--log-path', nargs='+', required=True)
-    ap.add_argument('--recursive', action='store_true')
-    ap.add_argument('--pattern', default='*.json')
-    ap.add_argument('--output-dir', default='figures_json_per_dconfig')
-    ap.add_argument('--expect-dconfigs', type=int, default=None, help='Abort if dConfig count differs')
-    args = ap.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--base-path', type=str, required=True)
+    parser.add_argument('--output-dir', type=str, default='figures')
+    parser.add_argument('--all-dirs', action='store_true')
+    args = parser.parse_args()
 
-    json_files = []
-    for root in args.log_path:
-        p = Path(root)
-        if not p.exists(): continue
-        json_files.extend(list(p.rglob(args.pattern)) if args.recursive else [f for f in p.iterdir() if f.match(args.pattern)])
-
-    errors = []
-    by_dcfg = defaultdict(list)
-
-    for jf in json_files:
-        try:
-            obj = load_json(jf)
-        except Exception as e:
-            errors.append(f"{jf}: failed to parse JSON ({e})")
-            continue
-        exps = obj.get("experiments", [])
-        if not exps:
-            continue
-        for i, exp in enumerate(exps):
-            recs, err = collect_from_experiment(exp, jf, i)
-            if err:
-                if "missing dConfig" not in err:
-                    errors.append(err)
-                continue
-            by_dcfg[recs[0]["dconfig"]].extend(recs)
-
-    if errors:
-        print(f"\n⚠️ Issues found ({len(errors)}):")
-        for e in errors[:50]:
-            print("  " + e)
-        if len(errors) > 50:
-            print(f"  ... and {len(errors)-50} more")
-
-    dcfg_list = sorted(by_dcfg.keys())
-    if args.expect_dconfigs is not None and len(dcfg_list) != args.expect_dconfigs:
-        print(f"\n❌ Abort: found {len(dcfg_list)} dConfigs, expected {args.expect_dconfigs}. dConfigs: {dcfg_list}")
-        sys.exit(1)
-
-    outdir = Path(args.output_dir)
-    warn_missing = []
-    for dcfg, items in by_dcfg.items():
-        try:
-            plot_dconfig(dcfg, items, outdir, warn_missing)
-        except Exception as e:
-            print(f"\n❌ Abort for {dcfg}: {e}")
-            sys.exit(1)
-
-    if warn_missing:
-        print("\n⚠️ Missing ratios detected:")
-        for w in warn_missing:
-            print("  " + w)
-
-    print(f"\n✓ Done. Figures in {outdir}/[png|svg|pdf|jpeg]")
+    for root, dirs, files in os.walk(args.base_path):
+        if any(f.endswith('.log') for f in files):
+            log_dir = Path(root)
+            data = load_folder_data(log_dir)
+            if data:
+                folder_id = str(log_dir.relative_to(args.base_path)).replace('/', '_').replace('\\', '_')
+                if not folder_id or folder_id == ".": folder_id = log_dir.name
+                plot_comprehensive_analysis(data, args.output_dir, folder_id)
+                print(f"✓ Generated: {folder_id}")
 
 if __name__ == "__main__":
     main()
