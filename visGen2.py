@@ -2,9 +2,7 @@
 """
 Visualize Mixed Shift Experiment Results
 - Title: Distribution Shift Study
-- Subtitle: Separated from title, closer to graphs.
-- Graphs: Data labels added.
-- Legend: Moved below the right graph.
+- Graphs: 4 Panels (TPR, Raw MMD, Delta MMD, Sample Composition)
 """
 
 import re
@@ -17,7 +15,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # Global Configuration
-plt.rcParams['figure.figsize'] = (22, 10) # Slightly taller to accommodate bottom legend
+# Widened figure size to (28, 10) to fit 4 graphs comfortably
+plt.rcParams['figure.figsize'] = (28, 10) 
 plt.style.use('seaborn-v0_8-whitegrid' if 'seaborn-v0_8-whitegrid' in plt.style.available else 'default')
 
 ARCH_STRINGS = {
@@ -118,15 +117,13 @@ def plot_comprehensive_analysis(experiments, output_dir, folder_name):
     sample_size = experiments[0].get('sample_size', "Unknown")
     arch_str = ARCH_STRINGS.get(config.get('arch_key', 'orig'), "Architecture Not Found")
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(22, 9))
+    # MODIFIED: Changed 3 to 4 subplots
+    fig, (ax1, ax_raw, ax2, ax3) = plt.subplots(1, 4, figsize=(28, 9))
 
     # --- Panel 1: TPR ---
     colors = ['#06A77D' if t == 100 else '#D62828' for t in tprs]
     bars1 = ax1.bar(x, tprs, color=colors, alpha=0.7, edgecolor='black', linewidth=1.2)
-    
-    # Add labels to TPR bars
     ax1.bar_label(bars1, fmt='%.0f', padding=3, fontsize=10, fontweight='bold')
-    
     ax1.set_title('True Positive Rate (%)', fontweight='bold', fontsize=14)
     ax1.set_ylabel('Percentage (%)', fontsize=12)
     ax1.set_ylim(0, 115)
@@ -134,10 +131,20 @@ def plot_comprehensive_analysis(experiments, output_dir, folder_name):
     ax1.set_xticklabels([f"{i}" for i in ids])
     ax1.set_xlabel("Experiment Number", fontsize=11)
 
-    # --- Panel 2: Delta MMD ---
+    # --- Panel 2 (NEW): Raw MMD vs Tau ---
+    ax_raw.errorbar(x, mmds, yerr=stds, fmt='o-', color='#2E86AB', label='Avg MMD', capsize=4)
+    ax_raw.plot(x, taus, 'r--', label=r'Threshold ($\tau$)', linewidth=2)
+    ax_raw.set_title('Raw MMD vs. Threshold', fontweight='bold', fontsize=14)
+    ax_raw.set_ylabel('MMD Value', fontsize=12)
+    ax_raw.legend(loc='upper left', frameon=True)
+    ax_raw.set_xticks(x)
+    # Applied Experiment Number labels to the new graph as requested
+    ax_raw.set_xticklabels([f"{i}" for i in ids])
+    ax_raw.set_xlabel("Experiment Number", fontsize=11)
+
+    # --- Panel 3: Delta MMD ---
     ax2.errorbar(x, delta_mmds, yerr=stds, fmt='o-', color='#2E86AB', linewidth=2, markersize=8, label=r'$\Delta$ MMD', capsize=4)
     ax2.axhline(0, color='black', linestyle='--', linewidth=2, label=r'Threshold ($\tau$)')
-    
     ax2.set_title(r'$\Delta$ MMD (Avg MMD - $\tau$)', fontweight='bold', fontsize=14)
     ax2.set_ylabel(r'$\Delta$ MMD', fontsize=12)
     ax2.legend(loc='upper left', frameon=True, framealpha=0.9)
@@ -145,16 +152,12 @@ def plot_comprehensive_analysis(experiments, output_dir, folder_name):
     ax2.set_xticklabels([f"{i}" for i in ids])
     ax2.set_xlabel("Experiment Number", fontsize=11)
 
-    # --- Panel 3: Sample Composition ---
+    # --- Panel 4: Sample Composition ---
     width = 0.6
     bars_src = ax3.bar(x, srcs, width, label='Source (Clean)', color='#06A77D', alpha=0.8, edgecolor='black', linewidth=0.5)
     bars_tgt = ax3.bar(x, tgts, width, bottom=srcs, label='Target (Shift)', color='#F18F01', alpha=0.8, edgecolor='black', linewidth=0.5)
-    
-    # Add labels to Stacked Bars (Centered in the segments)
-    # Only label if segment height > 5 to avoid clutter on tiny segments
     ax3.bar_label(bars_src, label_type='center', fmt='%.0f', color='white', fontweight='bold', fontsize=9)
     ax3.bar_label(bars_tgt, label_type='center', fmt='%.0f', color='black', fontweight='bold', fontsize=9)
-
     ax3.set_title('Sample Composition (Stacked)', fontweight='bold', fontsize=14)
     ax3.set_ylabel('Samples', fontsize=12)
     
@@ -166,9 +169,7 @@ def plot_comprehensive_analysis(experiments, output_dir, folder_name):
     ax3.set_xlabel("Experiment Number", fontsize=11)
 
     # --- Layout & Titles ---
-    # Moved Title UP (0.98) and Subtitle DOWN (0.93) to separate them.
     plt.suptitle("Distribution Shift Study", fontsize=26, fontweight='bold', y=0.98)
-    
     subtitle_str = f"{pretty_arch} | {dims} Dimensions | Sample Size: {sample_size}"
     plt.figtext(0.5, 0.93, subtitle_str, ha='center', fontsize=18, fontstyle='italic', color='#333333')
 
@@ -176,8 +177,7 @@ def plot_comprehensive_analysis(experiments, output_dir, folder_name):
     fig.text(0.5, 0.02, f"Network Architecture: {arch_str}", ha='center', fontsize=14, fontweight='bold', 
              bbox=dict(facecolor='#FBFCFC', alpha=0.9, edgecolor='#AEB6BF', boxstyle='round,pad=1'))
 
-    # Rect Top increased to 0.91 to bring graphs closer to the header block
-    # Bottom adjusted to 0.15 to make room for the legend below Ax3
+    # Adjusted layout to fit 4 columns
     plt.tight_layout(rect=[0.02, 0.10, 0.98, 0.91])
     
     out_path = Path(output_dir)
