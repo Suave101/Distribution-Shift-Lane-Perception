@@ -55,11 +55,9 @@ def parse_log_file(log_path):
             'exp_num': exp_num,
         }
 
-        tau = re.search(r'\[RESULT\] τ\([\d.]+\) = ([\d.]+)', content)
         tpr = re.search(r'TPR \(true positive rate\) over \d+ runs: ([\d.]+)%', content)
         shift = re.search(r'\[STEP 3\] Data Shift Test:.*?\((\d+)\).*?Curvelanes.*?\((\d+)\).*?CULane', content)
         
-        if tau: metrics['tau'] = float(tau.group(1))
         if tpr: metrics['tpr'] = float(tpr.group(1))
         if shift: 
             metrics['src_samples'] = int(shift.group(2))
@@ -82,17 +80,14 @@ def analyze_group(group_key, experiments):
     config_str, k_val = group_key
     
     experiments.sort(key=lambda x: x.get('src_samples', 0), reverse=True)
-    
     tprs = [e.get('tpr', 0) for e in experiments]
-    taus = [e.get('tau', 0) for e in experiments]
     
-    first_100 = next((i + 1 for i, t in enumerate(tprs) if t >= 100), None)
-    const_100 = None
-    for i in range(len(tprs)):
-        if all(t >= 100 for t in tprs[i:]):
-            const_100 = i + 1
-            break
-            
+    def get_stable_idx(threshold):
+        for i in range(len(tprs)):
+            if all(t >= threshold for t in tprs[i:]):
+                return i + 1
+        return None
+
     dim_match = re.search(r'd(\d+)', config_str)
     dims = int(dim_match.group(1)) if dim_match else (32 if 'd32' in config_str else 128)
 
@@ -100,9 +95,10 @@ def analyze_group(group_key, experiments):
         "Method": get_method_name(config_str),
         "Dims": dims,
         "Samples": k_val,
-        "First 100%": first_100,
-        "Stable 100%": const_100,
-        "Tau Std": np.std(taus) if taus else 0.0
+        "Stable 100%": get_stable_idx(100),
+        "Stable 75%": get_stable_idx(75),
+        "Stable 50%": get_stable_idx(50),
+        "Stable 25%": get_stable_idx(25)
     }
 
 # --- Pure Coordinate Drawing Logic ---
@@ -111,7 +107,7 @@ def draw_latex_style_table(all_data, output_dir):
     for entry in all_data:
         methods_dict[entry['Method']].append(entry)
 
-    methods_order = ["Gradually Decrease Dimensions", "Increase Dimensionality", "Original", "Remove Extra Layer"]
+    methods_order = ["Gradually Decrease Dimensions"]
     methods = [m for m in methods_order if m in methods_dict]
 
     # Calculate exact vertical units needed for the figure
@@ -131,8 +127,8 @@ def draw_latex_style_table(all_data, output_dir):
 
     fig.suptitle("Architecture Robustness Summary by Technique", fontweight='bold', fontsize=14, y=0.98)
 
-    cols = ["Dims", "Samples", "First 100%\n(Speed)", "Stable 100%\n(Reliability)", "Tau Std\n(Stability)"]
-    col_x = [0.10, 0.25, 0.45, 0.68, 0.88] # Balanced horizontal spacing
+    cols = ["Latent Space\nDims", "Samples", "Stable 100%", "Stable 75%", "Stable 50%", "Stable 25%"]
+    col_x = [0.08, 0.22, 0.40, 0.58, 0.76, 0.94] # Rebalanced for 6 columns
 
     current_y = total_y_units - 0.5
 
@@ -151,21 +147,26 @@ def draw_latex_style_table(all_data, output_dir):
     for method in methods:
         data = methods_dict[method]
         
-        # Sort Best -> Worst
+        # Sort Best -> Worst based on new stability thresholds
         data.sort(key=lambda x: (
             x['Stable 100%'] if x['Stable 100%'] is not None else 999,
-            x['First 100%'] if x['First 100%'] is not None else 999,
+            x['Stable 75%'] if x['Stable 75%'] is not None else 999,
+            x['Stable 50%'] if x['Stable 50%'] is not None else 999,
+            x['Stable 25%'] if x['Stable 25%'] is not None else 999,
             -x['Samples'], 
-            -x['Dims'],    
-            x['Tau Std']
+            -x['Dims']
         ))
 
-        first_vals = [x['First 100%'] for x in data if x['First 100%'] is not None]
-        stable_vals = [x['Stable 100%'] for x in data if x['Stable 100%'] is not None]
-        min_first = min(first_vals) if first_vals else None
-        min_stable = min(stable_vals) if stable_vals else None
+        def get_min(key):
+            vals = [x[key] for x in data if x[key] is not None]
+            return min(vals) if vals else None
 
-        # 4. Method Header (Centered over the whole table)
+        min_100 = get_min('Stable 100%')
+        min_75 = get_min('Stable 75%')
+        min_50 = get_min('Stable 50%')
+        min_25 = get_min('Stable 25%')
+
+        # 4. Method Header
         current_y -= ROW_H * 1.0
         ax.text(0.5, current_y, method, ha='center', va='center', weight='bold', style='italic', fontsize=11, clip_on=False)
         current_y -= ROW_H * 0.6
@@ -180,14 +181,20 @@ def draw_latex_style_table(all_data, output_dir):
             row_txt = [
                 str(row['Dims']),
                 str(row['Samples']),
-                f"Exp {row['First 100%']}" if row['First 100%'] else "Never",
                 f"Exp {row['Stable 100%']}" if row['Stable 100%'] else "Never",
-                f"{row['Tau Std']:.5f}"
+                f"Exp {row['Stable 75%']}" if row['Stable 75%'] else "Never",
+                f"Exp {row['Stable 50%']}" if row['Stable 50%'] else "Never",
+                f"Exp {row['Stable 25%']}" if row['Stable 25%'] else "Never"
             ]
             
-            is_first_best = (row['First 100%'] == min_first and min_first is not None)
-            is_stable_best = (row['Stable 100%'] == min_stable and min_stable is not None)
-            weights = ['normal', 'normal', 'bold' if is_first_best else 'normal', 'bold' if is_stable_best else 'normal', 'normal']
+            weights = [
+                'normal', 
+                'normal', 
+                'bold' if (row['Stable 100%'] == min_100 and min_100 is not None) else 'normal',
+                'bold' if (row['Stable 75%'] == min_75 and min_75 is not None) else 'normal',
+                'bold' if (row['Stable 50%'] == min_50 and min_50 is not None) else 'normal',
+                'bold' if (row['Stable 25%'] == min_25 and min_25 is not None) else 'normal'
+            ]
 
             for x, txt, weight in zip(col_x, row_txt, weights):
                 ax.text(x, current_y, txt, ha='center', va='center', weight=weight, fontsize=10, clip_on=False)
@@ -197,7 +204,7 @@ def draw_latex_style_table(all_data, output_dir):
     ax.plot([0, 1], [current_y, current_y], color='black', lw=1.5, clip_on=False)
 
     plt.tight_layout()
-    save_loc = Path(output_dir) / "latex_summary_table.png"
+    save_loc = Path(output_dir) / "latex_summary_table_gdd.png"
     fig.savefig(save_loc, dpi=300, bbox_inches='tight', pad_inches=0.2)
     plt.close(fig)
     print(f"✓ Generated absolute-grid LaTeX table at: {save_loc}")
