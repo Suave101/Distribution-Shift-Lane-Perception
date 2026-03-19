@@ -9,6 +9,8 @@ class Conf2ConvAutoencoderFC(nn.Module):
     def __init__(self, latent_dim=512, configs=autoencoderConfigs.AutoEncoderWeights.IMAGE_NET):
         super().__init__()
 
+        print("[Autoencoder] - Training Trial 1 - 3.19.26")
+
         # -------- Pretrained ResNet encoder --------
         if configs == autoencoderConfigs.AutoEncoderWeights.IMAGE_NET:
             # Load ImageNet pretrained weights (UAE setting)
