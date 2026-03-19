@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
-import autoencoderConfigs
+from models import autoencoderConfigs
 
 
-class ConvAutoencoderFC(nn.Module):
+class Conf2ConvAutoencoderFC(nn.Module):
     def __init__(self, latent_dim=512, configs=autoencoderConfigs.AutoEncoderWeights.IMAGE_NET):
         super().__init__()
 
