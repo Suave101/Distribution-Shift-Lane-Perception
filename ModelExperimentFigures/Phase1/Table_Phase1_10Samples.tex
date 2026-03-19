@@ -1,13 +1,19 @@
 \begin{table}
-\caption{Phase 1 TPR (%) Results - 10 Samples}
+\caption{Phase 1 TPR (\%) Results across Distribution Shifts - 10 Samples}
 \label{tab:tpr_10}
 \begin{tabular}{llllll}
 \toprule
  & ImageNet & Random & CU_Lane & CurveLanes & ASSIST_Taxi \\
 \midrule
-CULanes & 3.00 & 3.00 & In Progress & In Progress & In Progress \\
-Curvelanes & 5.00 & 5.00 & In Progress & In Progress & In Progress \\
-AssistTaxi & In Progress & In Progress & In Progress & In Progress & In Progress \\
+CULanes → CULanes & 3.00 & 3.00 & In Progress & In Progress & In Progress \\
+CULanes → Curvelanes & 96.00 & 72.00 & In Progress & In Progress & In Progress \\
+CULanes → AssistTaxi & In Progress & In Progress & In Progress & In Progress & In Progress \\
+Curvelanes → CULanes & 100.00 & 69.00 & In Progress & In Progress & In Progress \\
+Curvelanes → Curvelanes & 5.00 & 5.00 & In Progress & In Progress & In Progress \\
+Curvelanes → AssistTaxi & In Progress & In Progress & In Progress & In Progress & In Progress \\
+AssistTaxi → CULanes & In Progress & In Progress & In Progress & In Progress & In Progress \\
+AssistTaxi → Curvelanes & In Progress & In Progress & In Progress & In Progress & In Progress \\
+AssistTaxi → AssistTaxi & In Progress & In Progress & In Progress & In Progress & In Progress \\
 \bottomrule
 \end{tabular}
 \end{table}
