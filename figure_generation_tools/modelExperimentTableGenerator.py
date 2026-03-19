@@ -6,7 +6,7 @@ import seaborn as sns
 import numpy as np
 
 # --- Configuration & Paths ---
-LOG_DIR = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/logs"
+LOG_DIR = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/logs" # Note: Ensure your json files are moving here!
 OUTPUT_DIR = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/ModelExperimentFigures/Phase1"
 
 # Create output directory if it doesn't exist
@@ -33,47 +33,55 @@ def extract_tpr_from_json(filepath):
         return "In Progress"
 
 def main():
-    # Set a cleaner style for plots
     sns.set_theme(style="whitegrid")
+
+    # Generate the Y-axis row labels (every permutation)
+    row_labels = []
+    for src in DATASETS:
+        for tgt in DATASETS:
+            row_labels.append(f"{src} \u2192 {tgt}") # Uses arrow symbol for "Source -> Target"
 
     for n in SAMPLE_SIZES:
         print(f"Processing Phase 1 - {n} Samples...")
         
-        # 1. Initialize empty results grid (Datasets as Rows, Models as Columns)
-        # We use a nested dictionary structure for easy conversion to Pandas
-        results_grid = {model: {dataset: "In Progress" for dataset in DATASETS} for model in MODELS}
+        # 1. Initialize empty results grid (Permutations as Rows, Models as Columns)
+        results_grid = {model: {row: "In Progress" for row in row_labels} for model in MODELS}
         
         # 2. Parse Logs and populate grid
         for model in MODELS:
-            for dataset in DATASETS:
-                filename = f"{n}Samples_{model}Model_{dataset}Data.json"
-                filepath = os.path.join(LOG_DIR, filename)
-                
-                tpr = extract_tpr_from_json(filepath)
-                results_grid[model][dataset] = tpr
+            for src in DATASETS:
+                for tgt in DATASETS:
+                    # Match the backwards compatibility logic from our generator script
+                    if src == tgt:
+                        job_id = f"{n}Samples_{model}Model_{src}Data"
+                    else:
+                        job_id = f"{n}Samples_{model}Model_{src}2{tgt}Data"
+                    
+                    filename = f"{job_id}.json"
+                    filepath = os.path.join(LOG_DIR, filename)
+                    
+                    row_key = f"{src} \u2192 {tgt}"
+                    tpr = extract_tpr_from_json(filepath)
+                    results_grid[model][row_key] = tpr
         
-        # 3. Convert to Pandas DataFrame (Rows=Datasets, Columns=Models)
+        # 3. Convert to Pandas DataFrame (Rows=Permutations, Columns=Models)
         df = pd.DataFrame(results_grid)
-        # Ensure the order matches our defined lists
-        df = df.reindex(index=DATASETS, columns=MODELS)
+        df = df.reindex(index=row_labels, columns=MODELS)
         
         # --- 4. Generate LaTeX Table ---
-        # Using string representation formatting to handle "In Progress" strings alongside numbers
         latex_df = df.copy()
         for col in latex_df.columns:
             latex_df[col] = latex_df[col].apply(lambda x: f"{x:.2f}" if isinstance(x, float) else x)
 
         try:
-            # Modern Pandas (2.0+) standard
             latex_str = latex_df.style.to_latex(
-                caption=f"Phase 1 TPR (%) Results - {n} Samples", 
+                caption=f"Phase 1 TPR (\\%) Results across Distribution Shifts - {n} Samples", 
                 label=f"tab:tpr_{n}",
                 hrules=True
             )
         except AttributeError:
-            # Fallback for older Pandas versions
             latex_str = latex_df.to_latex(
-                caption=f"Phase 1 TPR (%) Results - {n} Samples", 
+                caption=f"Phase 1 TPR (\\%) Results across Distribution Shifts - {n} Samples", 
                 label=f"tab:tpr_{n}"
             )
             
@@ -83,32 +91,32 @@ def main():
         print(f"  -> Saved LaTeX Table: {tex_filepath}")
         
         # --- 5. Generate Figure (Heatmap) ---
-        # Create a strictly numeric copy for plotting. Replace "In Progress" with NaN.
-        # Seaborn automatically leaves NaN cells empty/blank in the heatmap.
         df_numeric = df.replace("In Progress", np.nan).apply(pd.to_numeric)
         
-        plt.figure(figsize=(12, 7))
+        # Increased height to 9 to accommodate all 9 permutation rows cleanly
+        plt.figure(figsize=(12, 9))
         
-        # --- UPDATE: Enforce 0-100 scale ---
-        # vmin=0, vmax=100 restricts the colorbar range to valid percentages.
         ax = sns.heatmap(
             df_numeric, 
-            annot=True,          # Write numbers in cells
-            fmt=".2f",          # format to 2 decimal places
-            cmap="viridis",      # Color scheme
-            vmin=0,             # Explicit minimum scale
-            vmax=100,            # Explicit maximum scale
-            linewidths=.5,       # Add gridlines between cells
-            cbar_kws={'label': 'True Positive Rate (TPR %)'} # Colorbar label
+            annot=True,          
+            fmt=".2f",          
+            cmap="viridis",      
+            vmin=0,             
+            vmax=100,            
+            linewidths=.5,       
+            cbar_kws={'label': 'True Positive Rate (TPR %)'} 
         )
         
         plt.title(f"Phase 1 Distribution Shift: TPR (%) - {n} Samples\n(Blank cells indicate 'In Progress')", fontsize=14)
         plt.xlabel("Model Pretraining Weights", fontsize=12)
-        plt.ylabel("Evaluation Dataset", fontsize=12)
+        plt.ylabel("Evaluation (Source \u2192 Target)", fontsize=12)
+        
+        # Rotate Y-axis labels so they are readable
+        plt.yticks(rotation=0)
         plt.tight_layout()
         
         fig_filepath = os.path.join(OUTPUT_DIR, f"Figure_Phase1_{n}Samples.png")
-        plt.savefig(fig_filepath, dpi=300) # High resolution for publications
+        plt.savefig(fig_filepath, dpi=300) 
         plt.close()
         print(f"  -> Saved Heatmap Figure: {fig_filepath}")
 

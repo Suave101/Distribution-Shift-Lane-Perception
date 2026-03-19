@@ -73,7 +73,7 @@ python model_experiment.py \\
     --num_runs 100 \\
     --block_idx 4 \\
     --seed_base 32 \\
-    --batch_size 4096 \\
+    --batch_size 64 \\
     --modelStr "{model_str}" \\
     --file_name "{job_id}.json"
 
