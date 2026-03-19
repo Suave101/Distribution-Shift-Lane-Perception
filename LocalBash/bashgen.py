@@ -88,7 +88,6 @@ def main():
     for model_folder, model_str in MODELS.items():
         for n in SAMPLE_SIZES:
             # Memory Logic
-            # N=10, 100 -> 64G | N=1000 -> 128G
             mem_val = "128G" if n == 1000 else "64G"
             
             exp_output_dir = os.path.join(BASE_ROOT, model_folder, str(n))
@@ -97,10 +96,16 @@ def main():
             for src_label, (src_dir, src_list, src_test_list) in DATA_MAP.items():
                 for tgt_label, (tgt_dir, tgt_list, _) in DATA_MAP.items():
                     
-                    # File naming per your request: Dataset_ModelM#Samples.sh
-                    # Added '2' (to) in middle to ensure CULane->Curvelanes doesn't overwrite CULane->CULane
-                    job_id = f"{src_label}2{tgt_label}_{model_str}M{n}"
-                    file_name = f"{src_label}2{tgt_label}_{model_str}M{n}.sh"
+                    # BACKWARDS COMPATIBILITY LOGIC
+                    if src_label == tgt_label:
+                        # Revert exactly to your old standard (e.g., 10Samples_ImageNetModel_CurvelanesData)
+                        job_id = f"{n}Samples_{model_str}Model_{src_label}Data"
+                        file_name = f"{src_label}_{model_str}M{n}.sh"
+                    else:
+                        # Append the cross-distribution identifier to stop overwrites
+                        job_id = f"{n}Samples_{model_str}Model_{src_label}2{tgt_label}Data"
+                        file_name = f"{src_label}2{tgt_label}_{model_str}M{n}.sh"
+
                     file_path = os.path.join(exp_output_dir, file_name)
 
                     content = SH_TEMPLATE.format(
@@ -127,12 +132,10 @@ def main():
     master_path = os.path.join(PROJECT_DIR, "run_all_permutations.sh")
     with open(master_path, "w") as f:
         f.write("#!/bin/bash\n\n")
-        # Adding a tiny sleep to avoid overwhelming the Slurm scheduler
         f.write("\n".join([f"{cmd}\nsleep 0.1" for cmd in sbatch_commands]))
     
     os.chmod(master_path, 0o755)
     print(f"Success! {len(sbatch_commands)} permutation scripts generated.")
-    print(f"N=10/100: 64GB | N=1000: 128GB")
 
 if __name__ == "__main__":
     main()
