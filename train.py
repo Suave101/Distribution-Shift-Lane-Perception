@@ -32,7 +32,7 @@ def train(args):
     # --- Model Initialization ---
     model = Conf2ConvAutoencoderFC().to(device)
     
-    # Multi-GPU setup (A100s can sometimes be partitioned, so this is safe to keep)
+    # Multi-GPU setup
     if torch.cuda.device_count() > 1:
         print(f"Using {torch.cuda.device_count()} GPUs for training!")
         model = nn.DataParallel(model)
@@ -78,7 +78,10 @@ def train(args):
             optimizer.zero_grad()
 
             # Forward pass
-            reconstructed = model(imgs) 
+            output = model(imgs) 
+            
+            # If the model returns (reconstructed, z), just grab the reconstructed image
+            reconstructed = output[0] if isinstance(output, tuple) else output
             
             # Reconstruction Loss
             loss = mse_loss(reconstructed, imgs)
