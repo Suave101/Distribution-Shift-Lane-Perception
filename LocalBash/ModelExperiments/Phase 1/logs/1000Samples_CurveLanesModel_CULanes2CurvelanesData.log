@@ -1,0 +1,28 @@
+----------------------------------------------------
+Slurm Job ID: 179745
+Running on host: gpu06
+Experiment: 1000Samples_CurveLanesModel_CULanes2CurvelanesData
+----------------------------------------------------
+Flag: 8675309 - If you see this, the experiment is initializing correctly.
+CUDA Available: True | Total GPUs Found: 1
+
+Initializing autoencoder...
+Using CurveLanes pretrained weights for the autoencoder.
+[Autoencoder] - Training Trial 1 - 3.19.26
+Successfully loaded full Autoencoder weights from /home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Curvelanes/autoencoder_Curvelanes_epoch_50.pth
+Using single GPU/CPU.
+[INFO] (/home1/adoyle2025/Datasets/Datasets/CULane) → [4000:5000] (1000 samples)
+/home1/adoyle2025/Datasets/Datasets/CULane Reference features loaded. Shape = (1000, 256)
+
+[STEP 1] Calibration using /home1/adoyle2025/Datasets/Datasets/CULane...
+Calibrating:   0%|          | 0/100 [00:00<?, ?it/s]Calibrating:   0%|          | 0/100 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 505, in <module>
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 432, in run
+    # Step 2
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 265, in calibrate
+    dataloaderReturn = get_seeded_random_dataloader(
+TypeError: get_seeded_random_dataloader() got an unexpected keyword argument 'bootstrap'
+----------------------------------------------------
+Job finished: Thu Mar 19 11:55:19 AM EDT 2026
+----------------------------------------------------
