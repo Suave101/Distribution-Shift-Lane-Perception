@@ -8,8 +8,6 @@ class ConfConvAutoencoderFC32(nn.Module):
     def __init__(self, config="", pretrained=True):
         super().__init__()
 
-        print(f"[ResNet-AE] dimensionallity: 32")
-
         # -------- Pretrained ResNet encoder --------
         backbone = models.resnet18(
             weights=models.ResNet18_Weights.IMAGENET1K_V1 if pretrained else None
