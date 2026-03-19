@@ -229,7 +229,7 @@ class ShiftExperiment:
         # Get the images
         loaderReturn = get_dataloader(
             root_dir=self.source_dir,
-            list_path=self.source_list_dir,
+            list_path=self.source_test_list_dir,
             batch_size=self.batch_size,
             image_size=self.image_size,
             num_samples=self.src_samples,
@@ -247,33 +247,6 @@ class ShiftExperiment:
             self.src_feats.shape
         )
         self.loggerExperimentalData["Source Training Feature Image Paths"] = list(
-            image_paths
-        )
-
-    def load_source_test_features(self):
-        # Get the images
-        loaderReturn = get_dataloader(
-            root_dir=self.source_dir,
-            list_path=self.source_test_list_dir,
-            batch_size=self.batch_size,
-            image_size=self.image_size,
-            num_samples=self.src_samples,
-            cropImg=self.cropImg,
-            block_idx=self.block_idx,
-        )
-        loader = loaderReturn[0]
-        image_paths = loaderReturn[1]
-
-        # Extract features (using the autoencoder)
-        self.src_test_feats = extract_features(self.model, loader, self.device)
-
-        print(
-            f"{self.source_dir} features loaded. Shape = {self.src_test_feats.shape}\n"
-        )
-        self.loggerExperimentalData["Source Testing Features Shape"] = list(
-            self.src_test_feats.shape
-        )
-        self.loggerExperimentalData["Source Testing Features Image Paths"] = list(
             image_paths
         )
 
@@ -320,6 +293,11 @@ class ShiftExperiment:
         print(
             f"Mean MMD (same-distribution): {self.null_stats.mean():.6f} ± {self.null_stats.std():.6f}\n"
         )
+        
+        # Sanity check: If std is 0
+        if self.null_stats.std() == 0.0:
+            print("⚠️ WARNING: MMD Std Deviation is 0.0! Your dataloader is not providing unique subsets.")
+
         calibrationData["Result"] = {
             "Tau": float(self.tau),
             "Mean MMD": float(self.null_stats.mean()),
@@ -394,7 +372,7 @@ class ShiftExperiment:
             # Get concatenated dataloader with both source and target samples
             loaderReturn = get_concat_dataloader(
                 root_dirs=[self.source_dir, self.target_dir],
-                list_paths=[self.source_list_dir, self.target_list_dir],
+                list_paths=[self.source_test_list_dir, self.target_list_dir],
                 batch_sizes=[self.batch_size, self.batch_size],
                 image_sizes=[self.image_size, self.image_size],
                 num_samples=[self.ratio_src_samples, self.ratio_tgt_samples],
