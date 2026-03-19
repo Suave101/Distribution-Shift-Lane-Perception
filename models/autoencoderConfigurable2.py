@@ -24,13 +24,13 @@ class Conf2ConvAutoencoderFC(nn.Module):
             # Load CU Lane pretrained weights
             # TODO: replace with actual path
             backbone = models.resnet18()
-            checkpoint = torch.load("path_to_cu_lane_weights.pth")
+            checkpoint = torch.load("/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/CULane/autoencoder_CULane_epoch_50.pth")
             backbone.load_state_dict(checkpoint["model_state_dict"])
         elif configs == autoencoderConfigs.AutoEncoderWeights.CURVELANES:   
             # Load CurveLanes pretrained weights
             # TODO: replace with actual path
             backbone = models.resnet18()
-            checkpoint = torch.load("path_to_curvelanes_weights.pth")
+            checkpoint = torch.load("/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Curvelanes/autoencoder_Curvelanes_epoch_50.pth")
             backbone.load_state_dict(checkpoint["model_state_dict"])
         elif configs == autoencoderConfigs.AutoEncoderWeights.ASSIST_TAXI:
             # Load ASSIST-Taxi pretrained weights
