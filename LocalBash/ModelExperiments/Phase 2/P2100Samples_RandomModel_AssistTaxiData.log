@@ -1,0 +1,28 @@
+----------------------------------------------------
+Slurm Job ID: 180200
+Running on host: gpu07
+Experiment: P2100Samples_RandomModel_AssistTaxiData
+----------------------------------------------------
+Flag: 8675309 - If you see this, the experiment is initializing correctly.
+[Data Logger] File not found. Creating new file at logs/P2100Samples_RandomModel_AssistTaxiData.json
+CUDA Available: True | Total GPUs Found: 1
+
+Initializing autoencoder...
+Using random weights (untrained) for the autoencoder.
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Using single GPU/CPU.
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 505, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 430, in run
+    self.load_source_features()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 230, in load_source_features
+    loaderReturn = get_dataloader(
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/data/data_builder.py", line 213, in get_dataloader
+    ds = ImageDataset(
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/data/data_builder.py", line 59, in __init__
+    raise FileNotFoundError(f"List file not found: {list_path}")
+FileNotFoundError: List file not found: /home1/adoyle2025/Datasets/Datasets/ASSIST-Taxi/test.txt
+----------------------------------------------------
+Job finished: Thu Mar 19 10:52:00 PM EDT 2026
+----------------------------------------------------

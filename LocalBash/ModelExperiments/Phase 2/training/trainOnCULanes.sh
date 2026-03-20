@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --output=P2TrainCULane.log
 #SBATCH --partition=gpu2
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:3
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=64G
 #

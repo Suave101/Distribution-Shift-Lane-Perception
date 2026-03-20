@@ -1,0 +1,29 @@
+----------------------------------------------------
+Slurm Job ID: 180210
+Running on host: gpu05
+Experiment: P210Samples_ASSIST_TaxiModel_CurvelanesData
+----------------------------------------------------
+Flag: 8675309 - If you see this, the experiment is initializing correctly.
+[Data Logger] File not found. Creating new file at logs/P210Samples_ASSIST_TaxiModel_CurvelanesData.json
+CUDA Available: True | Total GPUs Found: 1
+
+Initializing autoencoder...
+Using ASSIST-Taxi pretrained weights for the autoencoder.
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 505, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 177, in __init__
+    base_model = ConfP2ConvAutoencoderFC(configs=modelConf).to(self.device)
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/models/phase2Autoencoder.py", line 98, in __init__
+    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+  File "/home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/site-packages/torch/serialization.py", line 1484, in load
+    with _open_file_like(f, "rb") as opened_file:
+  File "/home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/site-packages/torch/serialization.py", line 759, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "/home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/site-packages/torch/serialization.py", line 740, in __init__
+    super().__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: '/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/AssistTaxi/P2autoencoder_AssistTaxi_epoch_50.pth'
+----------------------------------------------------
+Job finished: Thu Mar 19 10:58:04 PM EDT 2026
+----------------------------------------------------

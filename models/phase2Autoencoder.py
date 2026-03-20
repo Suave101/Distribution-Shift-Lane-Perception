@@ -113,7 +113,14 @@ class ConfP2ConvAutoencoderFC(nn.Module):
         out = self.decoder_conv(h)    # (B, 3, 512, 512)
         return out
 
-    def forward(self, x):
-        z = self.encode(x)
+    def forward(self, x, return_encoding=False):
+        # 1. Pass through encoder
+        z = self.encode(x) 
+        
+        # 2. Stop early if we just want the features
+        if return_encoding:
+            return z
+            
+        # 3. Otherwise, finish the forward pass (decoder)
         out = self.decode(z)
-        return out, z
+        return out

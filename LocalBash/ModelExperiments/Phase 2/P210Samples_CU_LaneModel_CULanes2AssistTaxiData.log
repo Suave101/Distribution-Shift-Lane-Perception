@@ -1,0 +1,46 @@
+----------------------------------------------------
+Slurm Job ID: 180122
+Running on host: gpu06
+Experiment: P210Samples_CU_LaneModel_CULanes2AssistTaxiData
+----------------------------------------------------
+Flag: 8675309 - If you see this, the experiment is initializing correctly.
+CUDA Available: True | Total GPUs Found: 1
+
+Initializing autoencoder...
+Using CU Lane pretrained weights for the autoencoder.
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Successfully loaded full Autoencoder weights from /home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/CULane/P2autoencoder_CULane_epoch_50.pth
+Using single GPU/CPU.
+[INFO] (/home1/adoyle2025/Datasets/Datasets/CULane) → [40:50] (10 samples)
+/home1/adoyle2025/Datasets/Datasets/CULane features loaded. Shape = (10, 32)
+
+[STEP 1] Calibration using /home1/adoyle2025/Datasets/Datasets/CULane...
+Calibrating:   0%|          | 0/100 [00:00<?, ?it/s]Calibrating:   1%|          | 1/100 [00:00<01:24,  1.17it/s]Calibrating:   2%|▏         | 2/100 [00:01<01:20,  1.21it/s]Calibrating:   3%|▎         | 3/100 [00:02<01:18,  1.23it/s]Calibrating:   4%|▍         | 4/100 [00:03<01:17,  1.23it/s]Calibrating:   5%|▌         | 5/100 [00:04<01:16,  1.24it/s]Calibrating:   6%|▌         | 6/100 [00:04<01:15,  1.25it/s]Calibrating:   7%|▋         | 7/100 [00:05<01:15,  1.24it/s]Calibrating:   8%|▊         | 8/100 [00:06<01:13,  1.24it/s]Calibrating:   9%|▉         | 9/100 [00:07<01:13,  1.23it/s]Calibrating:  10%|█         | 10/100 [00:08<01:14,  1.21it/s]Calibrating:  11%|█         | 11/100 [00:08<01:13,  1.21it/s]Calibrating:  12%|█▏        | 12/100 [00:09<01:12,  1.22it/s]Calibrating:  13%|█▎        | 13/100 [00:10<01:11,  1.22it/s]Calibrating:  14%|█▍        | 14/100 [00:11<01:10,  1.22it/s]Calibrating:  15%|█▌        | 15/100 [00:12<01:09,  1.22it/s]Calibrating:  16%|█▌        | 16/100 [00:13<01:09,  1.20it/s]Calibrating:  17%|█▋        | 17/100 [00:13<01:09,  1.19it/s]Calibrating:  18%|█▊        | 18/100 [00:14<01:07,  1.22it/s]Calibrating:  19%|█▉        | 19/100 [00:15<01:05,  1.23it/s]Calibrating:  20%|██        | 20/100 [00:16<01:04,  1.24it/s]Calibrating:  21%|██        | 21/100 [00:17<01:04,  1.23it/s]Calibrating:  22%|██▏       | 22/100 [00:18<01:04,  1.21it/s]Calibrating:  23%|██▎       | 23/100 [00:18<01:03,  1.21it/s]Calibrating:  24%|██▍       | 24/100 [00:19<01:02,  1.21it/s]Calibrating:  25%|██▌       | 25/100 [00:20<01:01,  1.22it/s]Calibrating:  26%|██▌       | 26/100 [00:21<00:59,  1.23it/s]Calibrating:  27%|██▋       | 27/100 [00:22<00:59,  1.22it/s]Calibrating:  28%|██▊       | 28/100 [00:22<00:59,  1.22it/s]Calibrating:  29%|██▉       | 29/100 [00:23<00:59,  1.20it/s]Calibrating:  30%|███       | 30/100 [00:24<00:58,  1.20it/s]Calibrating:  31%|███       | 31/100 [00:25<00:56,  1.21it/s]Calibrating:  32%|███▏      | 32/100 [00:26<00:56,  1.21it/s]Calibrating:  33%|███▎      | 33/100 [00:27<00:55,  1.20it/s]Calibrating:  34%|███▍      | 34/100 [00:27<00:53,  1.22it/s]Calibrating:  35%|███▌      | 35/100 [00:28<00:53,  1.21it/s]Calibrating:  36%|███▌      | 36/100 [00:29<00:53,  1.21it/s]Calibrating:  37%|███▋      | 37/100 [00:30<00:53,  1.18it/s]Calibrating:  38%|███▊      | 38/100 [00:31<00:51,  1.20it/s]Calibrating:  39%|███▉      | 39/100 [00:32<00:50,  1.22it/s]Calibrating:  40%|████      | 40/100 [00:32<00:49,  1.22it/s]Calibrating:  41%|████      | 41/100 [00:33<00:48,  1.23it/s]Calibrating:  42%|████▏     | 42/100 [00:34<00:47,  1.23it/s]Calibrating:  43%|████▎     | 43/100 [00:35<00:45,  1.25it/s]Calibrating:  44%|████▍     | 44/100 [00:36<00:45,  1.23it/s]Calibrating:  45%|████▌     | 45/100 [00:36<00:44,  1.23it/s]Calibrating:  46%|████▌     | 46/100 [00:37<00:43,  1.23it/s]Calibrating:  47%|████▋     | 47/100 [00:38<00:42,  1.24it/s]Calibrating:  48%|████▊     | 48/100 [00:39<00:42,  1.22it/s]Calibrating:  49%|████▉     | 49/100 [00:40<00:41,  1.23it/s]Calibrating:  50%|█████     | 50/100 [00:40<00:40,  1.24it/s]Calibrating:  51%|█████     | 51/100 [00:41<00:39,  1.24it/s]Calibrating:  52%|█████▏    | 52/100 [00:42<00:39,  1.22it/s]Calibrating:  53%|█████▎    | 53/100 [00:43<00:38,  1.21it/s]Calibrating:  54%|█████▍    | 54/100 [00:44<00:38,  1.19it/s]Calibrating:  55%|█████▌    | 55/100 [00:45<00:37,  1.21it/s]Calibrating:  56%|█████▌    | 56/100 [00:45<00:36,  1.22it/s]Calibrating:  57%|█████▋    | 57/100 [00:46<00:35,  1.23it/s]Calibrating:  58%|█████▊    | 58/100 [00:47<00:33,  1.24it/s]Calibrating:  59%|█████▉    | 59/100 [00:48<00:33,  1.23it/s]Calibrating:  60%|██████    | 60/100 [00:49<00:32,  1.23it/s]Calibrating:  61%|██████    | 61/100 [00:49<00:31,  1.24it/s]Calibrating:  62%|██████▏   | 62/100 [00:50<00:31,  1.22it/s]Calibrating:  63%|██████▎   | 63/100 [00:51<00:29,  1.23it/s]Calibrating:  64%|██████▍   | 64/100 [00:52<00:28,  1.25it/s]Calibrating:  65%|██████▌   | 65/100 [00:53<00:28,  1.24it/s]Calibrating:  66%|██████▌   | 66/100 [00:53<00:27,  1.24it/s]Calibrating:  67%|██████▋   | 67/100 [00:54<00:26,  1.25it/s]Calibrating:  68%|██████▊   | 68/100 [00:55<00:25,  1.26it/s]Calibrating:  69%|██████▉   | 69/100 [00:56<00:24,  1.24it/s]Calibrating:  70%|███████   | 70/100 [00:57<00:24,  1.25it/s]Calibrating:  71%|███████   | 71/100 [00:57<00:23,  1.25it/s]Calibrating:  72%|███████▏  | 72/100 [00:58<00:22,  1.23it/s]Calibrating:  73%|███████▎  | 73/100 [00:59<00:22,  1.22it/s]Calibrating:  74%|███████▍  | 74/100 [01:00<00:21,  1.21it/s]Calibrating:  75%|███████▌  | 75/100 [01:01<00:21,  1.19it/s]Calibrating:  76%|███████▌  | 76/100 [01:02<00:19,  1.21it/s]Calibrating:  77%|███████▋  | 77/100 [01:02<00:18,  1.23it/s]Calibrating:  78%|███████▊  | 78/100 [01:03<00:17,  1.24it/s]Calibrating:  79%|███████▉  | 79/100 [01:04<00:16,  1.24it/s]Calibrating:  80%|████████  | 80/100 [01:05<00:16,  1.25it/s]Calibrating:  81%|████████  | 81/100 [01:06<00:15,  1.24it/s]Calibrating:  82%|████████▏ | 82/100 [01:06<00:14,  1.24it/s]Calibrating:  83%|████████▎ | 83/100 [01:07<00:14,  1.20it/s]Calibrating:  84%|████████▍ | 84/100 [01:08<00:13,  1.21it/s]Calibrating:  85%|████████▌ | 85/100 [01:09<00:12,  1.22it/s]Calibrating:  86%|████████▌ | 86/100 [01:10<00:11,  1.21it/s]Calibrating:  87%|████████▋ | 87/100 [01:11<00:10,  1.20it/s]Calibrating:  88%|████████▊ | 88/100 [01:11<00:09,  1.20it/s]Calibrating:  89%|████████▉ | 89/100 [01:12<00:09,  1.22it/s]Calibrating:  90%|█████████ | 90/100 [01:13<00:08,  1.22it/s]Calibrating:  91%|█████████ | 91/100 [01:14<00:07,  1.23it/s]Calibrating:  92%|█████████▏| 92/100 [01:15<00:06,  1.24it/s]Calibrating:  93%|█████████▎| 93/100 [01:16<00:05,  1.22it/s]Calibrating:  94%|█████████▍| 94/100 [01:16<00:04,  1.23it/s]Calibrating:  95%|█████████▌| 95/100 [01:17<00:04,  1.21it/s]Calibrating:  96%|█████████▌| 96/100 [01:18<00:03,  1.20it/s]Calibrating:  97%|█████████▋| 97/100 [01:19<00:02,  1.21it/s]Calibrating:  98%|█████████▊| 98/100 [01:20<00:01,  1.22it/s]Calibrating:  99%|█████████▉| 99/100 [01:21<00:00,  1.20it/s]Calibrating: 100%|██████████| 100/100 [01:21<00:00,  1.20it/s]Calibrating: 100%|██████████| 100/100 [01:21<00:00,  1.22it/s]
+
+[RESULT] τ(0.95) = 0.560766
+Mean MMD (same-distribution): 0.527453 ± 0.023657
+
+[STEP 2] Sanity Check...
+[SANITY CHECK] MMD(/home1/adoyle2025/Datasets/Datasets/CULaneto/home1/adoyle2025/Datasets/Datasets/CULane) = 0.512225, τ = 0.560766
+No shift detected.
+
+[STEP 3] Data Shift Test: /home1/adoyle2025/Datasets/Datasets/CULane to (10) /home1/adoyle2025/Datasets/Datasets/ASSIST-Taxi + (0) /home1/adoyle2025/Datasets/Datasets/CULane, Noise applied: None
+
+Shift Testing:   0%|          | 0/100 [00:00<?, ?it/s]Shift Testing:   0%|          | 0/100 [00:00<?, ?it/s]
+[INFO] Mixed Dataloader Configuration:
+[INFO] (/home1/adoyle2025/Datasets/Datasets/CULane) → [0:0] (0 samples)
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 505, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 436, in run
+    self.data_shift_test()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experimentP2.py", line 373, in data_shift_test
+    loaderReturn = get_concat_dataloader(
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/data/data_builder.py", line 311, in get_concat_dataloader
+    ds = ImageDataset(
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/data/data_builder.py", line 59, in __init__
+    raise FileNotFoundError(f"List file not found: {list_path}")
+FileNotFoundError: List file not found: /home1/adoyle2025/Datasets/Datasets/ASSIST-Taxi/train.txt
+----------------------------------------------------
+Job finished: Thu Mar 19 09:17:15 PM EDT 2026
+----------------------------------------------------

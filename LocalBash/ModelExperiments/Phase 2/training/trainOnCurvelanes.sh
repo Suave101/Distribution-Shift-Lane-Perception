@@ -6,9 +6,9 @@
 #SBATCH --ntasks=1
 #SBATCH --output=P2TrainCurvelanes.log
 #SBATCH --partition=gpu2
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=64G
+#SBATCH --gres=gpu:3
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=128G
 #
 echo "----------------------------------------------------"
 echo "Slurm Job ID: $SLURM_JOB_ID"
@@ -37,7 +37,7 @@ python trainPhase2.py \
     --dataset_dir "/home1/adoyle2025/Datasets/Datasets/Curvelanes" \
     --dataset_list "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt" \
     --samples 100000 \
-    --batch_size 128 \
+    --batch_size 256 \
     --image_size 512 \
     --epochs 50 \
     --learning_rate 0.0001
