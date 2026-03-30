@@ -4,11 +4,11 @@ import torch.nn.functional as F
 from torchvision import models
 from models import autoencoderConfigs
 
-class ConfP2ConvAutoencoderFC(nn.Module):
+class ConfP3ConvAutoencoderFC(nn.Module):
     def __init__(self, latent_dim=32, configs=autoencoderConfigs.AutoEncoderWeights.IMAGE_NET):
         super().__init__()
 
-        print(f"[Autoencoder] - Phase 2 - Latent Dim: {latent_dim}")
+        print(f"[Autoencoder] - Phase 3 - Latent Dim: {latent_dim}")
 
         # We will store the path here and load it AT THE END
         checkpoint_path = None
@@ -25,15 +25,15 @@ class ConfP2ConvAutoencoderFC(nn.Module):
         elif configs == autoencoderConfigs.AutoEncoderWeights.CU_LANE:
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
-            checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/CULane/P2autoencoder_CULane_epoch_50.pth"
+            checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase3/CULane/P3autoencoder_CULane_epoch_50.pth"
         elif configs == autoencoderConfigs.AutoEncoderWeights.CURVELANES:   
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
-            checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/Curvelanes/P2autoencoder_Curvelanes_epoch_50.pth"
+            checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase3/Curvelanes/P3autoencoder_Curvelanes_epoch_50.pth"
         elif configs == autoencoderConfigs.AutoEncoderWeights.ASSIST_TAXI:
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
-            checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/AssistTaxi/P2autoencoder_AssistTaxi_epoch_50.pth"
+            checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase3/AssistTaxi/P3autoencoder_AssistTaxi_epoch_50.pth"
         else:
             raise ValueError(f"Unsupported config: {configs}")
         
@@ -49,10 +49,10 @@ class ConfP2ConvAutoencoderFC(nn.Module):
                 m.requires_grad_(False)
 
         # New: Spatial Reduction Layer
-        # 16x16 -> 4x4 (Factor of 16 reduction)
-        self.spatial_pool = nn.AvgPool2d(kernel_size=4, stride=4)
+        # 16x16 -> 8x8 (Factor of 4 reduction)
+        self.spatial_pool = nn.AvgPool2d(kernel_size=2, stride=2)
         
-        self.flatten_dim = 512 * 4 * 4  # 8192
+        self.flatten_dim = 512 * 8 * 8  # 32768
 
         # -------- Fully Connected Encoder (2 Layers) --------
         self.fc_encoder = nn.Sequential(
@@ -72,7 +72,8 @@ class ConfP2ConvAutoencoderFC(nn.Module):
         )
 
         # New: Upsample back to 16x16 before ConvTranspose starts
-        self.spatial_upsample = nn.Upsample(scale_factor=4, mode='nearest')
+        # 8x8 -> 16x16 requires a scale_factor of 2
+        self.spatial_upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
         # -------- Decoder (ConvTranspose) --------
         self.decoder_conv = nn.Sequential(
@@ -101,14 +102,14 @@ class ConfP2ConvAutoencoderFC(nn.Module):
 
     def encode(self, x):
         h = self.encoder_conv(x)      # (B, 512, 16, 16)
-        h = self.spatial_pool(h)      # (B, 512, 4, 4)
-        h_flat = h.reshape(h.size(0), -1) # (B, 8192)
+        h = self.spatial_pool(h)      # (B, 512, 8, 8)
+        h_flat = h.reshape(h.size(0), -1) # (B, 32768)
         z = self.fc_encoder(h_flat)   # (B, 32)
         return z
 
     def decode(self, z):
-        h_flat = self.fc_decoder(z)   # (B, 8192)
-        h = h_flat.view(z.size(0), 512, 4, 4)
+        h_flat = self.fc_decoder(z)   # (B, 32768)
+        h = h_flat.view(z.size(0), 512, 8, 8)
         h = self.spatial_upsample(h)  # (B, 512, 16, 16)
         out = self.decoder_conv(h)    # (B, 3, 512, 512)
         return out

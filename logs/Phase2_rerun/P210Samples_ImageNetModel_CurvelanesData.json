@@ -1,0 +1,106 @@
+{
+    "experiments": [
+        {
+            "arguments": {
+                "source_dir": "/home1/adoyle2025/Datasets/Datasets/Curvelanes",
+                "target_dir": "/home1/adoyle2025/Datasets/Datasets/Curvelanes",
+                "source_list_path": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt",
+                "source_test_list_path": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt",
+                "target_list_path": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt",
+                "src_samples": 10,
+                "tgt_samples": 10,
+                "num_runs": 100,
+                "block_idx": 4,
+                "batch_size": 64,
+                "image_size": 512,
+                "num_calib": 100,
+                "alpha": 0.05,
+                "seed_base": 32,
+                "shift": null,
+                "std": 0.0,
+                "cropImg": false,
+                "rotation_angle": 0.0,
+                "width_shift_frac": 0.2,
+                "height_shift_frac": 0.2,
+                "shear_angle": 0.0,
+                "zoom_factor": 1.0,
+                "model": "ImageNet"
+            },
+            "data": {
+                "Source Training Feature Shape": [
+                    10,
+                    32
+                ],
+                "Source Training Feature Image Paths": [
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/765525685730cae0511c03f68c9ea99b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/8eac10ca90324bbb0dfa7e5bde887291.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/88ab69da2f9757945f7619fe30e759fc.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/1d2eda7f8e228d05f3dec67ddb183ad3.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/11cff73be26743f6351a12110aea082b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/96a8635f2ddd270ff8afddd236583d03.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/a04ffb613193c864e7a2f02337c7182d.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6b156abfcbe020ae10b643a73bb138ef.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/4c8fbd0349fff85f87317a6c7a45eea0.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/284cbac4ae4453ee97405a9fff59bdb0.jpg"
+                ],
+                "Calibration": {
+                    "Uses": "/home1/adoyle2025/Datasets/Datasets/Curvelanes",
+                    "Result": {
+                        "Tau": 0.07274128943681717,
+                        "Mean MMD": 0.029244933724403382,
+                        "MMD (std)": 0.026024009084428017
+                    }
+                },
+                "Sanity Check": {
+                    "Image Paths": [
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/44a2eb7e577589e982e160aedf631251.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/bb6c20d46d73c1f6e8bdffd1c10382fb.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/66a434e5748b3d778496e78856c9c4f7.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d09b0e9c7721923f41c9861c0ef6ad98.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/7e629e3e1d00e005a79b759f6cb31400.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d64585cf3c14eca1c4de18e2d9a8de79.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/7b8778f640a349ddce0af2f7bed78e12.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/9248050277bbe4e810f0da039b2c9d6a.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/a7a7178b8f1d760addaa20ace43c7842.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/14ae404e59690e6dadd149e60c3e20d8.jpg"
+                    ],
+                    "Results": {
+                        "Sanity Check Definition": "/home1/adoyle2025/Datasets/Datasets/Curvelanesto/home1/adoyle2025/Datasets/Datasets/Curvelanes",
+                        "MMD": 0.03494662046432495,
+                        "Tau": 0.07274128943681717
+                    },
+                    "Shift Detected": false
+                },
+                "Data Shift Test Data": {
+                    "Data Shift Test Definition": "/home1/adoyle2025/Datasets/Datasets/Curvelanes to (10) /home1/adoyle2025/Datasets/Datasets/Curvelanes + (0) /home1/adoyle2025/Datasets/Datasets/Curvelanes",
+                    "Noise Applied": "None",
+                    "Runs": 100,
+                    "Individual Test Data": [
+                        {
+                            "Source Samples": 0,
+                            "Target Samples": 10,
+                            "Image Paths": [
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/cf29f4741bb4d0f21d425e7d65fa030e.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/e2610c23f96bb377fc7b72b537dc59db.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/c2eef5b2358337ed0e14425144389b32.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/3d5cd71adb786c18a2d93319ee4f6326.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/26c3196a96105d06a41d7ebc27017c5d.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d3004bfc93ad1a49ed9897c1315aafd6.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/3c48247d4552f2d22b026d49f7b9957f.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d479c07f68dab51c460719031bf3810a.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/48d4c9cd990816a1224946cf8160cb24.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/2883058d30e1a48d830ec8c5d6ef7668.jpg"
+                            ],
+                            "Run": 1,
+                            "MMD": -0.03192630410194397,
+                            "Shift Detected": false
+                        }
+                    ],
+                    "TPR": 5.0,
+                    "Average MMD": 0.029244933724403382,
+                    "Average MMD (std)": 0.026024009084428017
+                }
+            }
+        }
+    ]
+}

@@ -229,7 +229,7 @@ class ShiftExperiment:
         # Get the images
         loaderReturn = get_dataloader(
             root_dir=self.source_dir,
-            list_path=self.source_test_list_dir,
+            list_path=self.source_list_dir,
             batch_size=self.batch_size,
             image_size=self.image_size,
             num_samples=self.src_samples,
@@ -317,7 +317,7 @@ class ShiftExperiment:
             batch_size=self.batch_size,
             image_size=self.image_size,
             num_samples=self.tgt_samples,
-            seed=int(self.seed_base + 1),
+            seed=int(self.seed_base + self.num_calib),
             cropImg=self.cropImg,
             shift=None,
         )
