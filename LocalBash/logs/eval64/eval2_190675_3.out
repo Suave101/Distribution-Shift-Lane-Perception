@@ -1,0 +1,89 @@
+Initializing conda for script...
+Conda environment activated and isolated:
+
+# conda environments:
+#
+# * -> active
+# + -> frozen
+base                     /home1/adoyle2025/miniconda3
+clrernet                 /home1/adoyle2025/miniconda3/envs/clrernet
+distribution_shift_perception     /home1/adoyle2025/miniconda3/envs/distribution_shift_perception
+dslp_env                 /home1/adoyle2025/miniconda3/envs/dslp_env
+lane_env_cpu             /home1/adoyle2025/miniconda3/envs/lane_env_cpu
+lane_perception_test     /home1/adoyle2025/miniconda3/envs/lane_perception_test
+ml_project           *   /home1/adoyle2025/miniconda3/envs/ml_project
+test_env                 /home1/adoyle2025/miniconda3/envs/test_env
+tf_a100                  /home1/adoyle2025/miniconda3/envs/tf_a100
+
+==========================================================
+Starting Slurm Array Task: 3
+Assigned Dataset: curvelanes
+Assigned Model: Curvelanes
+Executing on Node: gpu08
+==========================================================
+[INFO] (/home1/adoyle2025/Datasets/Datasets/Curvelanes) → [0:1000] (1000 samples)
+--- Starting Evaluation ---
+Dataset: CurveLanes_Train
+Model: Curvelanes
+---------------------------
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Successfully loaded full Autoencoder weights from /home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/Curvelanes/P2autoencoder_Curvelanes_epoch_50.pth
+
+[*] Evaluating Curvelanes on CurveLanes_Train...
+
+Batch MSE: 0.008551
+[Model Evaluator] - Images Saved
+[Model Evaluator] - MSE Evaluation Has Begun
+Batch MSE: 0.010207
+Batch MSE: 0.008464
+Batch MSE: 0.010948
+Batch MSE: 0.008212
+Batch MSE: 0.008683
+Batch MSE: 0.008635
+Batch MSE: 0.010061
+Batch MSE: 0.008982
+Batch MSE: 0.007657
+Batch MSE: 0.007997
+Batch MSE: 0.009857
+Batch MSE: 0.008050
+Batch MSE: 0.008920
+Batch MSE: 0.008412
+Batch MSE: 0.009178
+Batch MSE: 0.010945
+Batch MSE: 0.010482
+Batch MSE: 0.009067
+Batch MSE: 0.009501
+Batch MSE: 0.009485
+Batch MSE: 0.009928
+Batch MSE: 0.008414
+Batch MSE: 0.008926
+Batch MSE: 0.007914
+Batch MSE: 0.008902
+Batch MSE: 0.008865
+Batch MSE: 0.010518
+Batch MSE: 0.009428
+Batch MSE: 0.008166
+Batch MSE: 0.008333
+Batch MSE: 0.008337
+Batch MSE: 0.008732
+Batch MSE: 0.008051
+Batch MSE: 0.009955
+Batch MSE: 0.010320
+Batch MSE: 0.009896
+Batch MSE: 0.010532
+Batch MSE: 0.008129
+Batch MSE: 0.009179
+Batch MSE: 0.009009
+Batch MSE: 0.007717
+Batch MSE: 0.009919
+Batch MSE: 0.008988
+Batch MSE: 0.009956
+Batch MSE: 0.009128
+Batch MSE: 0.010068
+Batch MSE: 0.009288
+Batch MSE: 0.009598
+Batch MSE: 0.009032
+
+[*] Final MSE for Curvelanes on CurveLanes_Train: 0.009150
+
+Task 3 complete!

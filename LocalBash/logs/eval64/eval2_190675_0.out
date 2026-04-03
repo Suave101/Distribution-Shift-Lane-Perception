@@ -1,0 +1,88 @@
+Initializing conda for script...
+Conda environment activated and isolated:
+
+# conda environments:
+#
+# * -> active
+# + -> frozen
+base                     /home1/adoyle2025/miniconda3
+clrernet                 /home1/adoyle2025/miniconda3/envs/clrernet
+distribution_shift_perception     /home1/adoyle2025/miniconda3/envs/distribution_shift_perception
+dslp_env                 /home1/adoyle2025/miniconda3/envs/dslp_env
+lane_env_cpu             /home1/adoyle2025/miniconda3/envs/lane_env_cpu
+lane_perception_test     /home1/adoyle2025/miniconda3/envs/lane_perception_test
+ml_project           *   /home1/adoyle2025/miniconda3/envs/ml_project
+test_env                 /home1/adoyle2025/miniconda3/envs/test_env
+tf_a100                  /home1/adoyle2025/miniconda3/envs/tf_a100
+
+==========================================================
+Starting Slurm Array Task: 0
+Assigned Dataset: curvelanes
+Assigned Model: ImageNet
+Executing on Node: gpu07
+==========================================================
+[INFO] (/home1/adoyle2025/Datasets/Datasets/Curvelanes) → [0:1000] (1000 samples)
+--- Starting Evaluation ---
+Dataset: CurveLanes_Train
+Model: ImageNet
+---------------------------
+[Autoencoder] - Phase 2 - Latent Dim: 32
+
+[*] Evaluating ImageNet on CurveLanes_Train...
+
+Batch MSE: 0.070956
+[Model Evaluator] - Images Saved
+[Model Evaluator] - MSE Evaluation Has Begun
+Batch MSE: 0.075109
+Batch MSE: 0.085514
+Batch MSE: 0.092561
+Batch MSE: 0.094569
+Batch MSE: 0.077816
+Batch MSE: 0.075885
+Batch MSE: 0.083933
+Batch MSE: 0.080358
+Batch MSE: 0.095492
+Batch MSE: 0.085719
+Batch MSE: 0.079711
+Batch MSE: 0.081003
+Batch MSE: 0.068822
+Batch MSE: 0.091542
+Batch MSE: 0.086040
+Batch MSE: 0.078831
+Batch MSE: 0.079833
+Batch MSE: 0.075797
+Batch MSE: 0.090867
+Batch MSE: 0.079735
+Batch MSE: 0.069517
+Batch MSE: 0.087163
+Batch MSE: 0.078892
+Batch MSE: 0.095992
+Batch MSE: 0.091347
+Batch MSE: 0.085852
+Batch MSE: 0.079065
+Batch MSE: 0.081201
+Batch MSE: 0.073854
+Batch MSE: 0.074333
+Batch MSE: 0.088074
+Batch MSE: 0.084888
+Batch MSE: 0.088779
+Batch MSE: 0.078316
+Batch MSE: 0.085020
+Batch MSE: 0.076029
+Batch MSE: 0.083805
+Batch MSE: 0.095485
+Batch MSE: 0.079944
+Batch MSE: 0.083071
+Batch MSE: 0.093352
+Batch MSE: 0.091555
+Batch MSE: 0.091101
+Batch MSE: 0.074199
+Batch MSE: 0.084864
+Batch MSE: 0.083447
+Batch MSE: 0.089294
+Batch MSE: 0.081006
+Batch MSE: 0.073563
+
+[*] Final MSE for ImageNet on CurveLanes_Train: 0.083062
+
+Task 0 complete!

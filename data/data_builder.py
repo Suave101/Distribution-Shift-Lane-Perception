@@ -205,7 +205,7 @@ def get_dataloader(
     batch_size: int,
     image_size: int,
     num_samples: int,
-    cropImg: bool,
+    cropImg: bool = False,
     block_idx: int = 0,
 ):
 
@@ -247,8 +247,8 @@ def get_seeded_random_dataloader(
     image_size: int,
     num_samples: int,
     seed: int,
-    cropImg: bool,
-    shift: Optional[DataShift],
+    cropImg: bool = False,
+    shift: Optional[DataShift] = None,
 ):
 
     ds = ImageDataset(
@@ -285,9 +285,9 @@ def get_concat_dataloader(
     batch_sizes: List[int],
     image_sizes: List[int],
     num_samples: List[int],
-    cropImg: List[bool],
-    block_idx: List[int],
-    seeds: List[int]
+    cropImg: List[bool] = None,
+    block_idx: List[int] = None,
+    seeds: List[int] = None
 ):
     """Creates a single combined dataloader from multiple datasets.
     

@@ -1,0 +1,89 @@
+Initializing conda for script...
+Conda environment activated and isolated:
+
+# conda environments:
+#
+# * -> active
+# + -> frozen
+base                     /home1/adoyle2025/miniconda3
+clrernet                 /home1/adoyle2025/miniconda3/envs/clrernet
+distribution_shift_perception     /home1/adoyle2025/miniconda3/envs/distribution_shift_perception
+dslp_env                 /home1/adoyle2025/miniconda3/envs/dslp_env
+lane_env_cpu             /home1/adoyle2025/miniconda3/envs/lane_env_cpu
+lane_perception_test     /home1/adoyle2025/miniconda3/envs/lane_perception_test
+ml_project           *   /home1/adoyle2025/miniconda3/envs/ml_project
+test_env                 /home1/adoyle2025/miniconda3/envs/test_env
+tf_a100                  /home1/adoyle2025/miniconda3/envs/tf_a100
+
+==========================================================
+Starting Slurm Array Task: 6
+Assigned Dataset: culane
+Assigned Model: CULane
+Executing on Node: gpu05
+==========================================================
+[INFO] (/home1/adoyle2025/Datasets/Datasets/CULane) → [0:1000] (1000 samples)
+--- Starting Evaluation ---
+Dataset: CULane_Train
+Model: CULane
+---------------------------
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Successfully loaded full Autoencoder weights from /home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/CULane/P2autoencoder_CULane_epoch_50.pth
+
+[*] Evaluating CULane on CULane_Train...
+
+Batch MSE: 0.032303
+[Model Evaluator] - Images Saved
+[Model Evaluator] - MSE Evaluation Has Begun
+Batch MSE: 0.033262
+Batch MSE: 0.033181
+Batch MSE: 0.034343
+Batch MSE: 0.034029
+Batch MSE: 0.034144
+Batch MSE: 0.031987
+Batch MSE: 0.028674
+Batch MSE: 0.027954
+Batch MSE: 0.035033
+Batch MSE: 0.025819
+Batch MSE: 0.024637
+Batch MSE: 0.025804
+Batch MSE: 0.031990
+Batch MSE: 0.029070
+Batch MSE: 0.027800
+Batch MSE: 0.031175
+Batch MSE: 0.033205
+Batch MSE: 0.035662
+Batch MSE: 0.035625
+Batch MSE: 0.033247
+Batch MSE: 0.030698
+Batch MSE: 0.029529
+Batch MSE: 0.031216
+Batch MSE: 0.030616
+Batch MSE: 0.032006
+Batch MSE: 0.033698
+Batch MSE: 0.032449
+Batch MSE: 0.029892
+Batch MSE: 0.029719
+Batch MSE: 0.026327
+Batch MSE: 0.028290
+Batch MSE: 0.030348
+Batch MSE: 0.030611
+Batch MSE: 0.029970
+Batch MSE: 0.026230
+Batch MSE: 0.026557
+Batch MSE: 0.025978
+Batch MSE: 0.025406
+Batch MSE: 0.025375
+Batch MSE: 0.025962
+Batch MSE: 0.027784
+Batch MSE: 0.024356
+Batch MSE: 0.030927
+Batch MSE: 0.030905
+Batch MSE: 0.025228
+Batch MSE: 0.023248
+Batch MSE: 0.026434
+Batch MSE: 0.030338
+Batch MSE: 0.032777
+
+[*] Final MSE for CULane on CULane_Train: 0.029836
+
+Task 6 complete!

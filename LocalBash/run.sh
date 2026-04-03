@@ -8,7 +8,6 @@
 # Total jobs:  48  (4 models × 4 data combos × 3 K values)
 #
 # Results are written to: logs/Phase2_rerun/
-# Usage: bash rerun_phase2_no_assist_taxi.sh
 
 set -euo pipefail
 
@@ -40,7 +39,7 @@ dataset_test_list() {
     # Curvelanes has no separate test split; use train.txt as source_test_list_path
     case "$1" in
         CULane)     echo "${DATASETS}/CULane/list/test.txt" ;;
-        Curvelanes) echo "${DATASETS}/Curvelanes/train/train.txt" ;;
+        Curvelanes) echo "${DATASETS}/Curvelanes/valid/valid.txt" ;;
     esac
 }
 
@@ -92,7 +91,6 @@ python model_experimentP2.py \\
     --target_dir ${DATASETS}/${TGT} \\
     --source_list_path $(dataset_train_list "${SRC}") \\
     --target_list_path $(dataset_train_list "${TGT}") \\
-    --source_test_list_path $(dataset_test_list "${SRC}") \\
     --src_samples ${K} \\
     --tgt_samples ${K} \\
     --ratio_src_samples 0 \\

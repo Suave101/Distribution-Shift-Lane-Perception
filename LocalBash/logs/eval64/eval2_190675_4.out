@@ -1,0 +1,88 @@
+Initializing conda for script...
+Conda environment activated and isolated:
+
+# conda environments:
+#
+# * -> active
+# + -> frozen
+base                     /home1/adoyle2025/miniconda3
+clrernet                 /home1/adoyle2025/miniconda3/envs/clrernet
+distribution_shift_perception     /home1/adoyle2025/miniconda3/envs/distribution_shift_perception
+dslp_env                 /home1/adoyle2025/miniconda3/envs/dslp_env
+lane_env_cpu             /home1/adoyle2025/miniconda3/envs/lane_env_cpu
+lane_perception_test     /home1/adoyle2025/miniconda3/envs/lane_perception_test
+ml_project           *   /home1/adoyle2025/miniconda3/envs/ml_project
+test_env                 /home1/adoyle2025/miniconda3/envs/test_env
+tf_a100                  /home1/adoyle2025/miniconda3/envs/tf_a100
+
+==========================================================
+Starting Slurm Array Task: 4
+Assigned Dataset: culane
+Assigned Model: ImageNet
+Executing on Node: gpu05
+==========================================================
+[INFO] (/home1/adoyle2025/Datasets/Datasets/CULane) → [0:1000] (1000 samples)
+--- Starting Evaluation ---
+Dataset: CULane_Train
+Model: ImageNet
+---------------------------
+[Autoencoder] - Phase 2 - Latent Dim: 32
+
+[*] Evaluating ImageNet on CULane_Train...
+
+Batch MSE: 0.085111
+[Model Evaluator] - Images Saved
+[Model Evaluator] - MSE Evaluation Has Begun
+Batch MSE: 0.084644
+Batch MSE: 0.092749
+Batch MSE: 0.092801
+Batch MSE: 0.092599
+Batch MSE: 0.091737
+Batch MSE: 0.090516
+Batch MSE: 0.090598
+Batch MSE: 0.081503
+Batch MSE: 0.080349
+Batch MSE: 0.105742
+Batch MSE: 0.115429
+Batch MSE: 0.113476
+Batch MSE: 0.092063
+Batch MSE: 0.059182
+Batch MSE: 0.057658
+Batch MSE: 0.072516
+Batch MSE: 0.098201
+Batch MSE: 0.094854
+Batch MSE: 0.092300
+Batch MSE: 0.094108
+Batch MSE: 0.081807
+Batch MSE: 0.111098
+Batch MSE: 0.104939
+Batch MSE: 0.103281
+Batch MSE: 0.088552
+Batch MSE: 0.106112
+Batch MSE: 0.092136
+Batch MSE: 0.082700
+Batch MSE: 0.083425
+Batch MSE: 0.092634
+Batch MSE: 0.090396
+Batch MSE: 0.080408
+Batch MSE: 0.080154
+Batch MSE: 0.084055
+Batch MSE: 0.078219
+Batch MSE: 0.077904
+Batch MSE: 0.077468
+Batch MSE: 0.076779
+Batch MSE: 0.077986
+Batch MSE: 0.080178
+Batch MSE: 0.083374
+Batch MSE: 0.090740
+Batch MSE: 0.080237
+Batch MSE: 0.079563
+Batch MSE: 0.082165
+Batch MSE: 0.078418
+Batch MSE: 0.078016
+Batch MSE: 0.072456
+Batch MSE: 0.092448
+
+[*] Final MSE for ImageNet on CULane_Train: 0.087316
+
+Task 4 complete!
