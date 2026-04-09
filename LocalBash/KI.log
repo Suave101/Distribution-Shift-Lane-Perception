@@ -1,0 +1,22 @@
+----------------------------------------------------
+Slurm Job ID: $SLURM_JOB_ID
+Running on host: Florida Tech HPC
+----------------------------------------------------
+Collecting jax
+  Downloading jax-0.6.2-py3-none-any.whl.metadata (13 kB)
+Collecting jaxlib
+  Downloading jaxlib-0.6.2-cp310-cp310-manylinux2014_x86_64.whl.metadata (1.3 kB)
+Requirement already satisfied: ml_dtypes>=0.5.0 in /home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/site-packages (from jax) (0.5.1)
+Requirement already satisfied: numpy>=1.26 in /home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/site-packages (from jax) (1.26.4)
+Requirement already satisfied: opt_einsum in /home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/site-packages (from jax) (3.4.0)
+Requirement already satisfied: scipy>=1.12 in /home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/site-packages (from jax) (1.15.3)
+Downloading jax-0.6.2-py3-none-any.whl (2.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.7/2.7 MB 33.7 MB/s  0:00:00
+Downloading jaxlib-0.6.2-cp310-cp310-manylinux2014_x86_64.whl (89.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.9/89.9 MB 83.2 MB/s  0:00:01
+Installing collected packages: jaxlib, jax
+
+Successfully installed jax-0.6.2 jaxlib-0.6.2
+----------------------------------------------------
+Job finished: $(date)
+----------------------------------------------------

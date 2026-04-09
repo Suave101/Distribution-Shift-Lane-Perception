@@ -9,9 +9,15 @@ import argparse
 from utils.mmd_test import mmd_test
 from utils.energy_test import energy_test
 from utils.bks import bks_distance_test
+from utils.mmd_agg import mmdAgg_test
 from data.data_builder import get_dataloader, get_seeded_random_dataloader
 from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
 import warnings
+import torch.multiprocessing as mp
+import jax
+# This will force a crash if the GPU isn't actually usable
+# better to crash and know why than to waste hours on CPU
+jax.config.update("jax_platform_name", "gpu")
 
 # Force deterministic behavior for reproducibility
 torch.use_deterministic_algorithms(True)
@@ -252,6 +258,13 @@ class ShiftExperiment:
                     calib_src_test_feats,
                     iterations=self.permutation_test_iterations,
                 )
+            elif self.test_type == "MMDAgg":
+                t_stat, p_value = mmdAgg_test(
+                    self.src_feats,
+                    calib_src_test_feats,
+                    iterations=self.permutation_test_iterations,
+                    seed=seed,
+                )
             elif self.test_type == "ENERGY":
                 t_stat, p_value = energy_test(
                     self.src_feats,
@@ -322,6 +335,13 @@ class ShiftExperiment:
                 self.src_feats,
                 sanity_src_feats,
                 iterations=self.permutation_test_iterations,
+            )
+        elif self.test_type == "MMDAgg":
+            mmd_val, p_value = mmdAgg_test(
+                self.src_feats,
+                sanity_src_feats,
+                iterations=self.permutation_test_iterations,
+                seed=int(self.seed_base + self.num_calib),
             )
         elif self.test_type == "ENERGY":
             mmd_val, p_value = energy_test(
@@ -399,6 +419,13 @@ class ShiftExperiment:
                     tgt_feats_cross,
                     iterations=self.permutation_test_iterations,
                 )
+            elif self.test_type == "MMDAgg":
+                mmd_cross, p_value = mmdAgg_test(
+                    self.src_feats,
+                    tgt_feats_cross,
+                    iterations=self.permutation_test_iterations,
+                    seed=seed,
+                )
             elif self.test_type == "ENERGY":
                 mmd_cross, p_value = energy_test(
                     self.src_feats,
@@ -463,6 +490,17 @@ class ShiftExperiment:
 
 
 if __name__ == "__main__":
+    # 1. FORCE JAX TO PLAY NICE
+    os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+    # Optional: limit JAX to a specific amount of remaining VRAM if needed
+    # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".20" 
+
+    # 2. Prevent NCCL Deadlocks (Common on A100 clusters)
+    os.environ["NCCL_P2P_DISABLE"] = "1"
+    os.environ["NCCL_IB_DISABLE"] = "1"
+
+    mp.set_start_method('spawn', force=True)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--source_dir", required=True, type=str)
     parser.add_argument("--target_dir", required=True, type=str)

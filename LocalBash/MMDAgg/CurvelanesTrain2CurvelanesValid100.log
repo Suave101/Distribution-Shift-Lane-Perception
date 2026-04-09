@@ -1,0 +1,17 @@
+----------------------------------------------------
+Slurm Job ID: $SLURM_JOB_ID
+Running on host: Florida Tech HPC
+----------------------------------------------------
+Fixed Flag: 4/1/26
+CUDA Available: True | Total GPUs Found: 1
+
+Initializing autoencoder...
+Using CU Lane pretrained weights for the autoencoder.
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Successfully loaded full Autoencoder weights from /home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/CULane/P2autoencoder_CULane_epoch_50.pth
+Using single GPU/CPU.
+[INFO] (/home1/adoyle2025/Datasets/Datasets/Curvelanes/train) → [0:100] (100 samples)
+/home1/adoyle2025/Datasets/Datasets/Curvelanes/train features loaded. Shape = (100, 32)
+
+[STEP 1] Calibration using /home1/adoyle2025/Datasets/Datasets/Curvelanes/train...
+Calibrating:   0%|          | 0/100 [00:00<?, ?it/s]Calibrating:   1%|          | 1/100 [00:01<02:08,  1.29s/it]Calibrating:   3%|▎         | 3/100 [00:01<00:36,  2.63it/s]Calibrating:   6%|▌         | 6/100 [00:01<00:16,  5.80it/s]Calibrating:   9%|▉         | 9/100 [00:01<00:10,  9.07it/s]Calibrating:  12%|█▏        | 12/100 [00:01<00:07, 12.20it/s]Calibrating:  15%|█▌        | 15/100 [00:01<00:05, 15.09it/s]Calibrating:  18%|█▊        | 18/100 [00:02<00:04, 17.72it/s]Calibrating:  21%|██        | 21/100 [00:02<00:03, 19.89it/s]Calibrating:  24%|██▍       | 24/100 [00:02<00:03, 21.52it/s]Calibrating:  27%|██▋       | 27/100 [00:02<00:03, 22.89it/s]Calibrating:  30%|███       | 30/100 [00:02<00:02, 23.95it/s]Calibrating:  33%|███▎      | 33/100 [00:02<00:02, 24.72it/s]Calibrating:  36%|███▌      | 36/100 [00:02<00:02, 25.29it/s]Calibrating:  39%|███▉      | 39/100 [00:02<00:02, 25.66it/s]Calibrating:  42%|████▏     | 42/100 [00:02<00:02, 26.25it/s]Calibrating:  45%|████▌     | 45/100 [00:03<00:02, 26.39it/s]Calibrating:  48%|████▊     | 48/100 [00:03<00:01, 27.03it/s]Calibrating:  51%|█████     | 51/100 [00:03<00:01, 27.84it/s]Calibrating:  54%|█████▍    | 54/100 [00:03<00:01, 28.42it/s]Calibrating:  58%|█████▊    | 58/100 [00:03<00:01, 29.03it/s]Calibrating:  62%|██████▏   | 62/100 [00:03<00:01, 29.62it/s]Calibrating:  66%|██████▌   | 66/100 [00:03<00:01, 29.96it/s]Calibrating:  70%|███████   | 70/100 [00:03<00:00, 30.17it/s]Calibrating:  74%|███████▍  | 74/100 [00:03<00:00, 30.31it/s]Calibrating:  78%|███████▊  | 78/100 [00:04<00:00, 30.32it/s]Calibrating:  82%|████████▏ | 82/100 [00:04<00:00, 30.43it/s]Calibrating:  82%|████████▏ | 82/100 [00:20<00:00, 30.43it/s]Calibrating:  85%|████████▌ | 85/100 [01:00<01:10,  4.68s/it]Calibrating:  86%|████████▌ | 86/100 [01:56<02:21, 10.10s/it]Calibrating:  87%|████████▋ | 87/100 [02:52<03:29, 16.10s/it]Calibrating:  88%|████████▊ | 88/100 [03:48<04:27, 22.29s/it]Calibrating:  89%|████████▉ | 89/100 [04:43<05:12, 28.40s/it]Calibrating:  90%|█████████ | 90/100 [05:39<05:40, 34.01s/it]Calibrating:  91%|█████████ | 91/100 [06:35<05:52, 39.12s/it]Calibrating:  92%|█████████▏| 92/100 [07:31<05:45, 43.19s/it]Calibrating:  93%|█████████▎| 93/100 [08:26<05:24, 46.34s/it]Calibrating:  94%|█████████▍| 94/100 [09:22<04:53, 48.84s/it]Calibrating:  95%|█████████▌| 95/100 [10:18<04:14, 50.82s/it]
