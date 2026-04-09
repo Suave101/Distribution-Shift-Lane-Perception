@@ -136,8 +136,10 @@ class ShiftExperiment:
         # --- GPU Setup ---
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         num_gpus = torch.cuda.device_count()
-        print(f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}")
-        
+        print(
+            f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}"
+        )
+
         # --- Model Initialization ---
         print("\nInitializing autoencoder on 4 GPUs...")
         base_model = ConvAutoencoderFC(latent_dim=512, pretrained=True).to(self.device)

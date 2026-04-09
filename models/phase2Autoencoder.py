@@ -4,8 +4,11 @@ import torch.nn.functional as F
 from torchvision import models
 from models import autoencoderConfigs
 
+
 class ConfP2ConvAutoencoderFC(nn.Module):
-    def __init__(self, latent_dim=32, configs=autoencoderConfigs.AutoEncoderWeights.IMAGE_NET):
+    def __init__(
+        self, latent_dim=32, configs=autoencoderConfigs.AutoEncoderWeights.IMAGE_NET
+    ):
         super().__init__()
 
         print(f"[Autoencoder] - Phase 2 - Latent Dim: {latent_dim}")
@@ -16,9 +19,7 @@ class ConfP2ConvAutoencoderFC(nn.Module):
         # -------- Pretrained ResNet encoder --------
         if configs == autoencoderConfigs.AutoEncoderWeights.IMAGE_NET:
             # Load ImageNet pretrained weights (UAE setting)
-            backbone = models.resnet18(
-                weights=models.ResNet18_Weights.IMAGENET1K_V1
-            )
+            backbone = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
         elif configs == autoencoderConfigs.AutoEncoderWeights.RANDOM_WEIGHTS:
             # Load random weights (untrained ResNet)
             backbone = models.resnet18()
@@ -26,7 +27,7 @@ class ConfP2ConvAutoencoderFC(nn.Module):
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
             checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/CULane/P2autoencoder_CULane_epoch_50.pth"
-        elif configs == autoencoderConfigs.AutoEncoderWeights.CURVELANES:   
+        elif configs == autoencoderConfigs.AutoEncoderWeights.CURVELANES:
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
             checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/Curvelanes/P2autoencoder_Curvelanes_epoch_50.pth"
@@ -36,7 +37,7 @@ class ConfP2ConvAutoencoderFC(nn.Module):
             checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/AssistTaxi/P2autoencoder_AssistTaxi_epoch_50.pth"
         else:
             raise ValueError(f"Unsupported config: {configs}")
-        
+
         layers = list(backbone.children())[
             :-2
         ]  # Remove avgpool and fc layers (keep convs)
@@ -51,7 +52,7 @@ class ConfP2ConvAutoencoderFC(nn.Module):
         # New: Spatial Reduction Layer
         # 16x16 -> 4x4 (Factor of 16 reduction)
         self.spatial_pool = nn.AvgPool2d(kernel_size=4, stride=4)
-        
+
         self.flatten_dim = 512 * 4 * 4  # 8192
 
         # -------- Fully Connected Encoder (2 Layers) --------
@@ -59,7 +60,7 @@ class ConfP2ConvAutoencoderFC(nn.Module):
             nn.Linear(self.flatten_dim, 512),
             nn.BatchNorm1d(512),
             nn.ReLU(inplace=True),
-            nn.Linear(512, latent_dim), # Latent dim = 32
+            nn.Linear(512, latent_dim),  # Latent dim = 32
         )
 
         # -------- Fully Connected Decoder (Symmetric) --------
@@ -72,7 +73,7 @@ class ConfP2ConvAutoencoderFC(nn.Module):
         )
 
         # New: Upsample back to 16x16 before ConvTranspose starts
-        self.spatial_upsample = nn.Upsample(scale_factor=4, mode='nearest')
+        self.spatial_upsample = nn.Upsample(scale_factor=4, mode="nearest")
 
         # -------- Decoder (ConvTranspose) --------
         self.decoder_conv = nn.Sequential(
@@ -82,13 +83,13 @@ class ConfP2ConvAutoencoderFC(nn.Module):
             nn.ConvTranspose2d(256, 128, 4, stride=2, padding=1),  # 128x64x64
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),   # 64x128x128
+            nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),  # 64x128x128
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(64, 32, 4, stride=2, padding=1),    # 32x256x256
+            nn.ConvTranspose2d(64, 32, 4, stride=2, padding=1),  # 32x256x256
             nn.BatchNorm2d(32),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1),     # 3x512x512
+            nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1),  # 3x512x512
             nn.Sigmoid(),
         )
 
@@ -97,30 +98,32 @@ class ConfP2ConvAutoencoderFC(nn.Module):
             # map_location="cpu" ensures it loads safely into RAM before moving to GPU
             checkpoint = torch.load(checkpoint_path, map_location="cpu")
             self.load_state_dict(checkpoint["model_state_dict"])
-            print(f"Successfully loaded full Autoencoder weights from {checkpoint_path}")
+            print(
+                f"Successfully loaded full Autoencoder weights from {checkpoint_path}"
+            )
 
     def encode(self, x):
-        h = self.encoder_conv(x)      # (B, 512, 16, 16)
-        h = self.spatial_pool(h)      # (B, 512, 4, 4)
-        h_flat = h.reshape(h.size(0), -1) # (B, 8192)
-        z = self.fc_encoder(h_flat)   # (B, 32)
+        h = self.encoder_conv(x)  # (B, 512, 16, 16)
+        h = self.spatial_pool(h)  # (B, 512, 4, 4)
+        h_flat = h.reshape(h.size(0), -1)  # (B, 8192)
+        z = self.fc_encoder(h_flat)  # (B, 32)
         return z
 
     def decode(self, z):
-        h_flat = self.fc_decoder(z)   # (B, 8192)
+        h_flat = self.fc_decoder(z)  # (B, 8192)
         h = h_flat.view(z.size(0), 512, 4, 4)
         h = self.spatial_upsample(h)  # (B, 512, 16, 16)
-        out = self.decoder_conv(h)    # (B, 3, 512, 512)
+        out = self.decoder_conv(h)  # (B, 3, 512, 512)
         return out
 
     def forward(self, x, return_encoding=False):
         # 1. Pass through encoder
-        z = self.encode(x) 
-        
+        z = self.encode(x)
+
         # 2. Stop early if we just want the features
         if return_encoding:
             return z
-            
+
         # 3. Otherwise, finish the forward pass (decoder)
         out = self.decode(z)
         return out

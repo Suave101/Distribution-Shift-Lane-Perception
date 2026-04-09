@@ -15,7 +15,11 @@ from data.data_utils import (
     VerticalFlipShift,
 )
 from utils.mmd_test import mmd_test
-from data.data_builder import get_dataloader, get_concat_dataloader, get_seeded_random_dataloader
+from data.data_builder import (
+    get_dataloader,
+    get_concat_dataloader,
+    get_seeded_random_dataloader,
+)
 from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
 
 
@@ -145,7 +149,7 @@ class ShiftExperiment:
             "shear_angle": shear_angle,
             "zoom_factor": zoom_factor,
             "thirty_two_dimensional": thirty_two_dimensional,
-            "dConfig": dConfig
+            "dConfig": dConfig,
         }
 
         self.loggerExperimentalData: JsonDict = {}
@@ -153,15 +157,21 @@ class ShiftExperiment:
         # --- GPU Setup ---
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         num_gpus = torch.cuda.device_count()
-        print(f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}")
-        
+        print(
+            f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}"
+        )
+
         # --- Model Initialization ---
         print("\nInitializing autoencoder on 4 GPUs...")
         if thirty_two_dimensional:
             dConfig = "d32"
-            raise Warning("This arg is about to be deprecated. Please use dConfig directly.")
-        
-        base_model = ConfConvAutoencoderFC32(config=dConfig, pretrained=True).to(self.device)
+            raise Warning(
+                "This arg is about to be deprecated. Please use dConfig directly."
+            )
+
+        base_model = ConfConvAutoencoderFC32(config=dConfig, pretrained=True).to(
+            self.device
+        )
 
         if num_gpus >= 4:
             # Explicitly use device IDs 0, 1, 2, and 3
@@ -390,7 +400,7 @@ class ShiftExperiment:
                 num_samples=[self.ratio_src_samples, self.ratio_tgt_samples],
                 cropImg=[self.cropImg, self.cropImg],
                 block_idx=[self.block_idx, self.block_idx],
-                seeds=[self.seed_base + i, self.seed_base + i]
+                seeds=[self.seed_base + i, self.seed_base + i],
             )
 
             tgt_loader_cross = loaderReturn[0]

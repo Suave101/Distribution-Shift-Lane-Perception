@@ -6,20 +6,20 @@ from models import autoencoderConfigs
 
 
 class Conf2ConvAutoencoderFC(nn.Module):
-    def __init__(self, latent_dim=512, configs=autoencoderConfigs.AutoEncoderWeights.IMAGE_NET):
+    def __init__(
+        self, latent_dim=512, configs=autoencoderConfigs.AutoEncoderWeights.IMAGE_NET
+    ):
         super().__init__()
 
         print("[Autoencoder] - Training Trial 1 - 3.19.26")
-        
+
         # We will store the path here and load it AT THE END
         checkpoint_path = None
 
         # -------- Pretrained ResNet encoder --------
         if configs == autoencoderConfigs.AutoEncoderWeights.IMAGE_NET:
             # Load ImageNet pretrained weights (UAE setting)
-            backbone = models.resnet18(
-                weights=models.ResNet18_Weights.IMAGENET1K_V1
-            )
+            backbone = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
         elif configs == autoencoderConfigs.AutoEncoderWeights.RANDOM_WEIGHTS:
             # Load random weights (untrained ResNet)
             backbone = models.resnet18()
@@ -27,7 +27,7 @@ class Conf2ConvAutoencoderFC(nn.Module):
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
             checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/CULane/autoencoder_CULane_epoch_50.pth"
-        elif configs == autoencoderConfigs.AutoEncoderWeights.CURVELANES:   
+        elif configs == autoencoderConfigs.AutoEncoderWeights.CURVELANES:
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
             checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Curvelanes/autoencoder_Curvelanes_epoch_50.pth"
@@ -38,7 +38,7 @@ class Conf2ConvAutoencoderFC(nn.Module):
             checkpoint_path = "path_to_assist_taxi_weights.pth"
         else:
             raise ValueError(f"Unsupported config: {configs}")
-        
+
         layers = list(backbone.children())[
             :-2
         ]  # Remove avgpool and fc layers (keep convs)
@@ -91,13 +91,15 @@ class Conf2ConvAutoencoderFC(nn.Module):
             nn.ConvTranspose2d(32, 3, 4, stride=2, padding=1),  # 3x512x512
             nn.Sigmoid(),
         )
-        
+
         # -------- LOAD WEIGHTS AT THE END --------
         if checkpoint_path is not None:
             # map_location="cpu" ensures it loads safely into RAM before moving to GPU
             checkpoint = torch.load(checkpoint_path, map_location="cpu")
             self.load_state_dict(checkpoint["model_state_dict"])
-            print(f"Successfully loaded full Autoencoder weights from {checkpoint_path}")
+            print(
+                f"Successfully loaded full Autoencoder weights from {checkpoint_path}"
+            )
 
     def encode(self, x):
         """Encode image → latent vector"""

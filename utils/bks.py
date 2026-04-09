@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import ks_2samp
 
+
 def bks_distance_test(X_src, X_tgt, alpha=0.05):
     """
     BKS Test that returns both a p-value and a 'BKS Distance'.

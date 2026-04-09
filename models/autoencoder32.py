@@ -38,7 +38,7 @@ class ConvAutoencoderFC32(nn.Module):
             nn.Linear(1024, 256),
             nn.BatchNorm1d(256),
             nn.ReLU(inplace=True),
-            nn.Linear(256, 32)
+            nn.Linear(256, 32),
         )
 
         self.fc_decoder = nn.Sequential(

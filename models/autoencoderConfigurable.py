@@ -35,7 +35,7 @@ class ConfConvAutoencoderFC32(nn.Module):
                     nn.Linear(4096, 1024),
                     nn.BatchNorm1d(1024),
                     nn.ReLU(inplace=True),
-                    nn.Linear(1024, 128)
+                    nn.Linear(1024, 128),
                 )
             case "d64rel":
                 self.fc_encoder = nn.Sequential(
@@ -45,7 +45,7 @@ class ConfConvAutoencoderFC32(nn.Module):
                     nn.Linear(4096, 1024),
                     nn.BatchNorm1d(1024),
                     nn.ReLU(inplace=True),
-                    nn.Linear(1024, 64)
+                    nn.Linear(1024, 64),
                 )
             case "d32rel":
                 self.fc_encoder = nn.Sequential(
@@ -55,7 +55,7 @@ class ConfConvAutoencoderFC32(nn.Module):
                     nn.Linear(4096, 1024),
                     nn.BatchNorm1d(1024),
                     nn.ReLU(inplace=True),
-                    nn.Linear(1024, 32)
+                    nn.Linear(1024, 32),
                 )
             case "d128gdd":
                 self.fc_encoder = nn.Sequential(
@@ -98,7 +98,7 @@ class ConfConvAutoencoderFC32(nn.Module):
                     nn.Linear(1024, 256),
                     nn.BatchNorm1d(256),
                     nn.ReLU(inplace=True),
-                    nn.Linear(256, 64)
+                    nn.Linear(256, 64),
                 )
             case "d128ids":
                 self.fc_encoder = nn.Sequential(
@@ -111,7 +111,7 @@ class ConfConvAutoencoderFC32(nn.Module):
                     nn.Linear(1024, 256),
                     nn.BatchNorm1d(256),
                     nn.ReLU(inplace=True),
-                    nn.Linear(256, 128)
+                    nn.Linear(256, 128),
                 )
             case "d32":
                 self.fc_encoder = nn.Sequential(
@@ -124,7 +124,7 @@ class ConfConvAutoencoderFC32(nn.Module):
                     nn.Linear(1024, 256),
                     nn.BatchNorm1d(256),
                     nn.ReLU(inplace=True),
-                    nn.Linear(256, 32)
+                    nn.Linear(256, 32),
                 )
             case "orig" | "":
                 self.fc_encoder = nn.Sequential(

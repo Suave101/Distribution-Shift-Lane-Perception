@@ -1,0 +1,137 @@
+----------------------------------------------------
+Slurm Job ID: $SLURM_JOB_ID
+Running on host: $(hostname)
+Experiment: CULaneTrain2CULaneTrainImageNet100
+----------------------------------------------------
+Fixed Flag: 4/1/26
+CUDA Available: True | Total GPUs Found: 1
+
+Initializing autoencoder...
+Using ImageNet pretrained weights for the autoencoder.
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Using single GPU/CPU.
+[INFO] (/home1/adoyle2025/Datasets/Datasets/CULane) → [0:100] (100 samples)
+/home1/adoyle2025/Datasets/Datasets/CULane features loaded. Shape = (100, 32)
+
+[STEP 1] Calibration using /home1/adoyle2025/Datasets/Datasets/CULane...
+Calibrating:   0%|          | 0/100 [00:00<?, ?it/s]Calibrating:   2%|▏         | 2/100 [00:00<00:05, 18.54it/s]Calibrating:   4%|▍         | 4/100 [00:00<00:05, 18.96it/s]Calibrating:   6%|▌         | 6/100 [00:00<00:04, 19.41it/s]Calibrating:   9%|▉         | 9/100 [00:00<00:04, 19.99it/s]Calibrating:  12%|█▏        | 12/100 [00:00<00:04, 20.67it/s]Calibrating:  15%|█▌        | 15/100 [00:00<00:04, 21.06it/s]Calibrating:  18%|█▊        | 18/100 [00:00<00:03, 21.48it/s]Calibrating:  21%|██        | 21/100 [00:01<00:03, 21.52it/s]Calibrating:  24%|██▍       | 24/100 [00:01<00:03, 21.57it/s]Calibrating:  27%|██▋       | 27/100 [00:01<00:03, 21.88it/s]Calibrating:  30%|███       | 30/100 [00:01<00:03, 22.22it/s]Calibrating:  33%|███▎      | 33/100 [00:01<00:02, 22.58it/s]Calibrating:  36%|███▌      | 36/100 [00:01<00:02, 22.97it/s]Calibrating:  39%|███▉      | 39/100 [00:01<00:02, 23.27it/s]Calibrating:  42%|████▏     | 42/100 [00:01<00:02, 23.72it/s]Calibrating:  45%|████▌     | 45/100 [00:02<00:02, 24.47it/s]Calibrating:  48%|████▊     | 48/100 [00:02<00:02, 25.12it/s]Calibrating:  51%|█████     | 51/100 [00:02<00:01, 25.58it/s]Calibrating:  54%|█████▍    | 54/100 [00:02<00:01, 25.70it/s]Calibrating:  57%|█████▋    | 57/100 [00:02<00:01, 25.77it/s]Calibrating:  60%|██████    | 60/100 [00:02<00:01, 25.93it/s]Calibrating:  63%|██████▎   | 63/100 [00:02<00:01, 25.92it/s]Calibrating:  66%|██████▌   | 66/100 [00:02<00:01, 25.77it/s]Calibrating:  69%|██████▉   | 69/100 [00:02<00:01, 25.57it/s]Calibrating:  72%|███████▏  | 72/100 [00:03<00:01, 25.44it/s]Calibrating:  75%|███████▌  | 75/100 [00:03<00:00, 25.40it/s]Calibrating:  78%|███████▊  | 78/100 [00:03<00:00, 25.36it/s]Calibrating:  81%|████████  | 81/100 [00:03<00:00, 25.42it/s]Calibrating:  84%|████████▍ | 84/100 [00:03<00:00, 25.51it/s]Calibrating:  87%|████████▋ | 87/100 [00:03<00:00, 25.60it/s]Calibrating:  90%|█████████ | 90/100 [00:03<00:00, 25.73it/s]Calibrating:  93%|█████████▎| 93/100 [00:03<00:00, 25.71it/s]Calibrating:  96%|█████████▌| 96/100 [00:03<00:00, 25.81it/s]Calibrating:  99%|█████████▉| 99/100 [00:04<00:00, 25.91it/s]Calibrating: 100%|██████████| 100/100 [00:04<00:00, 24.09it/s]
+
+[RESULT] τ(0.95) = 0.660000
+Mean BKS (same-distribution): 0.599700 ± 0.034306
+
+[STEP 2] Sanity Check...
+[SANITY CHECK] BKS(A = /home1/adoyle2025/Datasets/Datasets/CULane, B = /home1/adoyle2025/Datasets/Datasets/CULane) = 0.560000, τ = 0.660000
+No shift detected.
+
+[STEP 3] Data Shift Test: /home1/adoyle2025/Datasets/Datasets/CULane to /home1/adoyle2025/Datasets/Datasets/CULanea
+
+Shift Testing:   0%|          | 0/100 [00:00<?, ?it/s]Shift Testing:   3%|▎         | 3/100 [00:00<00:04, 23.34it/s]Shift Testing:   6%|▌         | 6/100 [00:00<00:04, 22.69it/s]Shift Testing:   9%|▉         | 9/100 [00:00<00:04, 22.38it/s]Shift Testing:  12%|█▏        | 12/100 [00:00<00:04, 21.98it/s]Shift Testing:  15%|█▌        | 15/100 [00:00<00:03, 21.89it/s]Shift Testing:  18%|█▊        | 18/100 [00:00<00:03, 21.83it/s]Shift Testing:  21%|██        | 21/100 [00:00<00:03, 21.50it/s]Shift Testing:  24%|██▍       | 24/100 [00:01<00:03, 21.65it/s]Shift Testing:  27%|██▋       | 27/100 [00:01<00:03, 21.89it/s]Shift Testing:  30%|███       | 30/100 [00:01<00:03, 21.99it/s]Shift Testing:  33%|███▎      | 33/100 [00:01<00:03, 21.85it/s]Shift Testing:  36%|███▌      | 36/100 [00:01<00:02, 21.79it/s]Shift Testing:  39%|███▉      | 39/100 [00:01<00:02, 21.86it/s]Shift Testing:  42%|████▏     | 42/100 [00:01<00:02, 22.01it/s]Shift Testing:  45%|████▌     | 45/100 [00:02<00:02, 22.10it/s]Shift Testing:  48%|████▊     | 48/100 [00:02<00:02, 22.37it/s]Shift Testing:  51%|█████     | 51/100 [00:02<00:02, 22.45it/s]Shift Testing:  54%|█████▍    | 54/100 [00:02<00:02, 22.57it/s][RUN 1] BKS=0.560000 ❌ Not Detected
+[RUN 2] BKS=0.640000 ❌ Not Detected
+[RUN 3] BKS=0.560000 ❌ Not Detected
+[RUN 4] BKS=0.550000 ❌ Not Detected
+[RUN 5] BKS=0.570000 ❌ Not Detected
+[RUN 6] BKS=0.540000 ❌ Not Detected
+[RUN 7] BKS=0.630000 ❌ Not Detected
+[RUN 8] BKS=0.560000 ❌ Not Detected
+[RUN 9] BKS=0.550000 ❌ Not Detected
+[RUN 10] BKS=0.630000 ❌ Not Detected
+[RUN 11] BKS=0.560000 ❌ Not Detected
+[RUN 12] BKS=0.590000 ❌ Not Detected
+[RUN 13] BKS=0.640000 ❌ Not Detected
+[RUN 14] BKS=0.550000 ❌ Not Detected
+[RUN 15] BKS=0.700000 ✅ Detected
+[RUN 16] BKS=0.630000 ❌ Not Detected
+[RUN 17] BKS=0.540000 ❌ Not Detected
+[RUN 18] BKS=0.590000 ❌ Not Detected
+[RUN 19] BKS=0.650000 ❌ Not Detected
+[RUN 20] BKS=0.610000 ❌ Not Detected
+[RUN 21] BKS=0.550000 ❌ Not Detected
+[RUN 22] BKS=0.530000 ❌ Not Detected
+[RUN 23] BKS=0.580000 ❌ Not Detected
+[RUN 24] BKS=0.590000 ❌ Not Detected
+[RUN 25] BKS=0.570000 ❌ Not Detected
+[RUN 26] BKS=0.620000 ❌ Not Detected
+[RUN 27] BKS=0.590000 ❌ Not Detected
+[RUN 28] BKS=0.560000 ❌ Not Detected
+[RUN 29] BKS=0.640000 ❌ Not Detected
+[RUN 30] BKS=0.540000 ❌ Not Detected
+[RUN 31] BKS=0.580000 ❌ Not Detected
+[RUN 32] BKS=0.590000 ❌ Not Detected
+[RUN 33] BKS=0.640000 ❌ Not Detected
+[RUN 34] BKS=0.600000 ❌ Not Detected
+[RUN 35] BKS=0.610000 ❌ Not Detected
+[RUN 36] BKS=0.580000 ❌ Not Detected
+[RUN 37] BKS=0.600000 ❌ Not Detected
+[RUN 38] BKS=0.620000 ❌ Not Detected
+[RUN 39] BKS=0.590000 ❌ Not Detected
+[RUN 40] BKS=0.640000 ❌ Not Detected
+[RUN 41] BKS=0.590000 ❌ Not Detected
+[RUN 42] BKS=0.580000 ❌ Not Detected
+[RUN 43] BKS=0.610000 ❌ Not Detected
+[RUN 44] BKS=0.560000 ❌ Not Detected
+[RUN 45] BKS=0.590000 ❌ Not Detected
+[RUN 46] BKS=0.630000 ❌ Not Detected
+[RUN 47] BKS=0.640000 ❌ Not Detected
+[RUN 48] BKS=0.610000 ❌ Not Detected
+[RUN 49] BKS=0.680000 ✅ Detected
+[RUN 50] BKS=0.590000 ❌ Not Detected
+[RUN 51] BKS=0.570000 ❌ Not Detected
+[RUN 52] BKS=0.630000 ❌ Not Detected
+[RUN 53] BKS=0.560000 ❌ Not Detected
+[RUN 54] BKS=0.620000 ❌ Not Detected
+[RUN 55] BKS=0.600000 ❌ Not Detected
+[RUN 56] BKS=0.580000 ❌ Not Detected
+Shift Testing:  57%|█████▋    | 57/100 [00:09<00:33,  1.30it/s][RUN 57] BKS=0.610000 ❌ Not Detected
+[RUN 58] BKS=0.660000 ❌ Not Detected
+Shift Testing:  59%|█████▉    | 59/100 [00:18<01:02,  1.52s/it][RUN 59] BKS=0.630000 ❌ Not Detected
+[RUN 60] BKS=0.700000 ✅ Detected
+Shift Testing:  61%|██████    | 61/100 [00:28<01:32,  2.38s/it][RUN 61] BKS=0.630000 ❌ Not Detected
+Shift Testing:  62%|██████▏   | 62/100 [00:33<01:44,  2.74s/it][RUN 62] BKS=0.580000 ❌ Not Detected
+Shift Testing:  63%|██████▎   | 63/100 [00:36<01:46,  2.87s/it][RUN 63] BKS=0.590000 ❌ Not Detected
+Shift Testing:  64%|██████▍   | 64/100 [00:40<01:48,  3.01s/it][RUN 64] BKS=0.560000 ❌ Not Detected
+Shift Testing:  65%|██████▌   | 65/100 [00:44<01:51,  3.19s/it][RUN 65] BKS=0.630000 ❌ Not Detected
+Shift Testing:  66%|██████▌   | 66/100 [00:47<01:51,  3.28s/it][RUN 66] BKS=0.650000 ❌ Not Detected
+Shift Testing:  67%|██████▋   | 67/100 [00:51<01:54,  3.46s/it][RUN 67] BKS=0.620000 ❌ Not Detected
+Shift Testing:  68%|██████▊   | 68/100 [00:55<01:51,  3.49s/it][RUN 68] BKS=0.590000 ❌ Not Detected
+Shift Testing:  69%|██████▉   | 69/100 [00:59<01:53,  3.66s/it][RUN 69] BKS=0.530000 ❌ Not Detected
+Shift Testing:  70%|███████   | 70/100 [01:02<01:49,  3.64s/it][RUN 70] BKS=0.620000 ❌ Not Detected
+Shift Testing:  71%|███████   | 71/100 [01:06<01:46,  3.66s/it][RUN 71] BKS=0.590000 ❌ Not Detected
+Shift Testing:  72%|███████▏  | 72/100 [01:09<01:39,  3.57s/it][RUN 72] BKS=0.550000 ❌ Not Detected
+Shift Testing:  73%|███████▎  | 73/100 [01:13<01:38,  3.63s/it][RUN 73] BKS=0.660000 ❌ Not Detected
+Shift Testing:  74%|███████▍  | 74/100 [01:17<01:33,  3.61s/it][RUN 74] BKS=0.600000 ❌ Not Detected
+Shift Testing:  75%|███████▌  | 75/100 [01:22<01:43,  4.12s/it][RUN 75] BKS=0.570000 ❌ Not Detected
+Shift Testing:  76%|███████▌  | 76/100 [01:26<01:34,  3.95s/it][RUN 76] BKS=0.570000 ❌ Not Detected
+Shift Testing:  77%|███████▋  | 77/100 [01:30<01:30,  3.94s/it][RUN 77] BKS=0.590000 ❌ Not Detected
+Shift Testing:  78%|███████▊  | 78/100 [01:33<01:24,  3.84s/it][RUN 78] BKS=0.620000 ❌ Not Detected
+Shift Testing:  79%|███████▉  | 79/100 [01:37<01:18,  3.73s/it][RUN 79] BKS=0.560000 ❌ Not Detected
+Shift Testing:  80%|████████  | 80/100 [01:40<01:14,  3.70s/it][RUN 80] BKS=0.570000 ❌ Not Detected
+Shift Testing:  81%|████████  | 81/100 [01:44<01:09,  3.68s/it][RUN 81] BKS=0.590000 ❌ Not Detected
+Shift Testing:  82%|████████▏ | 82/100 [01:48<01:06,  3.67s/it][RUN 82] BKS=0.570000 ❌ Not Detected
+Shift Testing:  83%|████████▎ | 83/100 [01:52<01:05,  3.83s/it][RUN 83] BKS=0.570000 ❌ Not Detected
+Shift Testing:  84%|████████▍ | 84/100 [01:55<01:00,  3.80s/it][RUN 84] BKS=0.660000 ❌ Not Detected
+Shift Testing:  85%|████████▌ | 85/100 [01:59<00:55,  3.71s/it][RUN 85] BKS=0.550000 ❌ Not Detected
+Shift Testing:  86%|████████▌ | 86/100 [02:03<00:52,  3.74s/it][RUN 86] BKS=0.570000 ❌ Not Detected
+Shift Testing:  87%|████████▋ | 87/100 [02:07<00:49,  3.81s/it][RUN 87] BKS=0.540000 ❌ Not Detected
+Shift Testing:  88%|████████▊ | 88/100 [02:11<00:48,  4.01s/it][RUN 88] BKS=0.580000 ❌ Not Detected
+Shift Testing:  89%|████████▉ | 89/100 [02:17<00:48,  4.45s/it][RUN 89] BKS=0.600000 ❌ Not Detected
+Shift Testing:  90%|█████████ | 90/100 [02:21<00:45,  4.51s/it][RUN 90] BKS=0.670000 ✅ Detected
+Shift Testing:  91%|█████████ | 91/100 [02:25<00:38,  4.30s/it][RUN 91] BKS=0.580000 ❌ Not Detected
+Shift Testing:  92%|█████████▏| 92/100 [02:29<00:32,  4.09s/it][RUN 92] BKS=0.630000 ❌ Not Detected
+Shift Testing:  93%|█████████▎| 93/100 [02:32<00:27,  3.94s/it][RUN 93] BKS=0.670000 ✅ Detected
+Shift Testing:  94%|█████████▍| 94/100 [02:36<00:22,  3.80s/it][RUN 94] BKS=0.590000 ❌ Not Detected
+Shift Testing:  95%|█████████▌| 95/100 [02:39<00:18,  3.77s/it][RUN 95] BKS=0.610000 ❌ Not Detected
+Shift Testing:  96%|█████████▌| 96/100 [02:43<00:14,  3.72s/it][RUN 96] BKS=0.620000 ❌ Not Detected
+Shift Testing:  97%|█████████▋| 97/100 [02:47<00:11,  3.68s/it][RUN 97] BKS=0.590000 ❌ Not Detected
+Shift Testing:  98%|█████████▊| 98/100 [02:50<00:07,  3.70s/it][RUN 98] BKS=0.630000 ❌ Not Detected
+Shift Testing:  99%|█████████▉| 99/100 [02:54<00:03,  3.78s/it][RUN 99] BKS=0.530000 ❌ Not Detected
+Shift Testing: 100%|██████████| 100/100 [02:58<00:00,  3.71s/it]Shift Testing: 100%|██████████| 100/100 [02:58<00:00,  1.78s/it]
+[RUN 100] BKS=0.610000 ❌ Not Detected
+
+[RESULTS] Data Shift detection summary
+Average BKS: 0.597500 ± 0.038062
+TPR (true positive rate) over 100 runs: 5.00%
+[Data Logger] Added new experiment. Total experiments: 1
+[W408 22:33:18.528690307 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+----------------------------------------------------
+Job finished: $(date)
+----------------------------------------------------

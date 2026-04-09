@@ -40,7 +40,7 @@ def mmd_test(X_src, X_tgt, iterations=None):
     if iterations == 0:
         # If no permutation test, return statistic and None for p-value
         return t_stat.item(), None
-    
+
     # Compute p-value via permutation test
     p_value = mmd.pval(kernel_matrix, n_permutations=iterations)
 

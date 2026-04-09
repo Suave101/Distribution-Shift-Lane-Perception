@@ -16,7 +16,11 @@ from data.data_utils import (
     VerticalFlipShift,
 )
 from utils.mmd_test import mmd_test
-from data.data_builder import get_dataloader, get_concat_dataloader, get_seeded_random_dataloader
+from data.data_builder import (
+    get_dataloader,
+    get_concat_dataloader,
+    get_seeded_random_dataloader,
+)
 from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
 
 
@@ -78,7 +82,7 @@ class ShiftExperiment:
         file_location: str = "./",
         file_style: JsonStyle = 4,
         save_all_image_paths: bool = False,
-        modelStr: str = ""
+        modelStr: str = "",
     ):
         self.source_dir = source_dir
         self.target_dir = target_dir
@@ -107,7 +111,9 @@ class ShiftExperiment:
         self.save_all_image_paths = save_all_image_paths
         self.modelStr = modelStr
 
-        print("Flag: 8675309 - If you see this, the experiment is initializing correctly.")
+        print(
+            "Flag: 8675309 - If you see this, the experiment is initializing correctly."
+        )
 
         # Ensure tgt samples is consistent with ratio
         if self.tgt_samples != (self.ratio_src_samples + self.ratio_tgt_samples):
@@ -143,7 +149,7 @@ class ShiftExperiment:
             "height_shift_frac": height_shift_frac,
             "shear_angle": shear_angle,
             "zoom_factor": zoom_factor,
-            "model": modelStr
+            "model": modelStr,
         }
 
         self.loggerExperimentalData: JsonDict = {}
@@ -151,8 +157,10 @@ class ShiftExperiment:
         # --- GPU Setup ---
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         num_gpus = torch.cuda.device_count()
-        print(f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}")
-        
+        print(
+            f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}"
+        )
+
         # --- Model Initialization ---
         print("\nInitializing autoencoder...")
 
@@ -173,7 +181,7 @@ class ShiftExperiment:
             print("Using ASSIST-Taxi pretrained weights for the autoencoder.")
         else:
             raise ValueError(f"Unsupported model config: {self.modelStr}")
-        
+
         base_model = Conf2ConvAutoencoderFC(configs=modelConf).to(self.device)
 
         # Multi-GPU setup
@@ -293,10 +301,12 @@ class ShiftExperiment:
         print(
             f"Mean MMD (same-distribution): {self.null_stats.mean():.6f} ± {self.null_stats.std():.6f}\n"
         )
-        
+
         # Sanity check: If std is 0
         if self.null_stats.std() == 0.0:
-            print("⚠️ WARNING: MMD Std Deviation is 0.0! Your dataloader is not providing unique subsets.")
+            print(
+                "⚠️ WARNING: MMD Std Deviation is 0.0! Your dataloader is not providing unique subsets."
+            )
 
         calibrationData["Result"] = {
             "Tau": float(self.tau),
@@ -378,7 +388,7 @@ class ShiftExperiment:
                 num_samples=[self.ratio_src_samples, self.ratio_tgt_samples],
                 cropImg=[self.cropImg, self.cropImg],
                 block_idx=[self.block_idx, self.block_idx],
-                seeds=[self.seed_base + i, self.seed_base + i]
+                seeds=[self.seed_base + i, self.seed_base + i],
             )
 
             tgt_loader_cross = loaderReturn[0]

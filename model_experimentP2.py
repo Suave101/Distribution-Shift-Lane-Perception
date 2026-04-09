@@ -8,6 +8,7 @@ import argparse
 
 from utils.mmd_test import mmd_test
 from utils.energy_test import energy_test
+from utils.bks import bks_distance_test
 from data.data_builder import get_dataloader, get_seeded_random_dataloader
 from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
 import warnings
@@ -120,14 +121,16 @@ class ShiftExperiment:
         # --- GPU Setup ---
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         num_gpus = torch.cuda.device_count()
-        print(f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}")
+        print(
+            f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}"
+        )
 
         # Deterministic behavior for reproducibility
         if torch.cuda.is_available():
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
             torch.cuda.manual_seed(42)
-        
+
         # --- Model Initialization ---
         print("\nInitializing autoencoder...")
 
@@ -148,8 +151,10 @@ class ShiftExperiment:
             print("Using ASSIST-Taxi pretrained weights for the autoencoder.")
         else:
             raise ValueError(f"Unsupported model config: {self.modelStr}")
-        
-        base_model = ConfP2ConvAutoencoderFC(configs=modelConf, latent_dim=self.latent_dim).to(self.device)
+
+        base_model = ConfP2ConvAutoencoderFC(
+            configs=modelConf, latent_dim=self.latent_dim
+        ).to(self.device)
 
         # Multi-GPU setup
         if torch.cuda.device_count() > 1:
@@ -167,11 +172,15 @@ class ShiftExperiment:
         """
         cache_base = "/home1/adoyle2025/Datasets/Encodings"
         # Separate directories by Model String and Latent Dimensionality
-        cache_dir = os.path.join(cache_base, str(self.modelStr), f"dim_{self.latent_dim}")
+        cache_dir = os.path.join(
+            cache_base, str(self.modelStr), f"dim_{self.latent_dim}"
+        )
         os.makedirs(cache_dir, exist_ok=True)
 
         # Create a unique, safe filename (e.g., datasets_CULane_list_train_txt_n1000_seed42.npy)
-        safe_list_name = os.path.normpath(list_path).replace(os.sep, "_").replace(".", "_")
+        safe_list_name = (
+            os.path.normpath(list_path).replace(os.sep, "_").replace(".", "_")
+        )
         file_name = f"{safe_list_name}_n{num_samples}_seed{seed}.npy"
         file_path = os.path.join(cache_dir, file_name)
 
@@ -193,10 +202,12 @@ class ShiftExperiment:
         )
         loader = loaderReturn[0]
         image_paths = loaderReturn[1]
-        
+
         # Replaced extract_features with the caching helper
-        self.src_feats = self._get_or_extract_features(loader, self.source_list_dir, self.src_samples, "base")
-        
+        self.src_feats = self._get_or_extract_features(
+            loader, self.source_list_dir, self.src_samples, "base"
+        )
+
         print(f"{self.source_dir} features loaded. Shape = {self.src_feats.shape}\n")
         self.loggerExperimentalData["Source Training Feature Shape"] = list(
             self.src_feats.shape
@@ -216,7 +227,7 @@ class ShiftExperiment:
 
         for i in trange(self.num_calib, desc="Calibrating"):
             seed = self.seed_base + i
-            
+
             dataloaderReturn = get_seeded_random_dataloader(
                 root_dir=self.source_dir,
                 list_path=self.source_list_dir,
@@ -236,9 +247,22 @@ class ShiftExperiment:
             )
 
             if self.test_type == "MMD":
-                t_stat, p_value = mmd_test(self.src_feats, calib_src_test_feats, iterations=self.permutation_test_iterations)
+                t_stat, p_value = mmd_test(
+                    self.src_feats,
+                    calib_src_test_feats,
+                    iterations=self.permutation_test_iterations,
+                )
             elif self.test_type == "ENERGY":
-                t_stat, p_value = energy_test(self.src_feats, calib_src_test_feats, iterations=self.permutation_test_iterations)
+                t_stat, p_value = energy_test(
+                    self.src_feats,
+                    calib_src_test_feats,
+                    iterations=self.permutation_test_iterations,
+                )
+            elif self.test_type == "BKS":
+                t_stat, p_value = bks_distance_test(
+                    self.src_feats, calib_src_test_feats
+                )
+
             if self.permutation_test_iterations > 0:
                 print(f"  P-Value: {p_value:.6f}\n")
                 p_values.append(float(p_value))
@@ -287,13 +311,26 @@ class ShiftExperiment:
 
         # Replaced extract_features with the caching helper
         sanity_src_feats = self._get_or_extract_features(
-            sanity_src_loader, self.source_list_dir, self.tgt_samples, int(self.seed_base + self.num_calib)
+            sanity_src_loader,
+            self.source_list_dir,
+            self.tgt_samples,
+            int(self.seed_base + self.num_calib),
         )
 
         if self.test_type == "MMD":
-            mmd_val, p_value = mmd_test(self.src_feats, sanity_src_feats, iterations=self.permutation_test_iterations)
+            mmd_val, p_value = mmd_test(
+                self.src_feats,
+                sanity_src_feats,
+                iterations=self.permutation_test_iterations,
+            )
         elif self.test_type == "ENERGY":
-            mmd_val, p_value = energy_test(self.src_feats, sanity_src_feats, iterations=self.permutation_test_iterations)
+            mmd_val, p_value = energy_test(
+                self.src_feats,
+                sanity_src_feats,
+                iterations=self.permutation_test_iterations,
+            )
+        elif self.test_type == "BKS":
+            mmd_val, p_value = bks_distance_test(self.src_feats, sanity_src_feats)
 
         print(
             f"[SANITY CHECK] {self.test_type}(A = {self.source_dir}, B = {self.source_dir}) = {mmd_val:.6f}, τ = {self.tau:.6f}"
@@ -313,16 +350,19 @@ class ShiftExperiment:
         else:
             sanityCheckData["Shift Detected"] = bool(True)
             print("False shift detected.\n")
-            warnings.warn("False shift detected in sanity check - " + self.test_type + " exceeded threshold", UserWarning)
+            warnings.warn(
+                "False shift detected in sanity check - "
+                + self.test_type
+                + " exceeded threshold",
+                UserWarning,
+            )
 
         self.loggerExperimentalData["Sanity Check"] = sanityCheckData
 
     # STEP 3 — Data Shift Test
     def data_shift_test(self):
         dataShiftTestData: JsonDict = {}
-        print(
-            f"[STEP 3] Data Shift Test: {self.source_dir} to {self.target_dir}a\n"
-        )
+        print(f"[STEP 3] Data Shift Test: {self.source_dir} to {self.target_dir}a\n")
         dataShiftTestData["Data Shift Test Definition"] = (
             f"{self.source_dir} to {self.target_dir}"
         )
@@ -347,22 +387,34 @@ class ShiftExperiment:
             tgt_loader_cross = loaderReturn[0]
             testData["Image Paths"] = loaderReturn[1]
             testData["Seed"] = seed
-            
+
             # Replaced extract_features with the caching helper
             tgt_feats_cross = self._get_or_extract_features(
                 tgt_loader_cross, self.target_list_dir, self.tgt_samples, seed
             )
-            
+
             if self.test_type == "MMD":
-                mmd_cross, p_value = mmd_test(self.src_feats, tgt_feats_cross, iterations=self.permutation_test_iterations)
+                mmd_cross, p_value = mmd_test(
+                    self.src_feats,
+                    tgt_feats_cross,
+                    iterations=self.permutation_test_iterations,
+                )
             elif self.test_type == "ENERGY":
-                mmd_cross, p_value = energy_test(self.src_feats, tgt_feats_cross, iterations=self.permutation_test_iterations)
+                mmd_cross, p_value = energy_test(
+                    self.src_feats,
+                    tgt_feats_cross,
+                    iterations=self.permutation_test_iterations,
+                )
+            elif self.test_type == "BKS":
+                mmd_cross, p_value = bks_distance_test(self.src_feats, tgt_feats_cross)
 
             mmd_values.append(mmd_cross)
             detected: bool = mmd_cross > self.tau
             tpr_list.append(int(detected))
 
-            print(f"[RUN {i+1}] {self.test_type}={mmd_cross:.6f} {'✅ Detected' if detected else '❌ Not Detected'}")
+            print(
+                f"[RUN {i+1}] {self.test_type}={mmd_cross:.6f} {'✅ Detected' if detected else '❌ Not Detected'}"
+            )
             if self.permutation_test_iterations > 0:
                 print(f"  P-Value: {p_value}\n")
                 testData["P-Value"] = float(p_value)
@@ -379,13 +431,19 @@ class ShiftExperiment:
 
         tpr_result = np.mean(tpr_list)
         print("\n[RESULTS] Data Shift detection summary")
-        print(f"Average {self.test_type}: {np.mean(mmd_values):.6f} ± {np.std(mmd_values):.6f}")
+        print(
+            f"Average {self.test_type}: {np.mean(mmd_values):.6f} ± {np.std(mmd_values):.6f}"
+        )
         print(
             f"TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%"
         )
         dataShiftTestData["TPR"] = float(tpr_result * 100)
-        dataShiftTestData["Step (c) Mean " + self.test_type] = float(np.mean(mmd_values))
-        dataShiftTestData["Step (c) Mean " + self.test_type + " (std)"] = float(np.std(mmd_values))
+        dataShiftTestData["Step (c) Mean " + self.test_type] = float(
+            np.mean(mmd_values)
+        )
+        dataShiftTestData["Step (c) Mean " + self.test_type + " (std)"] = float(
+            np.std(mmd_values)
+        )
         self.loggerExperimentalData["Data Shift Test Data"] = dataShiftTestData
 
     # RUN EVERYTHING
@@ -406,23 +464,15 @@ class ShiftExperiment:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--source_dir", required=True, type=str
-    )
-    parser.add_argument(
-        "--target_dir", required=True, type=str
-    )
+    parser.add_argument("--source_dir", required=True, type=str)
+    parser.add_argument("--target_dir", required=True, type=str)
     parser.add_argument(
         "--source_list_path",
         required=True,
         type=str,
         default="./datasets/CULane/list/train.txt",
     )
-    parser.add_argument(
-        "--target_list_path",
-        required=True,
-        type=str
-    )
+    parser.add_argument("--target_list_path", required=True, type=str)
     parser.add_argument("--src_samples", type=int, default=1000)
     parser.add_argument("--tgt_samples", type=int, default=1000)
     parser.add_argument("--num_runs", type=int, default=10)

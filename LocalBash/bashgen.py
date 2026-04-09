@@ -10,25 +10,25 @@ MODELS = {
     "CurvelanesModel": "CurveLanes",
     "ImageNetModel": "ImageNet",
     "RandomWeightsModel": "Random",
-    "AssistTaxiModel": "ASSIST_Taxi"
+    "AssistTaxiModel": "ASSIST_Taxi",
 }
 
 DATA_MAP = {
     "CULanes": (
         "/home1/adoyle2025/Datasets/Datasets/CULane",
         "/home1/adoyle2025/Datasets/Datasets/CULane/list/train.txt",
-        "/home1/adoyle2025/Datasets/Datasets/CULane/list/test.txt"
+        "/home1/adoyle2025/Datasets/Datasets/CULane/list/test.txt",
     ),
     "Curvelanes": (
         "/home1/adoyle2025/Datasets/Datasets/Curvelanes",
         "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt",
-        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt"
+        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt",
     ),
     "AssistTaxi": (
         "/home1/adoyle2025/Datasets/Datasets/ASSIST-Taxi",
         "/home1/adoyle2025/Datasets/Datasets/ASSIST-Taxi/train.txt",
-        "/home1/adoyle2025/Datasets/Datasets/ASSIST-Taxi/test.txt"
-    )
+        "/home1/adoyle2025/Datasets/Datasets/ASSIST-Taxi/test.txt",
+    ),
 }
 
 SAMPLE_SIZES = [10, 100, 1000]
@@ -82,6 +82,7 @@ echo "Job finished: $(date)"
 echo "----------------------------------------------------"
 """
 
+
 def main():
     sbatch_commands = []
 
@@ -89,13 +90,13 @@ def main():
         for n in SAMPLE_SIZES:
             # Memory Logic
             mem_val = "128G" if n == 1000 else "64G"
-            
+
             exp_output_dir = os.path.join(BASE_ROOT, model_folder, str(n))
             os.makedirs(exp_output_dir, exist_ok=True)
 
             for src_label, (src_dir, src_list, src_test_list) in DATA_MAP.items():
                 for tgt_label, (tgt_dir, tgt_list, _) in DATA_MAP.items():
-                    
+
                     # BACKWARDS COMPATIBILITY LOGIC
                     if src_label == tgt_label:
                         # Revert exactly to your old standard (e.g., 10Samples_ImageNetModel_CurvelanesData)
@@ -103,7 +104,9 @@ def main():
                         file_name = f"{src_label}_{model_str}M{n}.sh"
                     else:
                         # Append the cross-distribution identifier to stop overwrites
-                        job_id = f"P2{n}Samples_{model_str}Model_{src_label}2{tgt_label}Data"
+                        job_id = (
+                            f"P2{n}Samples_{model_str}Model_{src_label}2{tgt_label}Data"
+                        )
                         file_name = f"{src_label}2{tgt_label}_{model_str}M{n}.sh"
 
                     file_path = os.path.join(exp_output_dir, file_name)
@@ -121,21 +124,22 @@ def main():
                         src_test_list=src_test_list,
                         tgt_dir=tgt_dir,
                         tgt_list=tgt_list,
-                        n=n
+                        n=n,
                     )
 
                     with open(file_path, "w") as f:
                         f.write(content)
-                    
-                    sbatch_commands.append(f"sbatch \"{file_path}\"")
+
+                    sbatch_commands.append(f'sbatch "{file_path}"')
 
     master_path = os.path.join(PROJECT_DIR, "run_all_permutations.sh")
     with open(master_path, "w") as f:
         f.write("#!/bin/bash\n\n")
         f.write("\n".join([f"{cmd}\nsleep 0.1" for cmd in sbatch_commands]))
-    
+
     os.chmod(master_path, 0o755)
     print(f"Success! {len(sbatch_commands)} permutation scripts generated.")
+
 
 if __name__ == "__main__":
     main()

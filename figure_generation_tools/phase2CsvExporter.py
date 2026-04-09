@@ -41,19 +41,20 @@ SAMPLE_SIZES = [1000, 100, 10]
 # filename_combo is the segment that appears between "{model}Model_" and "Data.json"
 # in the JSON filename (e.g. "CULanes" → "P2{K}Samples_{model}Model_CULanesData.json").
 ROWS = [
-    ("CULane to CULane",              False, "CULanes"),
-    ("CULane to CULane Test",         True,  "CULanesTest"),
-    ("CULane to Curvelanes",          False, "CULanes2Curvelanes"),
-    ("CULane to Curvelanes Test",     True,  "CULanes2CurvelanesTest"),
-    ("Curvelanes to CULane",          False, "Curvelanes2CULanes"),
-    ("Curvelanes to CULane Test",     True,  "Curvelanes2CULanesTest"),
-    ("Curvelanes to Curvelanes",      False, "Curvelanes"),
-    ("Curvelanes to Curvelanes Test", True,  "CurvelanesTest"),
+    ("CULane to CULane", False, "CULanes"),
+    ("CULane to CULane Test", True, "CULanesTest"),
+    ("CULane to Curvelanes", False, "CULanes2Curvelanes"),
+    ("CULane to Curvelanes Test", True, "CULanes2CurvelanesTest"),
+    ("Curvelanes to CULane", False, "Curvelanes2CULanes"),
+    ("Curvelanes to CULane Test", True, "Curvelanes2CULanesTest"),
+    ("Curvelanes to Curvelanes", False, "Curvelanes"),
+    ("Curvelanes to Curvelanes Test", True, "CurvelanesTest"),
 ]
 
 # ---------------------------------------------------------------------------
 # Data loading
 # ---------------------------------------------------------------------------
+
 
 def load_experiment(log_dir: str, k: int, model: str, combo: str):
     """
@@ -76,9 +77,9 @@ def load_experiment(log_dir: str, k: int, model: str, combo: str):
             data = json.load(f)
         d = data["experiments"][0]["data"]
         return {
-            "tpr":     float(d["Data Shift Test Data"]["TPR"]),
-            "tau":     float(d["Calibration"]["Result"]["Tau"]),
-            "mmd":     float(d["Data Shift Test Data"]["Average MMD"]),
+            "tpr": float(d["Data Shift Test Data"]["TPR"]),
+            "tau": float(d["Calibration"]["Result"]["Tau"]),
+            "mmd": float(d["Data Shift Test Data"]["Average MMD"]),
             "mmd_std": float(d["Data Shift Test Data"]["Average MMD (std)"]),
         }
     except (KeyError, IndexError, ValueError, json.JSONDecodeError):
@@ -88,6 +89,7 @@ def load_experiment(log_dir: str, k: int, model: str, combo: str):
 # ---------------------------------------------------------------------------
 # Formatters
 # ---------------------------------------------------------------------------
+
 
 def fmt_tpr(val):
     """Format TPR: integer representation when the value is whole, else 1 d.p."""
@@ -114,6 +116,7 @@ def fmt_mmd(mmd, mmd_std):
 # CSV construction
 # ---------------------------------------------------------------------------
 
+
 def build_csv_rows(train_log_dir: str, test_log_dir: str) -> list:
     """
     Build all CSV rows as lists of strings.
@@ -127,9 +130,26 @@ def build_csv_rows(train_log_dir: str, test_log_dir: str) -> list:
 
     # ---- Overall section header (one row at the very top) ----
     all_rows.append(
-        ["TPR", "", "", "", "", "",
-         "Tau Threshold", "", "", "", "", "",
-         "Avg MMD", "", "", "", "", ""]
+        [
+            "TPR",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Tau Threshold",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Avg MMD",
+            "",
+            "",
+            "",
+            "",
+            "",
+        ]
     )
 
     for k_idx, k in enumerate(SAMPLE_SIZES):
@@ -139,20 +159,37 @@ def build_csv_rows(train_log_dir: str, test_log_dir: str) -> list:
 
         # K sample-size header
         ks = f"{k} Samples"
-        all_rows.append([ks, "", "", "", "", "", ks, "", "", "", "", "", ks, "", "", "", "", ""])
+        all_rows.append(
+            [ks, "", "", "", "", "", ks, "", "", "", "", "", ks, "", "", "", "", ""]
+        )
 
         # "Autoencoders" sub-header (spans the 4 model columns in each section)
         all_rows.append(
-            ["", "", "Autoencoders", "", "", "",
-             "", "", "Autoencoders", "", "", "",
-             "", "", "Autoencoders", "", "", ""]
+            [
+                "",
+                "",
+                "Autoencoders",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Autoencoders",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "Autoencoders",
+                "",
+                "",
+                "",
+            ]
         )
 
         # Model column header
         all_rows.append(
-            ["", ""] + MODEL_LABELS +
-            ["", ""] + MODEL_LABELS +
-            ["", ""] + MODEL_LABELS
+            ["", ""] + MODEL_LABELS + ["", ""] + MODEL_LABELS + ["", ""] + MODEL_LABELS
         )
 
         # ---- Data rows ----
@@ -176,9 +213,12 @@ def build_csv_rows(train_log_dir: str, test_log_dir: str) -> list:
                     mmd_vals.append("")
 
             all_rows.append(
-                [sec_label, label] + tpr_vals +
-                [sec_label, label] + tau_vals +
-                [sec_label, label] + mmd_vals
+                [sec_label, label]
+                + tpr_vals
+                + [sec_label, label]
+                + tau_vals
+                + [sec_label, label]
+                + mmd_vals
             )
 
     return all_rows
@@ -188,6 +228,7 @@ def build_csv_rows(train_log_dir: str, test_log_dir: str) -> list:
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Export Phase 2 experiment results (TPR, Tau, Avg MMD) to a CSV."
@@ -196,18 +237,14 @@ def main():
         "--train-log-dir",
         type=str,
         default=os.path.join(
-            os.path.dirname(__file__),
-            "..", "logs", "ModelExperiments", "Phase2"
+            os.path.dirname(__file__), "..", "logs", "ModelExperiments", "Phase2"
         ),
         help="Directory containing Phase 2 Train JSON result files.",
     )
     parser.add_argument(
         "--test-log-dir",
         type=str,
-        default=os.path.join(
-            os.path.dirname(__file__),
-            "..", "logs", "Phase2_test"
-        ),
+        default=os.path.join(os.path.dirname(__file__), "..", "logs", "Phase2_test"),
         help=(
             "Directory containing Phase 2 Test JSON result files "
             "(produced by LocalBash/run_phase2_test.sh). "
@@ -219,15 +256,18 @@ def main():
         type=str,
         default=os.path.join(
             os.path.dirname(__file__),
-            "..", "ModelExperimentFigures", "Phase2", "phase2_summary.csv"
+            "..",
+            "ModelExperimentFigures",
+            "Phase2",
+            "phase2_summary.csv",
         ),
         help="Path for the output CSV file.",
     )
     args = parser.parse_args()
 
     train_log_dir = os.path.abspath(args.train_log_dir)
-    test_log_dir  = os.path.abspath(args.test_log_dir)
-    output_path   = os.path.abspath(args.output)
+    test_log_dir = os.path.abspath(args.test_log_dir)
+    output_path = os.path.abspath(args.output)
 
     if not os.path.isdir(train_log_dir):
         print(f"ERROR: --train-log-dir not found: {train_log_dir}")

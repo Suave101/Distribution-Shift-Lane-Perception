@@ -234,7 +234,13 @@ def get_dataloader(
 
     return [
         DataLoader(
-            subset, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True, persistent_workers=True, prefetch_factor=2
+            subset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=16,
+            pin_memory=True,
+            persistent_workers=True,
+            prefetch_factor=2,
         ),
         image_paths,
     ]
@@ -273,7 +279,12 @@ def get_seeded_random_dataloader(
 
     return [
         DataLoader(
-            subset, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True, prefetch_factor=2
+            subset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=16,
+            pin_memory=True,
+            prefetch_factor=2,
         ),
         image_paths,
     ]
@@ -287,19 +298,25 @@ def get_concat_dataloader(
     num_samples: List[int],
     cropImg: List[bool] = None,
     block_idx: List[int] = None,
-    seeds: List[int] = None
+    seeds: List[int] = None,
 ):
     """Creates a single combined dataloader from multiple datasets.
-    
+
     Returns:
         A list containing:
             - A single DataLoader with all datasets combined
             - List of all image paths across datasets
     """
     # Ensure all input lists have the same length
-    assert len(root_dirs) == len(list_paths) == len(batch_sizes) == len(
-        image_sizes
-    ) == len(num_samples) == len(cropImg) == len(block_idx), "All input lists must have the same length."
+    assert (
+        len(root_dirs)
+        == len(list_paths)
+        == len(batch_sizes)
+        == len(image_sizes)
+        == len(num_samples)
+        == len(cropImg)
+        == len(block_idx)
+    ), "All input lists must have the same length."
 
     subsets = []
     all_image_paths = []
@@ -340,12 +357,12 @@ def get_concat_dataloader(
 
     # Concatenate all subsets into one dataset
     combined_dataset = ConcatDataset(subsets)
-    
+
     print(f"[INFO] Total combined samples: {len(combined_dataset)}")
-    
+
     # Use the first batch_size (or make batch_size a single int parameter)
     batch_size = batch_sizes[0]
-    
+
     combined_dataloader = DataLoader(
         combined_dataset,
         batch_size=batch_size,
@@ -353,7 +370,7 @@ def get_concat_dataloader(
         num_workers=16,
         pin_memory=True,
         persistent_workers=True,
-        prefetch_factor=2
+        prefetch_factor=2,
     )
 
     return [combined_dataloader, all_image_paths]

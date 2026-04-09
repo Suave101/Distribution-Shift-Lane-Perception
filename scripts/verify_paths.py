@@ -17,8 +17,12 @@ from data.data_builder import ImageDataset
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pairs", nargs="*", default=[], help="Pairs of root:list_path")
-    parser.add_argument("--n", type=int, default=5, help="How many entries to show per dataset")
+    parser.add_argument(
+        "--pairs", nargs="*", default=[], help="Pairs of root:list_path"
+    )
+    parser.add_argument(
+        "--n", type=int, default=5, help="How many entries to show per dataset"
+    )
     args = parser.parse_args()
 
     pairs = args.pairs or [

@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from torch_two_sample import EnergyStatistic
 
+
 def energy_test(X_src, X_tgt, iterations=1000):
     """
     Energy Statistic test for domain shift detection.
@@ -30,7 +31,7 @@ def energy_test(X_src, X_tgt, iterations=1000):
 
     if iterations == 0 or iterations is None:
         return t_stat.item(), None
-    
+
     # 4. Compute p-value via permutation test
     p_value = energy.pval(dist_matrix, n_permutations=iterations)
 
@@ -45,10 +46,10 @@ if __name__ == "__main__":
     X_tgt = (np.random.randn(200, 128) * 1.2) + 0.1
 
     e_stat, p_val = energy_test(X_src, X_tgt, iterations=500)
-    
+
     print(f"Energy Statistic: {e_stat:.4f}")
     print(f"P-value: {p_val:.4f}")
-    
+
     if p_val < 0.05:
         print("Result: Significant domain shift detected.")
     else:

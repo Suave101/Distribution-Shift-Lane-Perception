@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class AutoEncoderWeights(Enum):
     RANDOM_WEIGHTS = auto()
     IMAGE_NET = auto()
