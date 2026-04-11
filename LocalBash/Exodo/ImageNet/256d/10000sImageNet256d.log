@@ -1,0 +1,52 @@
+----------------------------------------------------
+Slurm Job ID: 225086
+Running on host: Florida Tech HPC
+----------------------------------------------------
+Fixed Flag: 4/11/2026
+[Data Logger] Error creating directory /home1/adoyle2025/Distribution-Shift-Lane-Perception/logs/Exodo/: [Errno 17] File exists: '/home1/adoyle2025/Distribution-Shift-Lane-Perception/logs/Exodo/'
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 113, in __init__
+    self.datalogger = JsonExperimentManager(
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/data/data_logging.py", line 63, in __init__
+    os.makedirs(self._file_location)
+  File "/home1/adoyle2025/miniconda3/envs/ml_project/lib/python3.10/os.py", line 225, in makedirs
+    mkdir(name, mode)
+FileExistsError: [Errno 17] File exists: '/home1/adoyle2025/Distribution-Shift-Lane-Perception/logs/Exodo/'
+Fixed Flag: 4/11/2026
+[Data Logger] File not found. Creating new file at /home1/adoyle2025/Distribution-Shift-Lane-Perception/logs/Exodo/10000sImageNet256d.json
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined

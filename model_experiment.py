@@ -70,7 +70,6 @@ class ShiftExperiment:
         file_name: str = "testData.json",
         file_location: str = "./",
         file_style: JsonStyle = 4,
-        save_all_image_paths: bool = False,
         modelStr: str = "",
         permutation_test_iterations: int = 1000,
         latent_dim: int = 32,
@@ -93,7 +92,6 @@ class ShiftExperiment:
         self.num_calib = num_runs
         self.alpha = alpha
         self.seed_base = seed_base
-        self.save_all_image_paths = save_all_image_paths
         self.permutation_test_iterations = permutation_test_iterations
         self.latent_dim = latent_dim
         self.max_threads = max_threads
@@ -128,7 +126,6 @@ class ShiftExperiment:
             "block_idx": block_idx,
             "batch_size": batch_size,
             "image_size": image_size,
-            "num_calib": num_calib,
             "tau_threshold_percentile": 100 * (1 - alpha),
             "seed_base": seed_base,
             "alpha": alpha,
@@ -481,8 +478,7 @@ class ShiftExperiment:
                             
                         runData["Results"][test] = test_run
 
-                    if self.save_all_image_paths or idx == 0:
-                        dataShiftTestDataTests.append(runData)
+                    dataShiftTestDataTests.append(runData)
 
                 except Exception as exc:
                     print(
@@ -562,7 +558,6 @@ if __name__ == "__main__":
     parser.add_argument("--seed_base", type=int, default=42)
     parser.add_argument("--permutation_test_iterations", type=int, default=1000)
     parser.add_argument("--latent_dim", type=int, default=32)
-    parser.add_argument("--save_all_image_paths", type=bool, default=False)
     parser.add_argument("--modelStr", type=str, default="")
     parser.add_argument(
         "--max_threads", type=int, default=None, help="Max thread pool workers"

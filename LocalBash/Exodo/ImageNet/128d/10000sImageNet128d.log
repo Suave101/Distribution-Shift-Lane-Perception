@@ -1,0 +1,47 @@
+----------------------------------------------------
+Slurm Job ID: 225087
+Running on host: Florida Tech HPC
+----------------------------------------------------
+Fixed Flag: 4/11/2026
+[Data Logger] File not found. Creating new file at /home1/adoyle2025/Distribution-Shift-Lane-Perception/logs/Exodo/10000sImageNet128d.json
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined
+Fixed Flag: 4/11/2026
+Traceback (most recent call last):
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 581, in <module>
+    ShiftExperiment(**vars(args)).run()
+  File "/home1/adoyle2025/Distribution-Shift-Lane-Perception/model_experiment.py", line 129, in __init__
+    "num_calib": num_calib,
+NameError: name 'num_calib' is not defined

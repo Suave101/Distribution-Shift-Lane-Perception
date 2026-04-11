@@ -1,0 +1,18 @@
+----------------------------------------------------
+Slurm Job ID: 225089
+Running on host: Florida Tech HPC
+----------------------------------------------------
+Fixed Flag: 4/11/2026
+CUDA Available: True | Total GPUs Found: 1
+
+Initializing autoencoder...
+Using ImageNet pretrained weights for the autoencoder.
+[Autoencoder] - Phase 2 - Latent Dim: 32
+Using single GPU/CPU.
+
+[STEP 0] Encoding and caching all dataset features...
+[INFO] (/home1/adoyle2025/Datasets/Datasets/Curvelanes/train) → [0:10000] (10000 samples)
+/home1/adoyle2025/Datasets/Datasets/Curvelanes/train features loaded. Shape = (10000, 32)
+
+-> Source features loaded. Shape = (10000, 32)
+Preloading Calibration Sets:   0%|          | 0/100 [00:00<?, ?it/s]
