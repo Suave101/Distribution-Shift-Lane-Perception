@@ -35,6 +35,10 @@ class ConfP2ConvAutoencoderFC(nn.Module):
             # Load empty backbone, will populate at the end
             backbone = models.resnet18()
             checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Phase2/AssistTaxi/P2autoencoder_AssistTaxi_epoch_50.pth"
+        elif configs == autoencoderConfigs.AutoEncoderWeights.DISTILL:
+            # Load empty backbone, will populate at the end
+            backbone = models.resnet18()
+            checkpoint_path = "/home1/adoyle2025/Distribution-Shift-Lane-Perception/checkpoints/Distillation/CULane/Distill_AE_CULane_epoch_50.pth"
         else:
             raise ValueError(f"Unsupported config: {configs}")
 

@@ -7,3 +7,4 @@ class AutoEncoderWeights(Enum):
     CU_LANE = auto()
     CURVELANES = auto()
     ASSIST_TAXI = auto()
+    DISTILL = auto()
