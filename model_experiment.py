@@ -65,7 +65,6 @@ class ShiftExperiment:
         block_idx: int = 0,
         batch_size: int = 1024,
         image_size: int = 512,
-        num_calib: int = 100,
         alpha: float = 0.05,
         seed_base: int = 42,
         file_name: str = "testData.json",
@@ -89,7 +88,7 @@ class ShiftExperiment:
         self.block_idx = block_idx
         self.batch_size = batch_size
         self.image_size = image_size
-        self.num_calib = num_calib
+        self.num_calib = num_runs
         self.alpha = alpha
         self.seed_base = seed_base
         self.save_all_image_paths = save_all_image_paths
@@ -526,11 +525,10 @@ if __name__ == "__main__":
     )
     parser.add_argument("--target_list_path", required=True, type=str)
     parser.add_argument("--sample_size", type=int, default=1000)
-    parser.add_argument("--num_runs", type=int, default=10)
+    parser.add_argument("--num_runs", type=int, default=100)
     parser.add_argument("--block_idx", type=int, default=0)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--image_size", type=int, default=512)
-    parser.add_argument("--num_calib", type=int, default=100)
     parser.add_argument("--alpha", type=float, default=0.05)
     parser.add_argument("--seed_base", type=int, default=42)
     parser.add_argument("--permutation_test_iterations", type=int, default=1000)
