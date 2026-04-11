@@ -1,10 +1,11 @@
 import os
 import numpy as np
-from tqdm import trange
+from tqdm import tqdm, trange
 import torch
 from models.phase2Autoencoder import ConfP2ConvAutoencoderFC
 from models import autoencoderConfigs
 import argparse
+import concurrent.futures
 
 from utils.mmd_test import mmd_test
 from utils.energy_test import energy_test
@@ -15,6 +16,7 @@ from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
 import warnings
 import torch.multiprocessing as mp
 import jax
+
 # This will force a crash if the GPU isn't actually usable
 # better to crash and know why than to waste hours on CPU
 jax.config.update("jax_platform_name", "gpu")
@@ -75,8 +77,9 @@ class ShiftExperiment:
         permutation_test_iterations: int = 1000,
         latent_dim: int = 32,
         test_type: str = "MMD",
+        max_threads: int = None,  # None defaults to min(32, os.cpu_count() + 4)
     ):
-        print("Fixed Flag: 4/1/26")
+        print("Fixed Flag: 4/9/2026")
         self.modelStr = modelStr
         self.source_dir = source_dir
         self.target_dir = target_dir
@@ -95,6 +98,13 @@ class ShiftExperiment:
         self.permutation_test_iterations = permutation_test_iterations
         self.latent_dim = latent_dim
         self.test_type = test_type
+        self.max_threads = max_threads
+
+        # Data Storage for Preloaded Features
+        self.src_feats = None
+        self.calib_data_cache = []
+        self.sanity_data_cache = {}
+        self.target_data_cache = []
 
         # --- Data Logger ---
         self.datalogger = JsonExperimentManager(
@@ -102,7 +112,7 @@ class ShiftExperiment:
         )
 
         self.loggerArgs: JsonDict = {
-            "CodeMark": "4/1/2026",
+            "CodeMark": "4/9/2026",
             "source_dir": source_dir,
             "target_dir": target_dir,
             "source_list_path": source_list_path,
@@ -154,7 +164,10 @@ class ShiftExperiment:
             print("Using CurveLanes pretrained weights for the autoencoder.")
         elif self.modelStr == "ASSIST_Taxi":
             modelConf = autoencoderConfigs.AutoEncoderWeights.ASSIST_TAXI
-            print("Using ASSIST-Taxi pretrained weights for the autoencoder.")
+            print("Using ASSIST_Taxi pretrained weights for the autoencoder.")
+        elif self.modelStr == "DISTILL":
+            modelConf = autoencoderConfigs.AutoEncoderWeights.DISTILL
+            print("Using Distilled pretrained weights for the autoencoder.")
         else:
             raise ValueError(f"Unsupported model config: {self.modelStr}")
 
@@ -197,8 +210,34 @@ class ShiftExperiment:
             np.save(file_path, feats)
             return feats
 
-    # STEP 0 — Load Source Features
-    def load_source_features(self):
+    # --- THREAD WORKER FOR STATISTICAL TESTS ---
+    def _execute_test(self, src_feats, tgt_feats, seed):
+        """Helper to route the specific statistical test inside a worker thread."""
+        if self.test_type == "MMD":
+            return mmd_test(
+                src_feats, tgt_feats, iterations=self.permutation_test_iterations
+            )
+        elif self.test_type == "MMDAgg":
+            return mmdAgg_test(
+                src_feats,
+                tgt_feats,
+                iterations=self.permutation_test_iterations,
+                seed=seed,
+            )
+        elif self.test_type == "ENERGY":
+            return energy_test(
+                src_feats, tgt_feats, iterations=self.permutation_test_iterations
+            )
+        elif self.test_type == "BKS":
+            return bks_distance_test(src_feats, tgt_feats)
+        else:
+            raise ValueError(f"Unsupported test_type: {self.test_type}")
+
+    # STEP 0 — Preload All Features Upfront
+    def preload_all_features(self):
+        print("\n[STEP 0] Encoding and caching all dataset features...")
+
+        # 0A: Source Features
         loaderReturn = get_dataloader(
             root_dir=self.source_dir,
             list_path=self.source_list_dir,
@@ -206,12 +245,8 @@ class ShiftExperiment:
             image_size=self.image_size,
             num_samples=self.src_samples,
         )
-        loader = loaderReturn[0]
-        image_paths = loaderReturn[1]
-
-        # Replaced extract_features with the caching helper
         self.src_feats = self._get_or_extract_features(
-            loader, self.source_list_dir, self.src_samples, "base"
+            loaderReturn[0], self.source_list_dir, self.src_samples, "base"
         )
 
         print(f"{self.source_dir} features loaded. Shape = {self.src_feats.shape}\n")
@@ -219,22 +254,14 @@ class ShiftExperiment:
             self.src_feats.shape
         )
         self.loggerExperimentalData["Source Training Feature Image Paths"] = list(
-            image_paths
+            loaderReturn[1]
         )
+        print(f"-> Source features loaded. Shape = {self.src_feats.shape}")
 
-    # STEP 1 — Calibration (Null Distribution)
-    def calibrate(self):
-        calibrationData: JsonDict = {}
-        print(f"[STEP 1] Calibration using {self.source_dir}...")
-        calibrationData["Uses"] = self.source_dir
-        null_stats = []
-        p_values = []
-        all_image_dirs = {}
-
-        for i in trange(self.num_calib, desc="Calibrating"):
+        # 0B: Calibration Features
+        for i in tqdm(range(self.num_calib), desc="Preloading Calibration Sets"):
             seed = self.seed_base + i
-
-            dataloaderReturn = get_seeded_random_dataloader(
+            loaderReturn = get_seeded_random_dataloader(
                 root_dir=self.source_dir,
                 list_path=self.source_list_dir,
                 batch_size=self.batch_size,
@@ -242,44 +269,86 @@ class ShiftExperiment:
                 num_samples=self.tgt_samples,
                 seed=seed,
             )
-
-            calib_src_test_loader = dataloaderReturn[0]
-
-            all_image_dirs[f"Calibrating with seed {seed}"] = dataloaderReturn[1]
-
-            # Replaced extract_features with the caching helper
-            calib_src_test_feats = self._get_or_extract_features(
-                calib_src_test_loader, self.source_list_dir, self.tgt_samples, seed
+            feats = self._get_or_extract_features(
+                loaderReturn[0], self.source_list_dir, self.tgt_samples, seed
             )
+            self.calib_data_cache.append((seed, feats, loaderReturn[1]))
 
-            if self.test_type == "MMD":
-                t_stat, p_value = mmd_test(
-                    self.src_feats,
-                    calib_src_test_feats,
-                    iterations=self.permutation_test_iterations,
-                )
-            elif self.test_type == "MMDAgg":
-                t_stat, p_value = mmdAgg_test(
-                    self.src_feats,
-                    calib_src_test_feats,
-                    iterations=self.permutation_test_iterations,
-                    seed=seed,
-                )
-            elif self.test_type == "ENERGY":
-                t_stat, p_value = energy_test(
-                    self.src_feats,
-                    calib_src_test_feats,
-                    iterations=self.permutation_test_iterations,
-                )
-            elif self.test_type == "BKS":
-                t_stat, p_value = bks_distance_test(
-                    self.src_feats, calib_src_test_feats
-                )
+        # 0C: Sanity Check Features
+        sanity_seed = int(self.seed_base + self.num_calib)
+        loaderReturn = get_seeded_random_dataloader(
+            root_dir=self.source_dir,
+            list_path=self.source_list_dir,
+            batch_size=self.batch_size,
+            image_size=self.image_size,
+            num_samples=self.tgt_samples,
+            seed=sanity_seed,
+            shift=None,
+        )
+        sanity_feats = self._get_or_extract_features(
+            loaderReturn[0], self.source_list_dir, self.tgt_samples, sanity_seed
+        )
+        self.sanity_data_cache = {
+            "seed": sanity_seed,
+            "feats": sanity_feats,
+            "paths": loaderReturn[1],
+        }
+        print("-> Sanity Check features loaded.")
 
-            if self.permutation_test_iterations > 0:
-                print(f"  P-Value: {p_value:.6f}\n")
-                p_values.append(float(p_value))
-            null_stats.append(t_stat)
+        # 0D: Target Data Shift Features
+        for i in tqdm(range(self.num_runs), desc="Preloading Target Sets"):
+            seed = self.seed_base + self.num_calib + i
+            loaderReturn = get_seeded_random_dataloader(
+                root_dir=self.target_dir,
+                list_path=self.target_list_dir,
+                batch_size=self.batch_size,
+                image_size=self.image_size,
+                num_samples=self.tgt_samples,
+                seed=seed,
+            )
+            feats = self._get_or_extract_features(
+                loaderReturn[0], self.target_list_dir, self.tgt_samples, seed
+            )
+            self.target_data_cache.append((seed, feats, loaderReturn[1]))
+
+    # STEP 1 — Calibration (Null Distribution) via Threading
+    def calibrate(self):
+        calibrationData: JsonDict = {}
+        print(f"\n[STEP 1] Calibration using {self.source_dir} (Multithreaded)...")
+        calibrationData["Uses"] = self.source_dir
+
+        null_stats = []
+        p_values = []
+        all_image_dirs = {}
+
+        # Dispatch to ThreadPool
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=self.max_threads
+        ) as executor:
+            # Create a mapping of futures to their specific seed/paths for logging
+            future_to_data = {}
+            for seed, feats, img_paths in self.calib_data_cache:
+                future = executor.submit(
+                    self._execute_test, self.src_feats, feats, seed
+                )
+                future_to_data[future] = (seed, img_paths)
+
+            # Process as they complete
+            for future in tqdm(
+                concurrent.futures.as_completed(future_to_data),
+                total=self.num_calib,
+                desc="Calculating Calibration",
+            ):
+                seed, img_paths = future_to_data[future]
+                all_image_dirs[f"Calibrating with seed {seed}"] = img_paths
+
+                try:
+                    t_stat, p_value = future.result()
+                    null_stats.append(t_stat)
+                    if self.permutation_test_iterations > 0:
+                        p_values.append(float(p_value))
+                except Exception as exc:
+                    print(f"Calibration generated an exception for seed {seed}: {exc}")
 
         self.null_stats = np.array(null_stats)
         self.tau = np.percentile(self.null_stats, 100 * (1 - self.alpha))
@@ -297,8 +366,6 @@ class ShiftExperiment:
 
         if self.permutation_test_iterations > 0:
             avgPVal = np.array(p_values).mean()
-            print(f"Average P-Value: {avgPVal:.6f}\n")
-            print(f"Calibration P-Values: {p_values}\n")
             calibrationData["Result"]["Average P-Value"] = float(avgPVal)
             calibrationData["Result"]["P-Values"] = p_values
 
@@ -309,55 +376,21 @@ class ShiftExperiment:
         sanityCheckData: JsonDict = {}
         print("[STEP 2] Sanity Check...")
 
-        loaderReturn = get_seeded_random_dataloader(
-            root_dir=self.source_dir,
-            list_path=self.source_list_dir,
-            batch_size=self.batch_size,
-            image_size=self.image_size,
-            num_samples=self.tgt_samples,
-            seed=int(self.seed_base + self.num_calib),
-            shift=None,
-        )
+        sanityCheckData["Image Paths"] = self.sanity_data_cache["paths"]
+        sanity_seed = self.sanity_data_cache["seed"]
+        sanity_feats = self.sanity_data_cache["feats"]
 
-        sanity_src_loader = loaderReturn[0]
-        sanityCheckData["Image Paths"] = loaderReturn[1]
-
-        # Replaced extract_features with the caching helper
-        sanity_src_feats = self._get_or_extract_features(
-            sanity_src_loader,
-            self.source_list_dir,
-            self.tgt_samples,
-            int(self.seed_base + self.num_calib),
-        )
-
-        if self.test_type == "MMD":
-            mmd_val, p_value = mmd_test(
-                self.src_feats,
-                sanity_src_feats,
-                iterations=self.permutation_test_iterations,
-            )
-        elif self.test_type == "MMDAgg":
-            mmd_val, p_value = mmdAgg_test(
-                self.src_feats,
-                sanity_src_feats,
-                iterations=self.permutation_test_iterations,
-                seed=int(self.seed_base + self.num_calib),
-            )
-        elif self.test_type == "ENERGY":
-            mmd_val, p_value = energy_test(
-                self.src_feats,
-                sanity_src_feats,
-                iterations=self.permutation_test_iterations,
-            )
-        elif self.test_type == "BKS":
-            mmd_val, p_value = bks_distance_test(self.src_feats, sanity_src_feats)
+        # Run test (We can do this in the main thread since it's just one run)
+        mmd_val, p_value = self._execute_test(self.src_feats, sanity_feats, sanity_seed)
 
         print(
             f"[SANITY CHECK] {self.test_type}(A = {self.source_dir}, B = {self.source_dir}) = {mmd_val:.6f}, τ = {self.tau:.6f}"
         )
+
         if self.permutation_test_iterations > 0:
             print(f"  P-Value: {p_value}\n")
             sanityCheckData["P-Value"] = float(p_value)
+
         sanityCheckData["Results"] = {
             "Sanity Check Definition": f"{self.test_type}(A = {self.source_dir}, B = {self.source_dir})",
             self.test_type: float(mmd_val),
@@ -371,88 +404,71 @@ class ShiftExperiment:
             sanityCheckData["Shift Detected"] = bool(True)
             print("False shift detected.\n")
             warnings.warn(
-                "False shift detected in sanity check - "
-                + self.test_type
-                + " exceeded threshold",
+                f"False shift detected in sanity check - {self.test_type} exceeded threshold",
                 UserWarning,
             )
 
         self.loggerExperimentalData["Sanity Check"] = sanityCheckData
 
-    # STEP 3 — Data Shift Test
+    # STEP 3 — Data Shift Test via Threading
     def data_shift_test(self):
         dataShiftTestData: JsonDict = {}
-        print(f"[STEP 3] Data Shift Test: {self.source_dir} to {self.target_dir}a\n")
+        print(f"[STEP 3] Data Shift Test: {self.source_dir} to {self.target_dir}\n")
+
         dataShiftTestData["Data Shift Test Definition"] = (
             f"{self.source_dir} to {self.target_dir}"
         )
-
         dataShiftTestData["Runs"] = self.num_runs
 
         tpr_list = []
         mmd_values = []
         dataShiftTestDataTests: list[JsonDict] = []
 
-        for i in trange(self.num_runs, desc="Shift Testing"):
-            testData: JsonDict = {}
-            seed = self.seed_base + self.num_calib + i
-            loaderReturn = get_seeded_random_dataloader(
-                root_dir=self.target_dir,
-                list_path=self.target_list_dir,
-                batch_size=self.batch_size,
-                image_size=self.image_size,
-                num_samples=self.tgt_samples,
-                seed=seed,
-            )
-            tgt_loader_cross = loaderReturn[0]
-            testData["Image Paths"] = loaderReturn[1]
-            testData["Seed"] = seed
-
-            # Replaced extract_features with the caching helper
-            tgt_feats_cross = self._get_or_extract_features(
-                tgt_loader_cross, self.target_list_dir, self.tgt_samples, seed
-            )
-
-            if self.test_type == "MMD":
-                mmd_cross, p_value = mmd_test(
-                    self.src_feats,
-                    tgt_feats_cross,
-                    iterations=self.permutation_test_iterations,
+        # Dispatch to ThreadPool
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=self.max_threads
+        ) as executor:
+            future_to_idx = {}
+            for idx, (seed, feats, img_paths) in enumerate(self.target_data_cache):
+                future = executor.submit(
+                    self._execute_test, self.src_feats, feats, seed
                 )
-            elif self.test_type == "MMDAgg":
-                mmd_cross, p_value = mmdAgg_test(
-                    self.src_feats,
-                    tgt_feats_cross,
-                    iterations=self.permutation_test_iterations,
-                    seed=seed,
-                )
-            elif self.test_type == "ENERGY":
-                mmd_cross, p_value = energy_test(
-                    self.src_feats,
-                    tgt_feats_cross,
-                    iterations=self.permutation_test_iterations,
-                )
-            elif self.test_type == "BKS":
-                mmd_cross, p_value = bks_distance_test(self.src_feats, tgt_feats_cross)
+                future_to_idx[future] = (idx, seed, img_paths)
 
-            mmd_values.append(mmd_cross)
-            detected: bool = mmd_cross > self.tau
-            tpr_list.append(int(detected))
+            # Order might be scrambled by completion time, but log info tracks correct index
+            for future in tqdm(
+                concurrent.futures.as_completed(future_to_idx),
+                total=self.num_runs,
+                desc="Calculating Shifts",
+            ):
+                idx, seed, img_paths = future_to_idx[future]
+                testData: JsonDict = {"Image Paths": img_paths, "Seed": seed}
 
-            print(
-                f"[RUN {i+1}] {self.test_type}={mmd_cross:.6f} {'✅ Detected' if detected else '❌ Not Detected'}"
-            )
-            if self.permutation_test_iterations > 0:
-                print(f"  P-Value: {p_value}\n")
-                testData["P-Value"] = float(p_value)
-            testData["Run"] = int(i + 1)
-            testData[self.test_type] = float(mmd_cross)
-            testData["Shift Detected"] = bool(detected)
+                try:
+                    mmd_cross, p_value = future.result()
+                    mmd_values.append(mmd_cross)
 
-            if self.save_all_image_paths:
-                dataShiftTestDataTests.append(testData)
-            elif i == 0:
-                dataShiftTestDataTests.append(testData)
+                    detected: bool = mmd_cross > self.tau
+                    tpr_list.append(int(detected))
+
+                    print(
+                        f"\n[RUN {idx+1}] {self.test_type}={mmd_cross:.6f} {'✅ Detected' if detected else '❌ Not Detected'}"
+                    )
+
+                    if self.permutation_test_iterations > 0:
+                        testData["P-Value"] = float(p_value)
+
+                    testData["Run"] = int(idx + 1)
+                    testData[self.test_type] = float(mmd_cross)
+                    testData["Shift Detected"] = bool(detected)
+
+                    if self.save_all_image_paths or idx == 0:
+                        dataShiftTestDataTests.append(testData)
+
+                except Exception as exc:
+                    print(
+                        f"Data shift test generated an exception for run {idx+1}: {exc}"
+                    )
 
         dataShiftTestData["Individual Test Data"] = dataShiftTestDataTests
 
@@ -464,6 +480,7 @@ class ShiftExperiment:
         print(
             f"TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%"
         )
+
         dataShiftTestData["TPR"] = float(tpr_result * 100)
         dataShiftTestData["Step (c) Mean " + self.test_type] = float(
             np.mean(mmd_values)
@@ -471,18 +488,20 @@ class ShiftExperiment:
         dataShiftTestData["Step (c) Mean " + self.test_type + " (std)"] = float(
             np.std(mmd_values)
         )
+
         self.loggerExperimentalData["Data Shift Test Data"] = dataShiftTestData
 
     # RUN EVERYTHING
     def run(self):
-        # Step 0
-        self.load_source_features()
-        # Step 1
+        # Step 0: Extract/Load all encodings immediately (pure GPU phase)
+        self.preload_all_features()
+        # Step 1: Multithreaded Calibration (pure CPU Phase)
         self.calibrate()
-        # Step 2
+        # Step 2: Sanity Check (CPU)
         self.sanity_check()
-        # Step 3
+        # Step 3: Multithreaded Target Shift Tests (CPU)
         self.data_shift_test()
+
         # Log Data
         self.datalogger.add_experiment(
             arguments=self.loggerArgs, data=self.loggerExperimentalData
@@ -492,14 +511,12 @@ class ShiftExperiment:
 if __name__ == "__main__":
     # 1. FORCE JAX TO PLAY NICE
     os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
-    # Optional: limit JAX to a specific amount of remaining VRAM if needed
-    # os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = ".20" 
 
     # 2. Prevent NCCL Deadlocks (Common on A100 clusters)
     os.environ["NCCL_P2P_DISABLE"] = "1"
     os.environ["NCCL_IB_DISABLE"] = "1"
 
-    mp.set_start_method('spawn', force=True)
+    mp.set_start_method("spawn", force=True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--source_dir", required=True, type=str)
@@ -525,6 +542,9 @@ if __name__ == "__main__":
     parser.add_argument("--save_all_image_paths", type=bool, default=False)
     parser.add_argument("--modelStr", type=str, default="")
     parser.add_argument("--test_type", type=str, default="MMD")
+    parser.add_argument(
+        "--max_threads", type=int, default=None, help="Max thread pool workers"
+    )
     parser.add_argument(
         "--file_location",
         type=str,
