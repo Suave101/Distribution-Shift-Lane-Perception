@@ -60,9 +60,8 @@ class ShiftExperiment:
         target_dir: str = "./datasets/CULane",
         source_list_path: str = "./datasets/CULane/list/train.txt",
         target_list_path: str = "./datasets/CULane/list/test.txt",
-        src_samples: int = 1000,
-        tgt_samples: int = 1000,
-        num_runs: int = 10,
+        sample_size: int = 1000,
+        num_runs: int = 100,
         block_idx: int = 0,
         batch_size: int = 1024,
         image_size: int = 512,
@@ -85,8 +84,7 @@ class ShiftExperiment:
         self.target_dir = target_dir
         self.source_list_dir = source_list_path
         self.target_list_dir = target_list_path
-        self.src_samples = src_samples
-        self.tgt_samples = tgt_samples
+        self.sample_size = sample_size
         self.num_runs = num_runs
         self.block_idx = block_idx
         self.batch_size = batch_size
@@ -117,8 +115,7 @@ class ShiftExperiment:
             "target_dir": target_dir,
             "source_list_path": source_list_path,
             "target_list_path": target_list_path,
-            "src_samples": src_samples,
-            "tgt_samples": tgt_samples,
+            "sample_size": sample_size,
             "num_runs": num_runs,
             "block_idx": block_idx,
             "batch_size": batch_size,
@@ -243,10 +240,10 @@ class ShiftExperiment:
             list_path=self.source_list_dir,
             batch_size=self.batch_size,
             image_size=self.image_size,
-            num_samples=self.src_samples,
+            num_samples=self.sample_size,
         )
         self.src_feats = self._get_or_extract_features(
-            loaderReturn[0], self.source_list_dir, self.src_samples, "base"
+            loaderReturn[0], self.source_list_dir, self.sample_size, "base"
         )
 
         print(f"{self.source_dir} features loaded. Shape = {self.src_feats.shape}\n")
@@ -266,11 +263,11 @@ class ShiftExperiment:
                 list_path=self.source_list_dir,
                 batch_size=self.batch_size,
                 image_size=self.image_size,
-                num_samples=self.tgt_samples,
+                num_samples=self.sample_size,
                 seed=seed,
             )
             feats = self._get_or_extract_features(
-                loaderReturn[0], self.source_list_dir, self.tgt_samples, seed
+                loaderReturn[0], self.source_list_dir, self.sample_size, seed
             )
             self.calib_data_cache.append((seed, feats, loaderReturn[1]))
 
@@ -281,12 +278,12 @@ class ShiftExperiment:
             list_path=self.source_list_dir,
             batch_size=self.batch_size,
             image_size=self.image_size,
-            num_samples=self.tgt_samples,
+            num_samples=self.sample_size,
             seed=sanity_seed,
             shift=None,
         )
         sanity_feats = self._get_or_extract_features(
-            loaderReturn[0], self.source_list_dir, self.tgt_samples, sanity_seed
+            loaderReturn[0], self.source_list_dir, self.sample_size, sanity_seed
         )
         self.sanity_data_cache = {
             "seed": sanity_seed,
@@ -303,11 +300,11 @@ class ShiftExperiment:
                 list_path=self.target_list_dir,
                 batch_size=self.batch_size,
                 image_size=self.image_size,
-                num_samples=self.tgt_samples,
+                num_samples=self.sample_size,
                 seed=seed,
             )
             feats = self._get_or_extract_features(
-                loaderReturn[0], self.target_list_dir, self.tgt_samples, seed
+                loaderReturn[0], self.target_list_dir, self.sample_size, seed
             )
             self.target_data_cache.append((seed, feats, loaderReturn[1]))
 
@@ -528,8 +525,7 @@ if __name__ == "__main__":
         default="./datasets/CULane/list/train.txt",
     )
     parser.add_argument("--target_list_path", required=True, type=str)
-    parser.add_argument("--src_samples", type=int, default=1000)
-    parser.add_argument("--tgt_samples", type=int, default=1000)
+    parser.add_argument("--sample_size", type=int, default=1000)
     parser.add_argument("--num_runs", type=int, default=10)
     parser.add_argument("--block_idx", type=int, default=0)
     parser.add_argument("--batch_size", type=int, default=128)
