@@ -74,10 +74,12 @@ class ShiftExperiment:
         modelStr: str = "",
         permutation_test_iterations: int = 1000,
         latent_dim: int = 32,
-        test_type: str = "MMD",
-        max_threads: int = None,  # None defaults to min(32, os.cpu_count() + 4)
+        max_threads: int = None,
     ):
-        print("Fixed Flag: 4/9/2026")
+        # Logging Sanity Check Information
+        print("Fixed Flag: 4/11/2026")
+
+        # Store all parameters as instance variables for easy access across methods
         self.modelStr = modelStr
         self.source_dir = source_dir
         self.target_dir = target_dir
@@ -94,8 +96,10 @@ class ShiftExperiment:
         self.save_all_image_paths = save_all_image_paths
         self.permutation_test_iterations = permutation_test_iterations
         self.latent_dim = latent_dim
-        self.test_type = test_type
         self.max_threads = max_threads
+        
+        # Define all the tests we want to track
+        self.test_types = ["MMD", "MMD_Agg", "Energy", "BKS"]
 
         # Data Storage for Preloaded Features
         self.src_feats = None
@@ -103,13 +107,18 @@ class ShiftExperiment:
         self.sanity_data_cache = {}
         self.target_data_cache = []
 
+        # Null Stats & Thresholds Tracking
+        self.null_stats = {}
+        self.tau = {}
+
         # --- Data Logger ---
         self.datalogger = JsonExperimentManager(
             file_location=file_location, file_name=file_name, style=file_style
         )
 
+        # Log all experiment parameters for reproducibility and analysis
         self.loggerArgs: JsonDict = {
-            "CodeMark": "4/9/2026",
+            "CodeMark": "4/11/2026",
             "source_dir": source_dir,
             "target_dir": target_dir,
             "source_list_path": source_list_path,
@@ -126,8 +135,10 @@ class ShiftExperiment:
             "deterministic": True,
             "permutation_test_iterations": permutation_test_iterations,
             "latent_dim": latent_dim,
+            "test_types": self.test_types
         }
 
+        # This will hold all the experimental results and metadata to be logged at the end
         self.loggerExperimentalData: JsonDict = {}
 
         # --- GPU Setup ---
@@ -146,6 +157,7 @@ class ShiftExperiment:
         # --- Model Initialization ---
         print("\nInitializing autoencoder...")
 
+        # Select the appropriate model configuration based on the provided modelStr argument
         if self.modelStr == "ImageNet":
             modelConf = autoencoderConfigs.AutoEncoderWeights.IMAGE_NET
             print("Using ImageNet pretrained weights for the autoencoder.")
@@ -167,15 +179,18 @@ class ShiftExperiment:
         else:
             raise ValueError(f"Unsupported model config: {self.modelStr}")
 
+        # Initialize the base model on the appropriate device
         base_model = ConfP2ConvAutoencoderFC(
             configs=modelConf, latent_dim=self.latent_dim
         ).to(self.device)
 
         # Multi-GPU setup
         if torch.cuda.device_count() > 1:
+            # Note: DataParallel is used here for simplicity, but for larger models or more complex setups, consider using DistributedDataParallel
             self.model = torch.nn.DataParallel(base_model)
             print(f"Warning: Only {num_gpus} GPUs found. Using all available.")
         else:
+            # Even if multiple GPUs are available, we will use only one to avoid potential issues with DataParallel and ensure consistent behavior across different hardware setups.
             self.model = base_model
             print("Using single GPU/CPU.")
 
@@ -190,6 +205,7 @@ class ShiftExperiment:
         cache_dir = os.path.join(
             cache_base, str(self.modelStr), f"dim_{self.latent_dim}"
         )
+
         os.makedirs(cache_dir, exist_ok=True)
 
         # Create a unique, safe filename (e.g., datasets_CULane_list_train_txt_n1000_seed42.npy)
@@ -208,26 +224,26 @@ class ShiftExperiment:
 
     # --- THREAD WORKER FOR STATISTICAL TESTS ---
     def _execute_test(self, src_feats, tgt_feats, seed):
-        """Helper to route the specific statistical test inside a worker thread."""
-        if self.test_type == "MMD":
-            return mmd_test(
-                src_feats, tgt_feats, iterations=self.permutation_test_iterations
-            )
-        elif self.test_type == "MMDAgg":
-            return mmdAgg_test(
-                src_feats,
-                tgt_feats,
-                iterations=self.permutation_test_iterations,
-                seed=seed,
-            )
-        elif self.test_type == "ENERGY":
-            return energy_test(
-                src_feats, tgt_feats, iterations=self.permutation_test_iterations
-            )
-        elif self.test_type == "BKS":
-            return bks_distance_test(src_feats, tgt_feats)
-        else:
-            raise ValueError(f"Unsupported test_type: {self.test_type}")
+        mmd_results = mmd_test(
+            src_feats, tgt_feats, iterations=self.permutation_test_iterations
+        )
+        mmdAgg_results = mmdAgg_test(
+            src_feats,
+            tgt_feats,
+            iterations=self.permutation_test_iterations,
+            seed=seed,
+        )
+        energy_results = energy_test(
+            src_feats, tgt_feats, iterations=self.permutation_test_iterations
+        )
+        bks_results = bks_distance_test(src_feats, tgt_feats)
+        
+        return {
+            "MMD": mmd_results,
+            "MMD_Agg": mmdAgg_results,
+            "Energy": energy_results,
+            "BKS": bks_results,
+        }
 
     # STEP 0 — Preload All Features Upfront
     def preload_all_features(self):
@@ -313,15 +329,14 @@ class ShiftExperiment:
         print(f"\n[STEP 1] Calibration using {self.source_dir} (Multithreaded)...")
         calibrationData["Uses"] = self.source_dir
 
-        null_stats = []
-        p_values = []
+        null_stats_temp = {test: [] for test in self.test_types}
+        p_values_temp = {test: [] for test in self.test_types}
         all_image_dirs = {}
 
         # Dispatch to ThreadPool
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.max_threads
         ) as executor:
-            # Create a mapping of futures to their specific seed/paths for logging
             future_to_data = {}
             for seed, feats, img_paths in self.calib_data_cache:
                 future = executor.submit(
@@ -329,7 +344,6 @@ class ShiftExperiment:
                 )
                 future_to_data[future] = (seed, img_paths)
 
-            # Process as they complete
             for future in tqdm(
                 concurrent.futures.as_completed(future_to_data),
                 total=self.num_calib,
@@ -339,71 +353,79 @@ class ShiftExperiment:
                 all_image_dirs[f"Calibrating with seed {seed}"] = img_paths
 
                 try:
-                    t_stat, p_value = future.result()
-                    null_stats.append(t_stat)
-                    if self.permutation_test_iterations > 0:
-                        p_values.append(float(p_value))
+                    result_dict = future.result()
+                    for test in self.test_types:
+                        t_stat, p_value = result_dict[test]
+                        null_stats_temp[test].append(t_stat)
+                        if self.permutation_test_iterations > 0:
+                            p_values_temp[test].append(float(p_value))
                 except Exception as exc:
                     print(f"Calibration generated an exception for seed {seed}: {exc}")
 
-        self.null_stats = np.array(null_stats)
-        self.tau = np.percentile(self.null_stats, 100 * (1 - self.alpha))
+        calibrationData["Result"] = {}
 
-        print(f"\n[RESULT] τ({1 - self.alpha:.2f}) = {self.tau:.6f}")
-        print(
-            f"Mean {self.test_type} (same-distribution): {self.null_stats.mean():.6f} ± {self.null_stats.std():.6f}\n"
-        )
+        # Calculate limits for each test
+        for test in self.test_types:
+            self.null_stats[test] = np.array(null_stats_temp[test])
+            self.tau[test] = np.percentile(self.null_stats[test], 100 * (1 - self.alpha))
+            
+            print(f"  [{test}] τ({1 - self.alpha:.2f}) = {self.tau[test]:.6f}")
 
-        calibrationData["Result"] = {
-            "Tau": float(self.tau),
-            "Mean " + self.test_type: float(self.null_stats.mean()),
-            self.test_type + " (std)": float(self.null_stats.std()),
-        }
+            calibrationData["Result"][test] = {
+                "Tau": float(self.tau[test]),
+                "Mean": float(self.null_stats[test].mean()),
+                "Std": float(self.null_stats[test].std()),
+            }
 
-        if self.permutation_test_iterations > 0:
-            avgPVal = np.array(p_values).mean()
-            calibrationData["Result"]["Average P-Value"] = float(avgPVal)
-            calibrationData["Result"]["P-Values"] = p_values
+            if self.permutation_test_iterations > 0 and len(p_values_temp[test]) > 0:
+                avgPVal = np.array(p_values_temp[test]).mean()
+                calibrationData["Result"][test]["Average P-Value"] = float(avgPVal)
+                calibrationData["Result"][test]["P-Values"] = p_values_temp[test]
 
         self.loggerExperimentalData["Calibration"] = calibrationData
 
     # STEP 2 — Sanity Check
     def sanity_check(self):
         sanityCheckData: JsonDict = {}
-        print("[STEP 2] Sanity Check...")
+        print("\n[STEP 2] Sanity Check...")
 
         sanityCheckData["Image Paths"] = self.sanity_data_cache["paths"]
         sanity_seed = self.sanity_data_cache["seed"]
         sanity_feats = self.sanity_data_cache["feats"]
 
-        # Run test (We can do this in the main thread since it's just one run)
-        mmd_val, p_value = self._execute_test(self.src_feats, sanity_feats, sanity_seed)
+        result_dict = self._execute_test(self.src_feats, sanity_feats, sanity_seed)
+        sanityCheckData["Results"] = {}
 
-        print(
-            f"[SANITY CHECK] {self.test_type}(A = {self.source_dir}, B = {self.source_dir}) = {mmd_val:.6f}, τ = {self.tau:.6f}"
-        )
-
-        if self.permutation_test_iterations > 0:
-            print(f"  P-Value: {p_value}\n")
-            sanityCheckData["P-Value"] = float(p_value)
-
-        sanityCheckData["Results"] = {
-            "Sanity Check Definition": f"{self.test_type}(A = {self.source_dir}, B = {self.source_dir})",
-            self.test_type: float(mmd_val),
-            "Tau": float(self.tau),
-        }
-
-        if mmd_val <= self.tau:
-            sanityCheckData["Shift Detected"] = bool(False)
-            print("No shift detected.\n")
-        else:
-            sanityCheckData["Shift Detected"] = bool(True)
-            print("False shift detected.\n")
-            warnings.warn(
-                f"False shift detected in sanity check - {self.test_type} exceeded threshold",
-                UserWarning,
+        for test in self.test_types:
+            t_stat, p_value = result_dict[test]
+            
+            print(
+                f"[SANITY CHECK] {test}(A={self.source_dir}, B={self.source_dir}) = {t_stat:.6f}, τ = {self.tau[test]:.6f}"
             )
 
+            test_data = {
+                "Sanity Check Definition": f"{test}(A={self.source_dir}, B={self.source_dir})",
+                "Stat": float(t_stat),
+                "Tau": float(self.tau[test]),
+            }
+
+            if self.permutation_test_iterations > 0:
+                test_data["P-Value"] = float(p_value)
+
+            if t_stat <= self.tau[test]:
+                test_data["Shift Detected"] = False
+                print(f"No shift detected for {test}.")
+            else:
+                test_data["Shift Detected"] = True
+                print(f"False shift detected for {test}.")
+                warnings.warn(
+                    f"False shift detected in sanity check - {test} exceeded threshold",
+                    UserWarning,
+                )
+            
+            sanityCheckData["Results"][test] = test_data
+            
+        print("")
         self.loggerExperimentalData["Sanity Check"] = sanityCheckData
 
     # STEP 3 — Data Shift Test via Threading
@@ -416,8 +438,8 @@ class ShiftExperiment:
         )
         dataShiftTestData["Runs"] = self.num_runs
 
-        tpr_list = []
-        mmd_values = []
+        tpr_lists = {test: [] for test in self.test_types}
+        stat_values = {test: [] for test in self.test_types}
         dataShiftTestDataTests: list[JsonDict] = []
 
         # Dispatch to ThreadPool
@@ -431,35 +453,36 @@ class ShiftExperiment:
                 )
                 future_to_idx[future] = (idx, seed, img_paths)
 
-            # Order might be scrambled by completion time, but log info tracks correct index
             for future in tqdm(
                 concurrent.futures.as_completed(future_to_idx),
                 total=self.num_runs,
                 desc="Calculating Shifts",
             ):
                 idx, seed, img_paths = future_to_idx[future]
-                testData: JsonDict = {"Image Paths": img_paths, "Seed": seed}
+                runData: JsonDict = {"Image Paths": img_paths, "Seed": seed, "Run": int(idx + 1), "Results": {}}
 
                 try:
-                    mmd_cross, p_value = future.result()
-                    mmd_values.append(mmd_cross)
+                    result_dict = future.result()
+                    
+                    for test in self.test_types:
+                        t_stat, p_value = result_dict[test]
+                        stat_values[test].append(t_stat)
 
-                    detected: bool = mmd_cross > self.tau
-                    tpr_list.append(int(detected))
+                        detected: bool = t_stat > self.tau[test]
+                        tpr_lists[test].append(int(detected))
 
-                    print(
-                        f"\n[RUN {idx+1}] {self.test_type}={mmd_cross:.6f} {'✅ Detected' if detected else '❌ Not Detected'}"
-                    )
+                        test_run = {
+                            "Stat": float(t_stat),
+                            "Shift Detected": bool(detected)
+                        }
 
-                    if self.permutation_test_iterations > 0:
-                        testData["P-Value"] = float(p_value)
-
-                    testData["Run"] = int(idx + 1)
-                    testData[self.test_type] = float(mmd_cross)
-                    testData["Shift Detected"] = bool(detected)
+                        if self.permutation_test_iterations > 0:
+                            test_run["P-Value"] = float(p_value)
+                            
+                        runData["Results"][test] = test_run
 
                     if self.save_all_image_paths or idx == 0:
-                        dataShiftTestDataTests.append(testData)
+                        dataShiftTestDataTests.append(runData)
 
                 except Exception as exc:
                     print(
@@ -467,23 +490,27 @@ class ShiftExperiment:
                     )
 
         dataShiftTestData["Individual Test Data"] = dataShiftTestDataTests
+        dataShiftTestData["Summary"] = {}
 
-        tpr_result = np.mean(tpr_list)
-        print("\n[RESULTS] Data Shift detection summary")
-        print(
-            f"Average {self.test_type}: {np.mean(mmd_values):.6f} ± {np.std(mmd_values):.6f}"
-        )
-        print(
-            f"TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%"
-        )
+        print("\n[RESULTS] Data Shift detection summary:")
+        for test in self.test_types:
+            tpr_result = np.mean(tpr_lists[test])
+            mean_stat = np.mean(stat_values[test])
+            std_stat = np.std(stat_values[test])
+            
+            print(f"--- {test} ---")
+            print(
+                f"  Average Stat: {mean_stat:.6f} ± {std_stat:.6f}"
+            )
+            print(
+                f"  TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%"
+            )
 
-        dataShiftTestData["TPR"] = float(tpr_result * 100)
-        dataShiftTestData["Step (c) Mean " + self.test_type] = float(
-            np.mean(mmd_values)
-        )
-        dataShiftTestData["Step (c) Mean " + self.test_type + " (std)"] = float(
-            np.std(mmd_values)
-        )
+            dataShiftTestData["Summary"][test] = {
+                "TPR": float(tpr_result * 100),
+                "Mean Stat": float(mean_stat),
+                "Std Stat": float(std_stat)
+            }
 
         self.loggerExperimentalData["Data Shift Test Data"] = dataShiftTestData
 
@@ -505,15 +532,17 @@ class ShiftExperiment:
 
 
 if __name__ == "__main__":
-    # 1. FORCE JAX TO PLAY NICE
+    # Prevent JAX from preallocating all GPU memory (important for multi-GPU setups and to avoid OOM issues)
     os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 
-    # 2. Prevent NCCL Deadlocks (Common on A100 clusters)
+    # Prevent NCCL Deadlocks
     os.environ["NCCL_P2P_DISABLE"] = "1"
     os.environ["NCCL_IB_DISABLE"] = "1"
 
+    # Set multiprocessing start method to 'spawn' for better compatibility with CUDA and to avoid issues on certain platforms
     mp.set_start_method("spawn", force=True)
 
+    # Command-line argument parsing for flexible experiment configuration
     parser = argparse.ArgumentParser()
     parser.add_argument("--source_dir", required=True, type=str)
     parser.add_argument("--target_dir", required=True, type=str)
@@ -535,7 +564,6 @@ if __name__ == "__main__":
     parser.add_argument("--latent_dim", type=int, default=32)
     parser.add_argument("--save_all_image_paths", type=bool, default=False)
     parser.add_argument("--modelStr", type=str, default="")
-    parser.add_argument("--test_type", type=str, default="MMD")
     parser.add_argument(
         "--max_threads", type=int, default=None, help="Max thread pool workers"
     )
