@@ -282,7 +282,7 @@ def get_seeded_random_dataloader(
             subset,
             batch_size=batch_size,
             shuffle=False,
-            num_workers=16,
+            num_workers=4,
             pin_memory=True,
             prefetch_factor=2,
         ),

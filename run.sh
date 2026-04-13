@@ -6,31 +6,31 @@ echo 'Submitting all SLURM jobs...'
 # =========================================
 # ImageNet Model Jobs
 # =========================================
-sbatch LocalBash/Exodo/ImageNet/256d/10000sImageNet256d.sh
-sbatch LocalBash/Exodo/ImageNet/256d/1000sImageNet256d.sh
-sbatch LocalBash/Exodo/ImageNet/256d/100sImageNet256d.sh
+# sbatch LocalBash/Exodo/ImageNet/256d/10000sImageNet256d.sh
+# sbatch LocalBash/Exodo/ImageNet/256d/1000sImageNet256d.sh
+# sbatch LocalBash/Exodo/ImageNet/256d/100sImageNet256d.sh
 sbatch LocalBash/Exodo/ImageNet/256d/10sImageNet256d.sh
-sbatch LocalBash/Exodo/ImageNet/128d/10000sImageNet128d.sh
-sbatch LocalBash/Exodo/ImageNet/128d/1000sImageNet128d.sh
+# sbatch LocalBash/Exodo/ImageNet/128d/10000sImageNet128d.sh
+# sbatch LocalBash/Exodo/ImageNet/128d/1000sImageNet128d.sh
 sbatch LocalBash/Exodo/ImageNet/128d/100sImageNet128d.sh
 sbatch LocalBash/Exodo/ImageNet/128d/10sImageNet128d.sh
-sbatch LocalBash/Exodo/ImageNet/32d/10000sImageNet32d.sh
-sbatch LocalBash/Exodo/ImageNet/32d/1000sImageNet32d.sh
+# sbatch LocalBash/Exodo/ImageNet/32d/10000sImageNet32d.sh
+# sbatch LocalBash/Exodo/ImageNet/32d/1000sImageNet32d.sh
 sbatch LocalBash/Exodo/ImageNet/32d/100sImageNet32d.sh
 sbatch LocalBash/Exodo/ImageNet/32d/10sImageNet32d.sh
 
 # =========================================
 # Random Model Jobs
 # =========================================
-sbatch LocalBash/Exodo/Random/256d/10000sRandom256d.sh
+# sbatch LocalBash/Exodo/Random/256d/10000sRandom256d.sh
 sbatch LocalBash/Exodo/Random/256d/1000sRandom256d.sh
 sbatch LocalBash/Exodo/Random/256d/100sRandom256d.sh
 sbatch LocalBash/Exodo/Random/256d/10sRandom256d.sh
-sbatch LocalBash/Exodo/Random/128d/10000sRandom128d.sh
+# sbatch LocalBash/Exodo/Random/128d/10000sRandom128d.sh
 sbatch LocalBash/Exodo/Random/128d/1000sRandom128d.sh
 sbatch LocalBash/Exodo/Random/128d/100sRandom128d.sh
 sbatch LocalBash/Exodo/Random/128d/10sRandom128d.sh
-sbatch LocalBash/Exodo/Random/32d/10000sRandom32d.sh
+# sbatch LocalBash/Exodo/Random/32d/10000sRandom32d.sh
 sbatch LocalBash/Exodo/Random/32d/1000sRandom32d.sh
 sbatch LocalBash/Exodo/Random/32d/100sRandom32d.sh
 sbatch LocalBash/Exodo/Random/32d/10sRandom32d.sh

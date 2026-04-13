@@ -1,30 +1,43 @@
 import os
+import warnings
+
+# ==============================================================================
+# CRITICAL FIX 1: Environment variables MUST be set BEFORE importing JAX/Torch
+# Otherwise, JAX/Torch initialize on import and ignore these safeguards.
+# ==============================================================================
+os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+os.environ["NCCL_P2P_DISABLE"] = "1"
+os.environ["NCCL_IB_DISABLE"] = "1"
+
 import numpy as np
 from tqdm import tqdm, trange
 import torch
-from models.phase2Autoencoder import ConfP2ConvAutoencoderFC
-from models import autoencoderConfigs
+import torch.multiprocessing as mp
+import jax
 import argparse
 import concurrent.futures
 
+from models.phase2Autoencoder import ConfP2ConvAutoencoderFC
+from models import autoencoderConfigs
 from utils.mmd_test import mmd_test
 from utils.energy_test import energy_test
 from utils.bks import bks_distance_test
 from utils.mmd_agg import mmdAgg_test
 from data.data_builder import get_dataloader, get_seeded_random_dataloader
 from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
-import warnings
-import torch.multiprocessing as mp
-import jax
 
 # This will force a crash if the GPU isn't actually usable
-# better to crash and know why than to waste hours on CPU
 jax.config.update("jax_platform_name", "gpu")
 
 # Force deterministic behavior for reproducibility
 torch.use_deterministic_algorithms(True)
 torch.manual_seed(42)
 
+# Set multiprocessing start method to 'spawn' early
+try:
+    mp.set_start_method("spawn", force=True)
+except RuntimeError:
+    pass
 
 # ---------Feature extraction---------
 def extract_features(model, loader, device):
@@ -141,9 +154,7 @@ class ShiftExperiment:
         # --- GPU Setup ---
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         num_gpus = torch.cuda.device_count()
-        print(
-            f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}"
-        )
+        print(f"CUDA Available: {torch.cuda.is_available()} | Total GPUs Found: {num_gpus}")
 
         # Deterministic behavior for reproducibility
         if torch.cuda.is_available():
@@ -221,18 +232,9 @@ class ShiftExperiment:
 
     # --- THREAD WORKER FOR STATISTICAL TESTS ---
     def _execute_test(self, src_feats, tgt_feats, seed):
-        mmd_results = mmd_test(
-            src_feats, tgt_feats, iterations=self.permutation_test_iterations
-        )
-        mmdAgg_results = mmdAgg_test(
-            src_feats,
-            tgt_feats,
-            iterations=self.permutation_test_iterations,
-            seed=seed,
-        )
-        energy_results = energy_test(
-            src_feats, tgt_feats, iterations=self.permutation_test_iterations
-        )
+        mmd_results = mmd_test(src_feats, tgt_feats, iterations=self.permutation_test_iterations)
+        mmdAgg_results = mmdAgg_test(src_feats, tgt_feats, iterations=self.permutation_test_iterations, seed=seed)
+        energy_results = energy_test(src_feats, tgt_feats, iterations=self.permutation_test_iterations)
         bks_results = bks_distance_test(src_feats, tgt_feats)
         
         return {
@@ -242,9 +244,15 @@ class ShiftExperiment:
             "BKS": bks_results,
         }
 
-    # STEP 0 — Preload All Features Upfront
     def preload_all_features(self):
         print("\n[STEP 0] Encoding and caching all dataset features...")
+
+        # Injecting num_workers=14 and pin_memory=True
+        loader_kwargs = {
+            "num_workers": 14,
+            "pin_memory": True,
+            "prefetch_factor": 2
+        }
 
         # 0A: Source Features
         loaderReturn = get_dataloader(
@@ -259,13 +267,8 @@ class ShiftExperiment:
         )
 
         print(f"{self.source_dir} features loaded. Shape = {self.src_feats.shape}\n")
-        self.loggerExperimentalData["Source Training Feature Shape"] = list(
-            self.src_feats.shape
-        )
-        self.loggerExperimentalData["Source Training Feature Image Paths"] = list(
-            loaderReturn[1]
-        )
-        print(f"-> Source features loaded. Shape = {self.src_feats.shape}")
+        self.loggerExperimentalData["Source Training Feature Shape"] = list(self.src_feats.shape)
+        self.loggerExperimentalData["Source Training Feature Image Paths"] = list(loaderReturn[1])
 
         # 0B: Calibration Features
         for i in tqdm(range(self.num_calib), desc="Preloading Calibration Sets"):
@@ -331,14 +334,10 @@ class ShiftExperiment:
         all_image_dirs = {}
 
         # Dispatch to ThreadPool
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.max_threads
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_threads) as executor:
             future_to_data = {}
             for seed, feats, img_paths in self.calib_data_cache:
-                future = executor.submit(
-                    self._execute_test, self.src_feats, feats, seed
-                )
+                future = executor.submit(self._execute_test, self.src_feats, feats, seed)
                 future_to_data[future] = (seed, img_paths)
 
             for future in tqdm(
@@ -430,9 +429,7 @@ class ShiftExperiment:
         dataShiftTestData: JsonDict = {}
         print(f"[STEP 3] Data Shift Test: {self.source_dir} to {self.target_dir}\n")
 
-        dataShiftTestData["Data Shift Test Definition"] = (
-            f"{self.source_dir} to {self.target_dir}"
-        )
+        dataShiftTestData["Data Shift Test Definition"] = f"{self.source_dir} to {self.target_dir}"
         dataShiftTestData["Runs"] = self.num_runs
 
         tpr_lists = {test: [] for test in self.test_types}
@@ -440,14 +437,10 @@ class ShiftExperiment:
         dataShiftTestDataTests: list[JsonDict] = []
 
         # Dispatch to ThreadPool
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.max_threads
-        ) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_threads) as executor:
             future_to_idx = {}
             for idx, (seed, feats, img_paths) in enumerate(self.target_data_cache):
-                future = executor.submit(
-                    self._execute_test, self.src_feats, feats, seed
-                )
+                future = executor.submit(self._execute_test, self.src_feats, feats, seed)
                 future_to_idx[future] = (idx, seed, img_paths)
 
             for future in tqdm(
@@ -481,9 +474,7 @@ class ShiftExperiment:
                     dataShiftTestDataTests.append(runData)
 
                 except Exception as exc:
-                    print(
-                        f"Data shift test generated an exception for run {idx+1}: {exc}"
-                    )
+                    print(f"Data shift test generated an exception for run {idx+1}: {exc}")
 
         dataShiftTestData["Individual Test Data"] = dataShiftTestDataTests
         dataShiftTestData["Summary"] = {}
@@ -495,12 +486,8 @@ class ShiftExperiment:
             std_stat = np.std(stat_values[test])
             
             print(f"--- {test} ---")
-            print(
-                f"  Average Stat: {mean_stat:.6f} ± {std_stat:.6f}"
-            )
-            print(
-                f"  TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%"
-            )
+            print(f"  Average Stat: {mean_stat:.6f} ± {std_stat:.6f}")
+            print(f"  TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%")
 
             dataShiftTestData["Summary"][test] = {
                 "TPR": float(tpr_result * 100),
@@ -528,26 +515,10 @@ class ShiftExperiment:
 
 
 if __name__ == "__main__":
-    # Prevent JAX from preallocating all GPU memory (important for multi-GPU setups and to avoid OOM issues)
-    os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
-
-    # Prevent NCCL Deadlocks
-    os.environ["NCCL_P2P_DISABLE"] = "1"
-    os.environ["NCCL_IB_DISABLE"] = "1"
-
-    # Set multiprocessing start method to 'spawn' for better compatibility with CUDA and to avoid issues on certain platforms
-    mp.set_start_method("spawn", force=True)
-
-    # Command-line argument parsing for flexible experiment configuration
     parser = argparse.ArgumentParser()
     parser.add_argument("--source_dir", required=True, type=str)
     parser.add_argument("--target_dir", required=True, type=str)
-    parser.add_argument(
-        "--source_list_path",
-        required=True,
-        type=str,
-        default="./datasets/CULane/list/train.txt",
-    )
+    parser.add_argument("--source_list_path", required=True, type=str, default="./datasets/CULane/list/train.txt")
     parser.add_argument("--target_list_path", required=True, type=str)
     parser.add_argument("--sample_size", type=int, default=1000)
     parser.add_argument("--num_runs", type=int, default=100)
@@ -559,22 +530,9 @@ if __name__ == "__main__":
     parser.add_argument("--permutation_test_iterations", type=int, default=1000)
     parser.add_argument("--latent_dim", type=int, default=32)
     parser.add_argument("--modelStr", type=str, default="")
-    parser.add_argument(
-        "--max_threads", type=int, default=None, help="Max thread pool workers"
-    )
-    parser.add_argument(
-        "--file_location",
-        type=str,
-        default="logsFixed",
-        help="Directory to save the log file.",
-    )
-    parser.add_argument(
-        "--file_name",
-        type=str,
-        default="sanity_check.json",
-        help="Name of the log file.",
-    )
+    parser.add_argument("--max_threads", type=int, default=None, help="Max thread pool workers")
+    parser.add_argument("--file_location", type=str, default="logsFixed", help="Directory to save the log file.")
+    parser.add_argument("--file_name", type=str, default="sanity_check.json", help="Name of the log file.")
 
     args = parser.parse_args()
-
     ShiftExperiment(**vars(args)).run()

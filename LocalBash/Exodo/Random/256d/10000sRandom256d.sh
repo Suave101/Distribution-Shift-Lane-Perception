@@ -6,9 +6,9 @@
 #SBATCH --ntasks=1
 #SBATCH --output="/home1/adoyle2025/Distribution-Shift-Lane-Perception/LocalBash/Exodo/Random/256d/10000sRandom256d.log"
 #SBATCH --partition=gpu2
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=64G
+#SBATCH --mem=128G
 
 # --- Job Execution ---
 echo "----------------------------------------------------"
