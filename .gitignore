@@ -14,9 +14,5 @@
 torch-two-sample
 datasets
 checkpoints
-LocalBash/eval_exodo_gpu2_226126.log
-LocalBash/Exodo/ImageNet/32d/1000sImageNet32d.log
-LocalBash/Exodo/ImageNet/32d/1000sImageNet32d.sh
-logs/Exodo/1000sImageNet32d.json
-logs/Exodo/image_metrics_cache.json
-logs/Exodo/master_evaluation_results.csv
+LocalBash/
+logs/legacy
