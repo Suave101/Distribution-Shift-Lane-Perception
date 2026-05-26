@@ -11,8 +11,10 @@
 .idea/modules.xml
 .idea/vcs.xml
 /.idea
+*.pyc
+__pycache__/
 torch-two-sample
 datasets
 checkpoints
-LocalBash/
+LocalBash
 logs/legacy
