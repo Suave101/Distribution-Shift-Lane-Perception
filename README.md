@@ -4,13 +4,8 @@
 
 - [Overview](#overview)
 - [Setup](#setup)
-- [Command Generator Tool](#command-generator-tool)
-- [🚀 How to Run `experiment.py` (New Pipeline)](#-how-to-run-experimentpy-new-pipeline)
-  - [Modes: `custom_weights` vs `imagenet_weights`](#modes-custom_weights-vs-imagenet_weights)
-  - [Basic Usage](#basic-usage)
-  - [Required Arguments](#required-arguments)
-  - [Optional Configuration](#optional-configuration)
-  - [Outputs](#outputs)
+- [🚀 Quick Command Generator](#command-generator-tool)
+- [Manual `experiment.py` configuration](#-how-to-run-experimentpy-new-pipeline)
 - [Other Scripts (eg. training script)](#other-scripts)
 
 ## Overview
