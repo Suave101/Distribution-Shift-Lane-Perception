@@ -21,7 +21,8 @@ from tqdm import tqdm, trange
 import torch.multiprocessing as mp
 import argparse
 
-from models.phase2Autoencoder import ConfP2ConvAutoencoderFC
+from models.configurableAutoencoder import Autoencoder
+
 from models import autoencoderConfigs
 from utils.mmd_test import mmd_test
 from utils.energy_test import energy_test
@@ -29,6 +30,7 @@ from utils.bks import bks_distance_test
 from utils.mmd_agg import mmdAgg_test
 from data.data_builder import get_dataloader, get_seeded_random_dataloader
 from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
+from pathlib import Path
 
 try:
     mp.set_start_method("spawn", force=True)
@@ -76,12 +78,31 @@ class ShiftExperiment:
         file_name: str = "testData.json",
         file_location: str = "./",
         file_style: JsonStyle = 4,
-        modelStr: str = "",
         permutation_test_iterations: int = 1000,
         latent_dim: int = 32,
-        max_threads: int = None,  # Kept for arg compatibility, but ignored
+        model_weights_path: str = "",
     ):
-        self.modelStr = modelStr
+        # Assert well formed input
+        assert (
+            model_weights_path := Path(model_weights_path).resolve()
+        ).is_dir(), f"For arg model_weights_path: \n{model_weights_path}\nIs not a valid directory"
+
+        assert (
+            file_location := Path(file_location).resolve()
+        ).is_dir(), (
+            f"For arg file_location: \n{file_location}\nIs not a valid directory"
+        )
+
+        assert (
+            source_dir := Path(source_dir).resolve()
+        ).is_dir(), f"For arg source_dir: \n{source_dir}\nIs not a valid directory"
+
+        assert (
+            target_dir := Path(target_dir).resolve()
+        ).is_dir(), (
+            f"For arg target_dir: \n{target_dir}\nIs not a valid directory"
+        )
+
         self.source_dir = source_dir
         self.target_dir = target_dir
         self.source_list_dir = source_list_path
@@ -96,6 +117,7 @@ class ShiftExperiment:
         self.seed_base = seed_base
         self.permutation_test_iterations = permutation_test_iterations
         self.latent_dim = latent_dim
+        self.weights_path = model_weights_path
 
         self.test_types = ["MMD", "MMD_Agg", "Energy", "BKS"]
 
@@ -156,30 +178,15 @@ class ShiftExperiment:
         # --- Model Initialization ---
         print("\nInitializing autoencoder...")
 
-        if self.modelStr == "ImageNet":
-            modelConf = autoencoderConfigs.AutoEncoderWeights.IMAGE_NET
-            print("Using ImageNet pretrained weights for the autoencoder.")
-        elif self.modelStr == "Random":
-            modelConf = autoencoderConfigs.AutoEncoderWeights.RANDOM_WEIGHTS
-            print("Using random weights (untrained) for the autoencoder.")
-        elif self.modelStr == "CU_Lane":
-            modelConf = autoencoderConfigs.AutoEncoderWeights.CU_LANE
-            print("Using CU Lane pretrained weights for the autoencoder.")
-        elif self.modelStr == "CurveLanes":
-            modelConf = autoencoderConfigs.AutoEncoderWeights.CURVELANES
-            print("Using CurveLanes pretrained weights for the autoencoder.")
-        elif self.modelStr == "ASSIST_Taxi":
-            modelConf = autoencoderConfigs.AutoEncoderWeights.ASSIST_TAXI
-            print("Using ASSIST_Taxi pretrained weights for the autoencoder.")
-        elif self.modelStr == "DISTILL":
-            modelConf = autoencoderConfigs.AutoEncoderWeights.DISTILL
-            print("Using Distilled pretrained weights for the autoencoder.")
+        # Define model parameters based on config
+        if imagenet_weights:
+            base_model = Autoencoder(
+                latent_dim=self.latent_dim, imagenet_weights=True
+            ).to(self.device)
         else:
-            raise ValueError(f"Unsupported model config: {self.modelStr}")
-
-        base_model = ConfP2ConvAutoencoderFC(
-            configs=modelConf, latent_dim=self.latent_dim
-        ).to(self.device)
+            base_model = Autoencoder(
+                latent_dim=self.latent_dim, weights_path=self.weights_path
+            ).to(self.device)
 
         if num_gpus > 2:
             self.model = torch.nn.DataParallel(
@@ -199,9 +206,7 @@ class ShiftExperiment:
     # --- LATENT CACHING HELPER ---
     def _get_or_extract_features(self, loader, list_path, num_samples, seed):
         cache_base = "Encodings"
-        cache_dir = os.path.join(
-            cache_base, str(self.modelStr), f"dim_{self.latent_dim}"
-        )
+        cache_dir = os.path.join(cache_base, f"dim_{self.latent_dim}")
 
         os.makedirs(cache_dir, exist_ok=True)
 
@@ -505,6 +510,8 @@ class ShiftExperiment:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+
+    # Global Args
     parser.add_argument("--source_dir", required=True, type=str)
     parser.add_argument("--target_dir", required=True, type=str)
     parser.add_argument(
@@ -523,24 +530,31 @@ if __name__ == "__main__":
     parser.add_argument("--seed_base", type=int, default=42)
     parser.add_argument("--permutation_test_iterations", type=int, default=1000)
     parser.add_argument("--latent_dim", type=int, default=32)
-    parser.add_argument("--modelStr", type=str, default="")
-    parser.add_argument(
-        "--max_threads",
-        type=int,
-        default=None,
-        help="Max thread pool workers (Ignored, script is sequential)",
-    )
     parser.add_argument(
         "--file_location",
         type=str,
-        default="logsFixed",
+        default="logs",
         help="Directory to save the log file.",
     )
     parser.add_argument(
         "--file_name",
         type=str,
-        default="sanity_check.json",
+        default="experiment.json",
         help="Name of the log file.",
+    )
+    # Subcommand Args
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Custom Weights Mode
+    custom_weights = subparsers.add_parser(
+        "custom_weights", help="Run the experiment with custom weights."
+    )
+
+    custom_weights.add_argument("--weight_path", type=str, required=True, help="Path to the custom weights file.")
+
+    # Random Weights Mode
+    random_weights = subparsers.add_parser(
+        "random_weights", help="Run the experiment with random weights."
     )
 
     args = parser.parse_args()
