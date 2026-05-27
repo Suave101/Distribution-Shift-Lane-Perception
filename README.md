@@ -80,8 +80,8 @@ Given the root directory is `datasets/MyProject`:
 
 | File Path in System | Path in `train.txt` |
 | --- | --- |
-| `datasets/MyProject/data/001.jpg` | `data/001.jpg` |
-| `datasets/MyProject/data/002.jpg` | `data/002.jpg` |
+| `datasets/Curvelanes/split/001.jpg` | `split/001.jpg` |
+| `datasets/CULane/photoData/002.jpg` | `photoData/002.jpg` |
 
 ---
 
