@@ -81,11 +81,18 @@ class ShiftExperiment:
         permutation_test_iterations: int = 1000,
         latent_dim: int = 32,
         model_weights_path: str = "",
+        imagenet_weights: bool = False,
     ):
         # Assert well formed input
-        assert (
-            model_weights_path := Path(model_weights_path).resolve()
-        ).is_dir(), f"For arg model_weights_path: \n{model_weights_path}\nIs not a valid directory"
+        if not imagenet_weights:
+            assert (
+                model_weights_path := Path(model_weights_path).resolve()
+            ).is_dir(), (
+                f"For arg model_weights_path: \n{model_weights_path}\nIs not a valid directory"
+            )
+        else:
+            # keep a resolved placeholder path for logging consistency
+            model_weights_path = str(Path(model_weights_path).resolve())
 
         assert (
             file_location := Path(file_location).resolve()
@@ -118,6 +125,7 @@ class ShiftExperiment:
         self.permutation_test_iterations = permutation_test_iterations
         self.latent_dim = latent_dim
         self.weights_path = model_weights_path
+        self.imagenet_weights = imagenet_weights
 
         self.test_types = ["MMD", "MMD_Agg", "Energy", "BKS"]
 
@@ -137,10 +145,10 @@ class ShiftExperiment:
 
         self.loggerArgs: JsonDict = {
             "CodeMark": "4/11/2026",
-            "source_dir": source_dir,
-            "target_dir": target_dir,
-            "source_list_path": source_list_path,
-            "target_list_path": target_list_path,
+            "source_dir": str(source_dir),
+            "target_dir": str(target_dir),
+            "source_list_path": str(source_list_path),
+            "target_list_path": str(target_list_path),
             "sample_size": sample_size,
             "num_runs": num_runs,
             "block_idx": block_idx,
@@ -153,6 +161,8 @@ class ShiftExperiment:
             "permutation_test_iterations": permutation_test_iterations,
             "latent_dim": latent_dim,
             "test_types": self.test_types,
+            "imagenet_weights": bool(imagenet_weights),
+            "model_weights_path": str(model_weights_path),
         }
 
         self.loggerExperimentalData: JsonDict = {}
@@ -179,7 +189,7 @@ class ShiftExperiment:
         print("\nInitializing autoencoder...")
 
         # Define model parameters based on config
-        if imagenet_weights:
+        if self.imagenet_weights:
             base_model = Autoencoder(
                 latent_dim=self.latent_dim, imagenet_weights=True
             ).to(self.device)
@@ -511,12 +521,11 @@ class ShiftExperiment:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    # Global Args
+    # Common args shared by all modes
     parser.add_argument("--source_dir", required=True, type=str)
     parser.add_argument("--target_dir", required=True, type=str)
     parser.add_argument(
         "--source_list_path",
-        required=True,
         type=str,
         default="./datasets/CULane/list/train.txt",
     )
@@ -542,20 +551,51 @@ if __name__ == "__main__":
         default="experiment.json",
         help="Name of the log file.",
     )
-    # Subcommand Args
-    subparsers = parser.add_subparsers(dest="command")
 
-    # Custom Weights Mode
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Use custom weights directory
     custom_weights = subparsers.add_parser(
         "custom_weights", help="Run the experiment with custom weights."
     )
+    custom_weights.add_argument(
+        "--model_weights_path",
+        type=str,
+        required=True,
+        help="Path to the DIRECTORY containing the custom weights.",
+    )
 
-    custom_weights.add_argument("--weight_path", type=str, required=True, help="Path to the custom weights file.")
-
-    # Random Weights Mode
-    random_weights = subparsers.add_parser(
-        "random_weights", help="Run the experiment with random weights."
+    # Use ImageNet weights
+    imagenet = subparsers.add_parser(
+        "imagenet_weights", help="Run the experiment using ImageNet weights."
     )
 
     args = parser.parse_args()
-    ShiftExperiment(**vars(args)).run()
+
+    # Build kwargs that ShiftExperiment actually accepts
+    exp_kwargs = dict(
+        source_dir=args.source_dir,
+        target_dir=args.target_dir,
+        source_list_path=args.source_list_path,
+        target_list_path=args.target_list_path,
+        sample_size=args.sample_size,
+        num_runs=args.num_runs,
+        block_idx=args.block_idx,
+        batch_size=args.batch_size,
+        image_size=args.image_size,
+        alpha=args.alpha,
+        seed_base=args.seed_base,
+        file_name=args.file_name,
+        file_location=args.file_location,
+        permutation_test_iterations=args.permutation_test_iterations,
+        latent_dim=args.latent_dim,
+    )
+
+    if args.command == "custom_weights":
+        exp_kwargs["imagenet_weights"] = False
+        exp_kwargs["model_weights_path"] = args.model_weights_path
+    elif args.command == "imagenet_weights":
+        exp_kwargs["imagenet_weights"] = True
+        exp_kwargs["model_weights_path"] = ""  # unused in this mode
+
+    ShiftExperiment(**exp_kwargs).run()
