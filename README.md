@@ -6,6 +6,7 @@
 - [Setup](#setup)
   - [Environment](#environment)
   - [Dataset Structure](#dataset-structure)
+- [Command Generator Tool](#command-generator-tool)
 - [🚀 How to Run `experiment.py` (New Pipeline)](#-how-to-run-experimentpy-new-pipeline)
   - [Modes: `custom_weights` vs `imagenet_weights`](#modes-custom_weights-vs-imagenet_weights)
   - [Basic Usage](#basic-usage)
@@ -90,6 +91,12 @@ Given the root directory is `datasets/MyProject`:
 | `datasets/MyProject/data/002.jpg` | `data/002.jpg` |
 
 ---
+
+## Command Generator Tool
+
+> Click here to go to the command generation GUI: [https://suave101.github.io/Distribution-Shift-Lane-Perception-Command-Generator/](https://suave101.github.io/Distribution-Shift-Lane-Perception-Command-Generator/)
+
+![Picture of Command Generator](figures/readMeGraphics/Distribution-Shift-Lane-Perception-Command-Generator.png)
 
 ## 🚀 How to Run `experiment.py` (New Pipeline)
 
