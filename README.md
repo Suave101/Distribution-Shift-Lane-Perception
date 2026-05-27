@@ -2,13 +2,13 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Setup](#setup)
-- [🚀 Quick Command Generator](#command-generator-tool)
-- [Manual `experiment.py` configuration](#-how-to-run-experimentpy-new-pipeline)
-- [Other Scripts (eg. training script)](#other-scripts)
+- [📝 Overview](#-overview)
+- [⚡️ Setup](#-setup)
+- [🚀 Quick Command Generator](#-command-generator-tool)
+- [🔨 Manual `experiment.py` configuration](#-manual-experimentpy-configuration)
+- [⚗️ Other Scripts (eg. training script)](#-other-scripts)
 
-## Overview
+## 📝 Overview
 
 The pipeline estimates an empirical threshold (`τ`) using *same-domain calibration*, and then tests whether samples from another dataset (or a perturbed version of the same dataset) come from a statistically different distribution.
 
@@ -26,19 +26,11 @@ The pipeline consists of:
 
 ![Data Shift Test Diagram](figures/readMeGraphics/Data%20Shift%20Test.svg)
 
----
+## ⚡️ Setup
 
-## Setup
+> Notice: Python 3.8 and above required
 
-### Environment
-
-#### Python 3 and Required Packages
-
-> Notice: Python 3.8 and above
-
-##### Two ways to setup (either or):
-
-1. Conda Environment Setup
+### Conda Environment Setup
 ```
 # Install everything using the environment.yml file
 conda env create -f environment.yml
@@ -52,7 +44,7 @@ cd torch_two_sample
 python setup.py install
 ```
 
-2. Python Pip Setup
+### Pip Setup
 ```
 # Install dependencies
 pip install scipy torch torchvision tqdm Pillow
@@ -83,13 +75,13 @@ The paths listed inside the List File must be relative to the `root_dir`.
 
 ---
 
-## Command Generator Tool
+## 🚀 Command Generator Tool
 
 > Click here to go to the command generation GUI: [https://suave101.github.io/Distribution-Shift-Lane-Perception-Command-Generator/](https://suave101.github.io/Distribution-Shift-Lane-Perception-Command-Generator/)
 
 ![Picture of Command Generator](figures/readMeGraphics/Distribution-Shift-Lane-Perception-Command-Generator.png)
 
-## 🚀 How to Run `experiment.py` (New Pipeline)
+## 🔨 Manual `experiment.py` Configuration
 
 `experiment.py` is the updated experiment runner. It:
 
@@ -200,9 +192,88 @@ The log includes:
 
 ---
 
-## Other Scripts
+## ⚗️ Other Scripts
 
-- `run_experiment.py`: older wrapper / experiment driver (kept for backward compatibility).
-- `shift_experiment.py`: older CLI entrypoint referenced by the command generator.
+### Autoencoder Training Script: `models/trainingScripts/train.py'
 
-If you are starting fresh, use **`experiment.py`**.
+This script trains the **Configurable Autoencoder** used in Phase 2 and **automatically resumes** from the most recent checkpoint found in:
+
+`checkpoints/Phase2/<dataset_name>/`
+
+#### What it does
+- Loads a dataset via `data.data_builder.get_dataloader(...)`
+- Trains an autoencoder using **MSE reconstruction loss**
+- Saves a checkpoint **every epoch**
+- If checkpoints already exist for the dataset, it **loads the newest one** and continues training
+
+#### Basic usage
+
+```bash
+python models/trainingScripts/train.py \
+  --dataset_name <NAME> \
+  --dataset_dir <PATH_TO_DATA_ROOT> \
+  --dataset_list <PATH_TO_TRAIN_SPLIT_LIST>
+```
+
+#### Common options
+
+- `--epochs` (default: `50`)  
+- `--batch_size` (default: `128`)  
+- `--image_size` (default: `512`)  
+- `--learning_rate` (default: `1e-4`)  
+- `--latent_dim` (default: `32`)  
+- `--samples` (default: `100000`) limit number of samples used by the dataloader  
+- `--cropImg` flag to crop the bottom half of images (if supported by the dataloader)  
+- `--block_idx` selects which data block to read (dataset-dependent)  
+- `--seed` for deterministic runs (default is 42)
+
+#### Checkpoints (resume behavior)
+
+Checkpoints are written to:
+
+`checkpoints/Phase2/<dataset_name>/P2autoencoder_<dataset_name>_epoch_<N>.pth`
+
+On startup, if any matching checkpoints exist in that folder, the script will:
+1. pick the most recently created checkpoint file
+2. load model + optimizer state
+3. resume from the next epoch
+
+#### Notes
+- Runs on CUDA if available; otherwise falls back to CPU.
+- If multiple GPUs are available, training uses `torch.nn.DataParallel`.
+
+### List File Generator: `create_list_files.py`
+
+#### List File Generator (`create_list_files.py`)
+
+Use this utility to convert an experiment JSON log (containing `Image Paths` under `Individual Test Data`) into per-run list files plus a combined list. It writes **relative** paths by stripping the dataset root inferred from the experiment’s `source_list_path` / `target_list_path`.
+
+**Process all JSON logs in a directory** (creates one output folder per JSON file):
+
+```bash
+python create_list_files.py --dir ./logs
+```
+
+Process a single JSON file (writes output under `--dir` if provided; otherwise alongside the JSON):
+```bash
+python create_list_files.py --file ./logs/experiment.json --dir ./logs
+```
+
+**Output structure** (example):
+
+```
+logs/
+  experiment/
+    <source_list_path>_to_<target_list_path>_1/
+      Run_1.txt
+      Run_2.txt
+      ...
+      full.txt
+```
+
+`Run_<id>.txt`: image paths for that run (one per line)
+`full.txt`: de-duplicated union of all run paths for that experiment
+
+---
+
+If you are starting fresh, use **`experiment.py`** with either random or ImageNet weights.
