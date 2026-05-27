@@ -1,8 +1,50 @@
-*.pyc
-*.npy
+# -------------------------
+# Python bytecode / caches
+# -------------------------
 __pycache__/
-torch-two-sample
-datasets
-checkpoints
-LocalBash
-logs/legacy
+*.pyc
+*.pyo
+*.pyd
+
+# -------------------------
+# Numpy / generated arrays
+# (feature caches, encodings, etc.)
+# -------------------------
+*.npy
+*.npz
+
+# -------------------------
+# ML artifacts / outputs
+# -------------------------
+checkpoints/
+logs/legacy/
+Encodings/
+
+# -------------------------
+# Local datasets / large data
+# -------------------------
+datasets/
+
+# -------------------------
+# Local scripts / machine-specific helpers
+# -------------------------
+LocalBash/
+
+# -------------------------
+# Third-party / vendored directories
+# -------------------------
+torch-two-sample/
+
+# -------------------------
+# Virtual environments
+# -------------------------
+.venv/
+venv/
+env/
+
+# -------------------------
+# IDE / editor settings
+# -------------------------
+.vscode/
+.idea/
+*.iml
