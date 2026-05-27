@@ -1,26 +1,20 @@
 import os
 import warnings
 import torch
-
-# ==============================================================================
-# JAX Multi-GPU & Autotune Safeguards (MUST be before import jax)
-# ==============================================================================
-os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
-os.environ["NCCL_P2P_DISABLE"] = "1"
-os.environ["NCCL_IB_DISABLE"] = "1"
-os.environ["XLA_FLAGS"] = "--xla_gpu_autotune_level=0" 
-os.environ["XLA_PYTHON_CLIENT_ALLOCATOR"] = "platform"
-
 import jax
 
 # Check hardware availability and quarantine JAX to CPU if only 1 GPU exists
 num_gpus_available = torch.cuda.device_count()
 if num_gpus_available <= 1:
     jax.config.update("jax_platform_name", "cpu")
-    print(f"Hardware Arbitration: {num_gpus_available} GPU(s) found. JAX forced to CPU.")
+    print(
+        f"Hardware Arbitration: {num_gpus_available} GPU(s) found. JAX forced to CPU."
+    )
 else:
     jax.config.update("jax_platform_name", "gpu")
-    print(f"Hardware Arbitration: {num_gpus_available} GPUs found. JAX assigned to GPU 0.")
+    print(
+        f"Hardware Arbitration: {num_gpus_available} GPUs found. JAX assigned to GPU 0."
+    )
 
 import numpy as np
 from tqdm import tqdm, trange
@@ -36,15 +30,11 @@ from utils.mmd_agg import mmdAgg_test
 from data.data_builder import get_dataloader, get_seeded_random_dataloader
 from data.data_logging import JsonExperimentManager, JsonStyle, JsonDict
 
-# Force deterministic behavior for reproducibility
-torch.use_deterministic_algorithms(True)
-torch.manual_seed(42)
-
-# Set multiprocessing start method to 'spawn' early
 try:
     mp.set_start_method("spawn", force=True)
 except RuntimeError:
     pass
+
 
 # ---------Feature extraction---------
 def extract_features(model, loader, device):
@@ -57,20 +47,15 @@ def extract_features(model, loader, device):
         for imgs in loader:
             imgs = imgs.to(device, non_blocking=True)
 
-            # if is_parallel:
-            #     z = model.encode(imgs)
-            # else:
             z = model(imgs, return_encoding=True)
 
             if z.dim() > 2:
                 raise ValueError("Images are still in the pixel space")
-                z = z.view(
-                    z.size(0), -1
-                )
+                z = z.view(z.size(0), -1)
 
             # Safely move to CPU numpy array to prevent PyTorch/JAX memory collisions
             feats.append(z.cpu().numpy())
-            
+
     return np.concatenate(feats, axis=0)
 
 
@@ -94,10 +79,8 @@ class ShiftExperiment:
         modelStr: str = "",
         permutation_test_iterations: int = 1000,
         latent_dim: int = 32,
-        max_threads: int = None, # Kept for arg compatibility, but ignored
+        max_threads: int = None,  # Kept for arg compatibility, but ignored
     ):
-        print("Fixed Flag: 4/11/2026")
-
         self.modelStr = modelStr
         self.source_dir = source_dir
         self.target_dir = target_dir
@@ -113,7 +96,7 @@ class ShiftExperiment:
         self.seed_base = seed_base
         self.permutation_test_iterations = permutation_test_iterations
         self.latent_dim = latent_dim
-        
+
         self.test_types = ["MMD", "MMD_Agg", "Energy", "BKS"]
 
         # Data Storage for Preloaded Features
@@ -147,14 +130,14 @@ class ShiftExperiment:
             "deterministic": True,
             "permutation_test_iterations": permutation_test_iterations,
             "latent_dim": latent_dim,
-            "test_types": self.test_types
+            "test_types": self.test_types,
         }
 
         self.loggerExperimentalData: JsonDict = {}
 
         # --- GPU Setup ---
         num_gpus = torch.cuda.device_count()
-        
+
         if num_gpus <= 1:
             self.device = torch.device("cuda:0" if num_gpus == 1 else "cpu")
             self.torch_device_ids = [0] if num_gpus == 1 else None
@@ -167,6 +150,8 @@ class ShiftExperiment:
             torch.backends.cudnn.deterministic = True
             torch.backends.cudnn.benchmark = False
             torch.cuda.manual_seed(42)
+            torch.use_deterministic_algorithms(True)
+            torch.manual_seed(42)
 
         # --- Model Initialization ---
         print("\nInitializing autoencoder...")
@@ -197,7 +182,9 @@ class ShiftExperiment:
         ).to(self.device)
 
         if num_gpus > 2:
-            self.model = torch.nn.DataParallel(base_model, device_ids=self.torch_device_ids)
+            self.model = torch.nn.DataParallel(
+                base_model, device_ids=self.torch_device_ids
+            )
             print(f"PyTorch parallelized across GPUs: {self.torch_device_ids}")
         elif num_gpus == 2:
             self.model = base_model
@@ -211,7 +198,7 @@ class ShiftExperiment:
 
     # --- LATENT CACHING HELPER ---
     def _get_or_extract_features(self, loader, list_path, num_samples, seed):
-        cache_base = "/home1/adoyle2025/Datasets/Encodings"
+        cache_base = "Encodings"
         cache_dir = os.path.join(
             cache_base, str(self.modelStr), f"dim_{self.latent_dim}"
         )
@@ -233,11 +220,17 @@ class ShiftExperiment:
 
     # --- SEQUENTIAL WORKER FOR STATISTICAL TESTS ---
     def _execute_test(self, src_feats, tgt_feats, seed):
-        mmd_results = mmd_test(src_feats, tgt_feats, iterations=self.permutation_test_iterations)
-        mmdAgg_results = mmdAgg_test(src_feats, tgt_feats, iterations=self.permutation_test_iterations, seed=seed)
-        energy_results = energy_test(src_feats, tgt_feats, iterations=self.permutation_test_iterations)
+        mmd_results = mmd_test(
+            src_feats, tgt_feats, iterations=self.permutation_test_iterations
+        )
+        mmdAgg_results = mmdAgg_test(
+            src_feats, tgt_feats, iterations=self.permutation_test_iterations, seed=seed
+        )
+        energy_results = energy_test(
+            src_feats, tgt_feats, iterations=self.permutation_test_iterations
+        )
         bks_results = bks_distance_test(src_feats, tgt_feats)
-        
+
         return {
             "MMD": mmd_results,
             "MMD_Agg": mmdAgg_results,
@@ -248,11 +241,7 @@ class ShiftExperiment:
     def preload_all_features(self):
         print("\n[STEP 0] Encoding and caching all dataset features...")
 
-        loader_kwargs = {
-            "num_workers": 14,
-            "pin_memory": True,
-            "prefetch_factor": 2
-        }
+        loader_kwargs = {"num_workers": 14, "pin_memory": True, "prefetch_factor": 2}
 
         # 0A: Source Features
         loaderReturn = get_dataloader(
@@ -262,13 +251,18 @@ class ShiftExperiment:
             image_size=self.image_size,
             num_samples=self.sample_size,
         )
+
         self.src_feats = self._get_or_extract_features(
             loaderReturn[0], self.source_list_dir, self.sample_size, "base"
         )
 
         print(f"{self.source_dir} features loaded. Shape = {self.src_feats.shape}\n")
-        self.loggerExperimentalData["Source Training Feature Shape"] = list(self.src_feats.shape)
-        self.loggerExperimentalData["Source Training Feature Image Paths"] = list(loaderReturn[1])
+        self.loggerExperimentalData["Source Training Feature Shape"] = list(
+            self.src_feats.shape
+        )
+        self.loggerExperimentalData["Source Training Feature Image Paths"] = list(
+            loaderReturn[1]
+        )
 
         # 0B: Calibration Features
         for i in tqdm(range(self.num_calib), desc="Preloading Calibration Sets"):
@@ -281,9 +275,11 @@ class ShiftExperiment:
                 num_samples=self.sample_size,
                 seed=seed,
             )
+
             feats = self._get_or_extract_features(
                 loaderReturn[0], self.source_list_dir, self.sample_size, seed
             )
+
             self.calib_data_cache.append((seed, feats, loaderReturn[1]))
 
         # 0C: Sanity Check Features
@@ -334,19 +330,21 @@ class ShiftExperiment:
         all_image_dirs = {}
 
         # Standard Sequential Loop (No Threads)
-        for seed, feats, img_paths in tqdm(self.calib_data_cache, desc="Calculating Calibration"):
+        for seed, feats, img_paths in tqdm(
+            self.calib_data_cache, desc="Calculating Calibration"
+        ):
             all_image_dirs[f"Calibrating with seed {seed}"] = img_paths
 
             try:
                 # JAX handles the parallelization on the GPU directly
                 result_dict = self._execute_test(self.src_feats, feats, seed)
-                
+
                 for test in self.test_types:
                     t_stat, p_value = result_dict[test]
                     null_stats_temp[test].append(t_stat)
                     if self.permutation_test_iterations > 0:
                         p_values_temp[test].append(float(p_value))
-            
+
             except Exception as exc:
                 print(f"Calibration generated an exception for seed {seed}: {exc}")
 
@@ -355,8 +353,10 @@ class ShiftExperiment:
         # Calculate limits for each test
         for test in self.test_types:
             self.null_stats[test] = np.array(null_stats_temp[test])
-            self.tau[test] = np.percentile(self.null_stats[test], 100 * (1 - self.alpha))
-            
+            self.tau[test] = np.percentile(
+                self.null_stats[test], 100 * (1 - self.alpha)
+            )
+
             print(f"  [{test}] τ({1 - self.alpha:.2f}) = {self.tau[test]:.6f}")
 
             calibrationData["Result"][test] = {
@@ -386,7 +386,7 @@ class ShiftExperiment:
 
         for test in self.test_types:
             t_stat, p_value = result_dict[test]
-            
+
             print(
                 f"[SANITY CHECK] {test}(A={self.source_dir}, B={self.source_dir}) = {t_stat:.6f}, τ = {self.tau[test]:.6f}"
             )
@@ -410,9 +410,9 @@ class ShiftExperiment:
                     f"False shift detected in sanity check - {test} exceeded threshold",
                     UserWarning,
                 )
-            
+
             sanityCheckData["Results"][test] = test_data
-            
+
         print("")
         self.loggerExperimentalData["Sanity Check"] = sanityCheckData
 
@@ -421,7 +421,9 @@ class ShiftExperiment:
         dataShiftTestData: JsonDict = {}
         print(f"[STEP 3] Data Shift Test: {self.source_dir} to {self.target_dir}\n")
 
-        dataShiftTestData["Data Shift Test Definition"] = f"{self.source_dir} to {self.target_dir}"
+        dataShiftTestData["Data Shift Test Definition"] = (
+            f"{self.source_dir} to {self.target_dir}"
+        )
         dataShiftTestData["Runs"] = self.num_runs
 
         tpr_lists = {test: [] for test in self.test_types}
@@ -429,13 +431,20 @@ class ShiftExperiment:
         dataShiftTestDataTests: list[JsonDict] = []
 
         # Standard Sequential Loop (No Threads)
-        for idx, (seed, feats, img_paths) in enumerate(tqdm(self.target_data_cache, desc="Calculating Shifts")):
-            runData: JsonDict = {"Image Paths": img_paths, "Seed": seed, "Run": int(idx + 1), "Results": {}}
+        for idx, (seed, feats, img_paths) in enumerate(
+            tqdm(self.target_data_cache, desc="Calculating Shifts")
+        ):
+            runData: JsonDict = {
+                "Image Paths": img_paths,
+                "Seed": seed,
+                "Run": int(idx + 1),
+                "Results": {},
+            }
 
             try:
                 # JAX handles the parallelization on the GPU directly
                 result_dict = self._execute_test(self.src_feats, feats, seed)
-                
+
                 for test in self.test_types:
                     t_stat, p_value = result_dict[test]
                     stat_values[test].append(t_stat)
@@ -443,14 +452,11 @@ class ShiftExperiment:
                     detected: bool = t_stat > self.tau[test]
                     tpr_lists[test].append(int(detected))
 
-                    test_run = {
-                        "Stat": float(t_stat),
-                        "Shift Detected": bool(detected)
-                    }
+                    test_run = {"Stat": float(t_stat), "Shift Detected": bool(detected)}
 
                     if self.permutation_test_iterations > 0:
                         test_run["P-Value"] = float(p_value)
-                        
+
                     runData["Results"][test] = test_run
 
                 dataShiftTestDataTests.append(runData)
@@ -466,15 +472,17 @@ class ShiftExperiment:
             tpr_result = np.mean(tpr_lists[test])
             mean_stat = np.mean(stat_values[test])
             std_stat = np.std(stat_values[test])
-            
+
             print(f"--- {test} ---")
             print(f"  Average Stat: {mean_stat:.6f} ± {std_stat:.6f}")
-            print(f"  TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%")
+            print(
+                f"  TPR (true positive rate) over {self.num_runs} runs: {tpr_result*100:.2f}%"
+            )
 
             dataShiftTestData["Summary"][test] = {
                 "TPR": float(tpr_result * 100),
                 "Mean Stat": float(mean_stat),
-                "Std Stat": float(std_stat)
+                "Std Stat": float(std_stat),
             }
 
         self.loggerExperimentalData["Data Shift Test Data"] = dataShiftTestData
@@ -483,7 +491,7 @@ class ShiftExperiment:
     def run(self):
         # Phase 1: Extract/Load all encodings safely (No Statistical Testing yet)
         self.preload_all_features()
-        
+
         # Phase 2: Sequential Statistical Tests via JAX (No PyTorch interference)
         self.calibrate()
         self.sanity_check()
@@ -499,7 +507,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--source_dir", required=True, type=str)
     parser.add_argument("--target_dir", required=True, type=str)
-    parser.add_argument("--source_list_path", required=True, type=str, default="./datasets/CULane/list/train.txt")
+    parser.add_argument(
+        "--source_list_path",
+        required=True,
+        type=str,
+        default="./datasets/CULane/list/train.txt",
+    )
     parser.add_argument("--target_list_path", required=True, type=str)
     parser.add_argument("--sample_size", type=int, default=1000)
     parser.add_argument("--num_runs", type=int, default=100)
@@ -511,9 +524,24 @@ if __name__ == "__main__":
     parser.add_argument("--permutation_test_iterations", type=int, default=1000)
     parser.add_argument("--latent_dim", type=int, default=32)
     parser.add_argument("--modelStr", type=str, default="")
-    parser.add_argument("--max_threads", type=int, default=None, help="Max thread pool workers (Ignored, script is sequential)")
-    parser.add_argument("--file_location", type=str, default="logsFixed", help="Directory to save the log file.")
-    parser.add_argument("--file_name", type=str, default="sanity_check.json", help="Name of the log file.")
+    parser.add_argument(
+        "--max_threads",
+        type=int,
+        default=None,
+        help="Max thread pool workers (Ignored, script is sequential)",
+    )
+    parser.add_argument(
+        "--file_location",
+        type=str,
+        default="logsFixed",
+        help="Directory to save the log file.",
+    )
+    parser.add_argument(
+        "--file_name",
+        type=str,
+        default="sanity_check.json",
+        help="Name of the log file.",
+    )
 
     args = parser.parse_args()
     ShiftExperiment(**vars(args)).run()
