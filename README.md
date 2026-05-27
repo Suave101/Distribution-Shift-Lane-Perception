@@ -1,20 +1,24 @@
 # Distribution-Shift-Lane-Perception
 
+## Table of Contents
+
+
+
 ## Overview
 
-The pipeline estimates an empirical MMD threshold (`τ`) using *same-domain calibration*, and then tests whether samples from another dataset (or perturbed version of the same dataset) come from a statistically different distribution.
+The pipeline estimates an empirical threshold (`τ`) using *same-domain calibration*, and then tests whether samples from another dataset (or perturbed version of the same dataset) come from a statistically different distribution.
 
 The pipeline consists of:
 
-1. **Extract Features:** Encodes features from the source and target data and generates MMD statistics from the features.
+1. **Extract Features:** Encodes features from the source and target data and generates statistics from the features.
 
 ![Extract Features](figures/readMeGraphics/Extract%20Features.svg)
 
-3. **Calibration:** We form a "null distribution" of MMD values by extracting the embeddings of the fixed source features and randomly sampled target features (we set it to 100 iterations in our experiments). Then, we select the threshold `τ` (tau) as the 95th (\(\alpha = 0.05\)) percentile to be determined as shift detection.
+3. **Calibration:** We form a "null distribution" of statistical values by extracting the embeddings of the fixed source features and randomly sampled target features (we set it to 100 iterations in our experiments). Then, we select the threshold `τ` (tau) as the 95th (\(\alpha = 0.05\)) percentile to be determined as shift detection.
 
 ![Calibration Diagram](figures/readMeGraphics/Calibration.svg)
 
-5. **Data Shift Test (New Domain or Shifted Same Domain):** Compares the reference features with samples from another dataset (e.g., CULane) or a synthetically shifted version of the same dataset. If the MMD statistic exceeds `τ`, a significant distribution shift is detected.
+5. **Data Shift Test (New Domain or Shifted Same Domain):** Compares the reference features with samples from another dataset (e.g., CULane) or a synthetically shifted version of the same dataset. If the statistic exceeds `τ`, a significant distribution shift is detected.
 
 ![Data Shift Test Diagram](figures/readMeGraphics/Data%20Shift%20Test.svg)
 
