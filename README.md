@@ -16,15 +16,15 @@ The pipeline consists of:
 
 1. **Extract Features:** Encodes features from the source and target data and generates statistics from the features.
 
-![Extract Features](figures/readMeGraphics/Extract%20Features.svg)
+![Extract Features](figures/readMeGraphics/a.svg)
 
 2. **Calibration:** Forms a null distribution of test statistics by comparing a fixed source reference set against many randomly sampled sets from the *same source domain*. `τ` is set as the `(1 - α)` percentile of this null distribution.
 
-![Calibration Diagram](figures/readMeGraphics/Calibration.svg)
+![Calibration Diagram](figures/readMeGraphics/b.svg)
 
 3. **Data Shift Test:** Compares the source reference features with samples from a target domain (e.g., CULane → Curvelanes) and reports the shift detection rate across runs.
 
-![Data Shift Test Diagram](figures/readMeGraphics/Data%20Shift%20Test.svg)
+![Data Shift Test Diagram](figures/readMeGraphics/c.svg)
 
 ## ⚡️ Setup
 
