@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distribution Shift in Lane Perception</title>
+  <meta name="description" content="A two-sample statistical testing framework to detect distribution shift in lane perception models across driving datasets.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:       #0d47a1;
+      --primary-light: #1976d2;
+      --accent:        #00acc1;
+      --bg:            #ffffff;
+      --bg-alt:        #f5f7fa;
+      --text:          #1a1a2e;
+      --text-sec:      #495057;
+      --text-muted:    #868e96;
+      --border:        #e9ecef;
+      --shadow:        0 2px 20px rgba(0,0,0,0.08);
+      --shadow-hover:  0 8px 32px rgba(0,0,0,0.13);
+      --radius:        10px;
+      --max-w:         1100px;
+      /* result cell colours */
+      --c-low:   #f1f8e9; --c-low-t:  #33691e;
+      --c-mid:   #fff8e1; --c-mid-t:  #bf360c;
+      --c-high:  #fce4ec; --c-high-t: #880e4f;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+
+    /* ─── NAVBAR ────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem;
+    }
+    .nav-brand { font-weight: 700; font-size: 1rem; color: var(--primary); white-space: nowrap; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      color: var(--text-sec); text-decoration: none;
+      font-size: 0.88rem; font-weight: 500; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--primary); }
+
+    /* ─── LAYOUT ────────────────────────────────────────────────── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 5rem 0; }
+    section:nth-of-type(even) { background: var(--bg-alt); }
+
+    .section-label {
+      text-transform: uppercase; letter-spacing: .12em;
+      font-size: .72rem; font-weight: 700; color: var(--accent);
+      margin-bottom: .4rem;
+    }
+    h2 {
+      font-size: 2rem; font-weight: 700; line-height: 1.25;
+      color: var(--primary); margin-bottom: 1rem;
+    }
+
+    /* ─── HERO ──────────────────────────────────────────────────── */
+    #hero {
+      background: linear-gradient(135deg, #0d47a1 0%, #1565c0 45%, #0277bd 100%);
+      color: #fff; text-align: center; padding: 6rem 1.5rem;
+    }
+    #hero .tag {
+      display: inline-block;
+      background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3);
+      border-radius: 20px; padding: .3rem 1rem;
+      font-size: .75rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 1.5rem;
+    }
+    #hero h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 700;
+      line-height: 1.2; margin-bottom: 1rem; color: #fff;
+    }
+    #hero .subtitle {
+      font-size: 1.1rem; max-width: 720px; margin: 0 auto 2.5rem;
+      opacity: .9; line-height: 1.75;
+    }
+    .hero-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .65rem 1.4rem; border-radius: 6px;
+      font-size: .88rem; font-weight: 600; text-decoration: none;
+      transition: all .2s; cursor: pointer;
+    }
+    .btn-white   { background: #fff; color: var(--primary); border: 2px solid #fff; }
+    .btn-white:hover { background: #e3f2fd; }
+    .btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.55); }
+    .btn-outline:hover { background: rgba(255,255,255,.15); border-color: #fff; }
+
+    /* ─── ABSTRACT ──────────────────────────────────────────────── */
+    #abstract .box {
+      background: #fff;
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      max-width: 860px; margin: 0 auto;
+      box-shadow: var(--shadow);
+      font-size: 1rem; color: var(--text-sec); line-height: 1.85;
+    }
+
+    /* ─── PIPELINE ──────────────────────────────────────────────── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.75rem; margin-top: 2.5rem;
+    }
+    .step-card {
+      background: #fff; border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .step-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+    .step-head {
+      background: var(--primary); color: #fff;
+      padding: .7rem 1.2rem; font-size: .8rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .step-img {
+      background: #f7f9ff; padding: 1.25rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-img img { width: 100%; max-height: 200px; object-fit: contain; }
+    .step-body { padding: 1rem 1.25rem 1.5rem; font-size: .9rem; color: var(--text-sec); }
+
+    /* ─── RESULTS TABLE ─────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; background: #fff; }
+    thead tr { background: var(--primary); color: #fff; }
+    thead th {
+      padding: .85rem 1rem; font-weight: 600;
+      text-align: center; white-space: nowrap;
+    }
+    thead th:first-child { text-align: left; min-width: 250px; }
+    tbody tr:hover { background: #f0f4ff; }
+    tbody td { padding: .7rem 1rem; text-align: center; border-bottom: 1px solid var(--border); }
+    tbody td:first-child { text-align: left; font-weight: 500; }
+    /* Separator between domain groups */
+    tbody tr.group-sep td { border-top: 2px solid #bdd7f5; }
+
+    .cl  { background: var(--c-low);  color: var(--c-low-t);  font-weight: 700; }
+    .cm  { background: var(--c-mid);  color: var(--c-mid-t);  font-weight: 700; }
+    .ch  { background: var(--c-high); color: var(--c-high-t); font-weight: 700; }
+    .cf1l { background: var(--c-low);  color: var(--c-low-t);  font-weight: 600; }
+    .cf1m { background: var(--c-mid);  color: var(--c-mid-t);  font-weight: 600; }
+    .cf1h { background: var(--c-high); color: var(--c-high-t); font-weight: 600; }
+
+    .badge {
+      display: inline-block; font-size: .68rem; padding: .12rem .45rem;
+      border-radius: 20px; margin-left: .35rem; font-weight: 600;
+      vertical-align: middle; white-space: nowrap;
+    }
+    .bs { background: #e8f5e9; color: #2e7d32; }
+    .bc { background: #fff3e0; color: #e65100; }
+
+    .legend {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+      margin-top: 1rem; font-size: .82rem; color: var(--text-sec);
+    }
+    .leg { display: flex; align-items: center; gap: .4rem; }
+    .leg-dot { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ─── CHART ─────────────────────────────────────────────────── */
+    .chart-card {
+      background: #fff; border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 1.75rem; margin-top: 2.5rem;
+    }
+    .chart-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; }
+    .chart-card canvas { max-height: 510px; }
+
+    /* ─── GALLERY ───────────────────────────────────────────────── */
+    .tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab {
+      padding: .5rem 1.25rem; border-radius: 6px;
+      border: 2px solid var(--border); background: #fff;
+      font-size: .87rem; font-weight: 600; cursor: pointer;
+      color: var(--text-sec); transition: all .2s;
+    }
+    .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .tab:hover:not(.active) { border-color: var(--primary-light); color: var(--primary); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .grid-perturb {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .pcard {
+      background: #fff; border-radius: 8px;
+      box-shadow: var(--shadow); overflow: hidden; text-align: center;
+      transition: transform .2s;
+    }
+    .pcard:hover { transform: translateY(-3px); }
+    .pcard img { width: 100%; height: 115px; object-fit: cover; display: block; }
+    .pcard .plabel {
+      padding: .45rem; font-size: .78rem; font-weight: 500;
+      color: var(--text-sec);
+    }
+
+    .grid-recon {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .rcard {
+      background: #fff; border-radius: 8px;
+      box-shadow: var(--shadow); overflow: hidden;
+      transition: transform .2s;
+    }
+    .rcard:hover { transform: translateY(-3px); }
+    .rcard img { width: 100%; height: auto; display: block; }
+    .rcard .rlabel {
+      padding: .6rem .9rem; font-size: .82rem;
+      font-weight: 500; color: var(--text-sec);
+    }
+
+    /* ─── CITATION ──────────────────────────────────────────────── */
+    .bibtex {
+      background: #1a1a2e; color: #a6e3a1;
+      border-radius: var(--radius); padding: 1.75rem 1.75rem 1.75rem 1.75rem;
+      font-family: 'Source Code Pro', monospace; font-size: .85rem;
+      line-height: 1.8; overflow-x: auto; position: relative;
+      white-space: pre;
+    }
+    .copy-btn {
+      position: absolute; top: .9rem; right: .9rem;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25);
+      color: #fff; border-radius: 5px; padding: .3rem .8rem;
+      font-size: .77rem; cursor: pointer; transition: background .2s;
+      font-family: 'Inter', sans-serif; font-weight: 600;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.2); }
+
+    /* ─── FOOTER ────────────────────────────────────────────────── */
+    footer {
+      background: #111827; color: rgba(255,255,255,.55);
+      text-align: center; padding: 2rem 1rem; font-size: .84rem;
+    }
+    footer a { color: #90caf9; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ─── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 720px) {
+      nav .nav-links { display: none; }
+      section { padding: 3rem 0; }
+      h2 { font-size: 1.6rem; }
+      #hero { padding: 4rem 1rem; }
+      #abstract .box { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════ NAVBAR ══════════════════════ -->
+<nav>
+  <span class="nav-brand">Distribution-Shift-Lane-Perception</span>
+  <div class="nav-links">
+    <a href="#abstract">Abstract</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#results">Results</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#citation">Citation</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section id="hero">
+  <div class="container">
+    <div class="tag">Lane Detection &middot; Distribution Shift &middot; 2026</div>
+    <h1>Detecting Distribution Shift<br>in Lane Perception Models</h1>
+    <p class="subtitle">
+      A two-sample statistical testing framework that flags when a lane detection model
+      encounters out-of-distribution inputs — no target-domain labels required.
+    </p>
+    <div class="hero-links">
+      <a class="btn btn-white" href="https://github.com/hafeezkhan909/Distribution-Shift-Lane-Perception" target="_blank">
+        <!-- GitHub icon -->
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.74.08-.74 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.01 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        GitHub
+      </a>
+      <a class="btn btn-outline" href="https://suave101.github.io/Distribution-Shift-Lane-Perception-Command-Generator/" target="_blank">
+        🚀&nbsp;Command Generator
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ ABSTRACT ══════════════════════ -->
+<section id="abstract">
+  <div class="container">
+    <div class="section-label">Overview</div>
+    <h2>Abstract</h2>
+    <div class="box">
+      We present a <strong>distribution shift detection pipeline</strong> for lane perception
+      models that operates without any access to target-domain labels.  The method extracts
+      latent representations using a configurable autoencoder (custom-trained or
+      ImageNet-pretrained), then applies four two-sample statistical tests —
+      <strong>MMD</strong>, <strong>MMD-Agg</strong>, <strong>Energy Distance</strong>,
+      and <strong>BKS</strong> — against an empirically calibrated threshold&nbsp;τ.
+      The threshold is set at the <em>(1&minus;α)</em> percentile of a null distribution
+      constructed from same-domain calibration pairs, ensuring a controllable false-positive
+      rate.  We evaluate across three real-world driving datasets —
+      <strong>CULane</strong>, <strong>CurveLanes</strong>, and <strong>AssistTaxi</strong>
+      — and demonstrate that high true-positive detection rates align strongly with drops in
+      F1 score, confirming the framework's effectiveness as a deployment safety signal.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ PIPELINE ══════════════════════ -->
+<section id="pipeline">
+  <div class="container">
+    <div class="section-label">Methodology</div>
+    <h2>Pipeline</h2>
+    <p style="color:var(--text-sec);max-width:680px;">
+      Three sequential stages estimate a calibrated threshold and report shift detection
+      rates across independent runs.
+    </p>
+    <div class="steps">
+
+      <div class="step-card">
+        <div class="step-head">Step 1 &mdash; Feature Extraction</div>
+        <div class="step-img">
+          <img src="https://raw.githubusercontent.com/hafeezkhan909/Distribution-Shift-Lane-Perception/master/figures/readMeGraphics/Extract%20Features.svg"
+               alt="Feature Extraction Diagram" loading="lazy">
+        </div>
+        <div class="step-body">
+          Source and target images are encoded into compact latent vectors by a
+          configurable autoencoder.  Encodings are cached to disk under
+          <code>Encodings/dim_&lt;N&gt;/</code> so repeated experiments are instant.
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-head">Step 2 &mdash; Calibration</div>
+        <div class="step-img">
+          <img src="https://raw.githubusercontent.com/hafeezkhan909/Distribution-Shift-Lane-Perception/master/figures/readMeGraphics/Calibration.svg"
+               alt="Calibration Diagram" loading="lazy">
+        </div>
+        <div class="step-body">
+          A null distribution is built by comparing the fixed source reference set
+          against many randomly sampled sets from the <em>same source domain</em>.
+          τ is set at the (1&minus;α) percentile, controlling the false-positive rate.
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-head">Step 3 &mdash; Shift Test</div>
+        <div class="step-img">
+          <img src="https://raw.githubusercontent.com/hafeezkhan909/Distribution-Shift-Lane-Perception/master/figures/readMeGraphics/Data%20Shift%20Test.svg"
+               alt="Data Shift Test Diagram" loading="lazy">
+        </div>
+        <div class="step-body">
+          Source features are compared against target-domain samples.  A test statistic
+          exceeding τ flags a shift.  The True Positive Rate (TPR) is reported over
+          many independent runs.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ RESULTS ══════════════════════ -->
+<section id="results">
+  <div class="container">
+    <div class="section-label">Evaluation</div>
+    <h2>Results</h2>
+    <p style="color:var(--text-sec);max-width:720px;margin-bottom:2rem;">
+      True Positive Rate (TPR) for each statistical test across all dataset pairs (100 runs,
+      α&nbsp;=&nbsp;0.05).  The lane detector F1 score serves as an independent proxy for
+      domain distance — high TPR should correlate with low F1.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Experiment</th>
+            <th title="Lane detection F1 score (higher = more similar domains)">F1 ↑</th>
+            <th>Energy TPR</th>
+            <th>MMD TPR</th>
+            <th>BKS TPR</th>
+            <th>MMD-Agg TPR</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="legend">
+      <div class="leg">
+        <div class="leg-dot" style="background:var(--c-low);border:1px solid #c8e6c9"></div>
+        <span>&lt;&nbsp;0.15 — low detection&nbsp;(expected: same domain)</span>
+      </div>
+      <div class="leg">
+        <div class="leg-dot" style="background:var(--c-mid);border:1px solid #ffe082"></div>
+        <span>0.15 – 0.50 — moderate detection</span>
+      </div>
+      <div class="leg">
+        <div class="leg-dot" style="background:var(--c-high);border:1px solid #f48fb1"></div>
+        <span>&gt;&nbsp;0.50 — strong detection&nbsp;(expected: cross domain)</span>
+      </div>
+      <div class="leg">
+        <div class="leg-dot" style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:50%"></div>
+        <span><strong>same</strong> = same-domain split</span>
+      </div>
+      <div class="leg">
+        <div class="leg-dot" style="background:#fff3e0;border:1px solid #ffcc80;border-radius:50%"></div>
+        <span><strong>cross</strong> = cross-domain transfer</span>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-card">
+      <h3>TPR by Statistical Test across Experiments</h3>
+      <canvas id="tprChart"></canvas>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════ GALLERY ══════════════════════ -->
+<section id="gallery">
+  <div class="container">
+    <div class="section-label">Visualizations</div>
+    <h2>Example Images</h2>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('perturb', this)">Perturbation Types</button>
+      <button class="tab"        onclick="switchTab('recon',   this)">Autoencoder Reconstructions</button>
+    </div>
+
+    <div id="panel-perturb" class="panel active">
+      <p style="color:var(--text-sec);margin-bottom:1.25rem;font-size:.9rem;">
+        Synthetic perturbations applied to lane images during data augmentation and shift simulation.
+      </p>
+      <div class="grid-perturb" id="perturb-grid"></div>
+    </div>
+
+    <div id="panel-recon" class="panel">
+      <p style="color:var(--text-sec);margin-bottom:1.25rem;font-size:.9rem;">
+        Autoencoder reconstructions trained on different domains (CULane, CurveLanes, ImageNet, Random weights)
+        applied to CULane and CurveLanes images.  Better reconstruction quality correlates with
+        tighter latent representations and more discriminative features.
+      </p>
+      <div class="grid-recon" id="recon-grid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ CITATION ══════════════════════ -->
+<section id="citation">
+  <div class="container">
+    <div class="section-label">Reference</div>
+    <h2>Citation</h2>
+    <div style="position:relative;">
+      <div class="bibtex" id="bibtex-text">@misc{distribution_shift_lane_perception_2026,
+  title     = {Detecting Distribution Shift in Lane Perception Models},
+  author    = {Khan, Hafeez and Doyle, Aaron},
+  year      = {2026},
+  url       = {https://github.com/hafeezkhan909/Distribution-Shift-Lane-Perception},
+  note      = {GitHub repository}
+}</div>
+      <button class="copy-btn" onclick="copyBibtex(this)">📋 Copy</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer>
+  <p>
+    Distribution-Shift-Lane-Perception &middot;
+    <a href="https://github.com/hafeezkhan909/Distribution-Shift-Lane-Perception" target="_blank">GitHub</a>
+    &middot; 2026
+  </p>
+</footer>
+
+<script>
+/* ─────────── CONFIG ─────────── */
+const RAW = "https://raw.githubusercontent.com/hafeezkhan909/Distribution-Shift-Lane-Perception/master/figures";
+
+/* ─────────── RESULTS DATA (from results.csv) ─────────── */
+const RESULTS = [
+  /* same-domain */
+  { exp:"CULane Train → CULane Train",        same:true,  f1:0.871, energy:0.05, mmd:0.03, bks:0.25, mmdAgg:0.03 },
+  { exp:"CULane Train → CULane Test",          same:true,  f1:0.815, energy:0.12, mmd:0.08, bks:0.36, mmdAgg:0.08 },
+  /* cross-domain */
+  { exp:"CULane Train → Curvelanes Val",       same:false, f1:0.671, energy:0.28, mmd:0.17, bks:0.54, mmdAgg:0.17 },
+  { exp:"CULane Train → AssistTaxi Test",      same:false, f1:0.000, energy:0.98, mmd:0.64, bks:0.98, mmdAgg:0.64 },
+  /* same-domain */
+  { exp:"Curvelanes Train → Curvelanes Train", same:true,  f1:0.869, energy:0.00, mmd:0.00, bks:0.07, mmdAgg:0.00 },
+  { exp:"Curvelanes Train → Curvelanes Val",   same:true,  f1:0.863, energy:0.00, mmd:0.00, bks:0.08, mmdAgg:0.00 },
+  /* cross-domain */
+  { exp:"Curvelanes Train → CULane Test",      same:false, f1:0.667, energy:0.11, mmd:0.06, bks:0.35, mmdAgg:0.06 },
+  { exp:"Curvelanes Train → AssistTaxi Test",  same:false, f1:0.002, energy:0.94, mmd:0.58, bks:0.96, mmdAgg:0.58 },
+  /* same-domain */
+  { exp:"AssistTaxi Train → AssistTaxi Train", same:true,  f1:0.945, energy:0.02, mmd:0.02, bks:0.24, mmdAgg:0.02 },
+  { exp:"AssistTaxi Train → AssistTaxi Test",  same:true,  f1:0.939, energy:0.02, mmd:0.02, bks:0.24, mmdAgg:0.02 },
+  /* cross-domain */
+  { exp:"AssistTaxi Train → Curvelanes Val",   same:false, f1:0.001, energy:0.96, mmd:0.60, bks:0.96, mmdAgg:0.60 },
+  { exp:"AssistTaxi Train → CULane Test",      same:false, f1:0.000, energy:0.98, mmd:0.62, bks:0.96, mmdAgg:0.62 },
+];
+
+/* ─────────── TABLE ─────────── */
+function tprClass(v) { return v < 0.15 ? "cl" : v < 0.50 ? "cm" : "ch"; }
+function f1Class(v)  { return v >= 0.8  ? "cf1l" : v >= 0.3 ? "cf1m" : "cf1h"; }
+function fmt(v)      { return v.toFixed(2); }
+
+/* Group separator rows between source domains */
+const groupStarts = new Set([0, 4, 8]);
+
+const tbody = document.getElementById("results-tbody");
+RESULTS.forEach((r, i) => {
+  const badge = r.same
+    ? '<span class="badge bs">same</span>'
+    : '<span class="badge bc">cross</span>';
+  const sepClass = groupStarts.has(i) && i > 0 ? ' class="group-sep"' : '';
+  tbody.insertAdjacentHTML("beforeend", `
+    <tr${sepClass}>
+      <td>${r.exp}${badge}</td>
+      <td class="${f1Class(r.f1)}">${fmt(r.f1)}</td>
+      <td class="${tprClass(r.energy)}">${fmt(r.energy)}</td>
+      <td class="${tprClass(r.mmd)}">${fmt(r.mmd)}</td>
+      <td class="${tprClass(r.bks)}">${fmt(r.bks)}</td>
+      <td class="${tprClass(r.mmdAgg)}">${fmt(r.mmdAgg)}</td>
+    </tr>`);
+});
+
+/* ─────────── CHART ─────────── */
+// Shorten labels for the horizontal bar chart
+const labels = RESULTS.map(r =>
+  r.exp
+    .replace("Train → ", "→ ")
+    .replace(" Train", " Tr")
+    .replace(" Test",  " Te")
+    .replace(" Val",   " Va")
+);
+
+new Chart(document.getElementById("tprChart"), {
+  type: "bar",
+  data: {
+    labels,
+    datasets: [
+      { label:"Energy",  data:RESULTS.map(r=>r.energy),  backgroundColor:"rgba(66,165,245,0.82)",  borderColor:"#1565c0", borderWidth:1 },
+      { label:"MMD",     data:RESULTS.map(r=>r.mmd),     backgroundColor:"rgba(102,187,106,0.82)", borderColor:"#2e7d32", borderWidth:1 },
+      { label:"BKS",     data:RESULTS.map(r=>r.bks),     backgroundColor:"rgba(255,183,77,0.85)",  borderColor:"#e65100", borderWidth:1 },
+      { label:"MMD-Agg", data:RESULTS.map(r=>r.mmdAgg),  backgroundColor:"rgba(240,98,146,0.82)",  borderColor:"#880e4f", borderWidth:1 },
+    ]
+  },
+  options: {
+    indexAxis: "y",
+    responsive: true,
+    plugins: {
+      legend: { position:"top", labels:{ font:{ size:12 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `  ${ctx.dataset.label}: ${ctx.raw.toFixed(2)}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        min:0, max:1,
+        title:{ display:true, text:"TPR (True Positive Rate)", font:{ size:12 } },
+        grid:{ color:"rgba(0,0,0,0.06)" }
+      },
+      y: {
+        ticks:{ font:{ size:11 } },
+        grid:{ display:false }
+      }
+    }
+  }
+});
+
+/* ─────────── PERTURBATION GALLERY ─────────── */
+const PERTURBATIONS = [
+  { f:"0_original.png",   l:"Original"   },
+  { f:"1_rotated.png",    l:"Rotated"    },
+  { f:"2_translated.png", l:"Translated" },
+  { f:"3_sheared.png",    l:"Sheared"    },
+  { f:"4_zoomed.png",     l:"Zoomed"     },
+  { f:"5_h_flipped.png",  l:"H-Flipped"  },
+  { f:"6_v_flipped.png",  l:"V-Flipped"  },
+  { f:"7_noisy.png",      l:"Noisy"      },
+  { f:"8_combined.png",   l:"Combined"   },
+];
+const perturbGrid = document.getElementById("perturb-grid");
+PERTURBATIONS.forEach(p => {
+  perturbGrid.insertAdjacentHTML("beforeend", `
+    <div class="pcard">
+      <img src="${RAW}/example_images/perturbation_examples/${p.f}" alt="${p.l}" loading="lazy">
+      <div class="plabel">${p.l}</div>
+    </div>`);
+});
+
+/* ─────────── RECONSTRUCTION GALLERY ─────────── */
+const RECONS = [
+  { f:"CULane_CULane_Train_reconstructions.png",      l:"CULane encoder → CULane images"      },
+  { f:"CULane_CurveLanes_Train_reconstructions.png",  l:"CULane encoder → CurveLanes images"  },
+  { f:"Curvelanes_CULane_Train_reconstructions.png",  l:"CurveLanes encoder → CULane images"  },
+  { f:"Curvelanes_CurveLanes_Train_reconstructions.png",l:"CurveLanes encoder → CurveLanes images"},
+  { f:"ImageNet_CULane_Train_reconstructions.png",    l:"ImageNet encoder → CULane images"    },
+  { f:"ImageNet_CurveLanes_Train_reconstructions.png",l:"ImageNet encoder → CurveLanes images"},
+  { f:"Random_CULane_Train_reconstructions.png",      l:"Random weights → CULane images"      },
+  { f:"Random_CurveLanes_Train_reconstructions.png",  l:"Random weights → CurveLanes images"  },
+];
+const reconGrid = document.getElementById("recon-grid");
+RECONS.forEach(r => {
+  reconGrid.insertAdjacentHTML("beforeend", `
+    <div class="rcard">
+      <img src="${RAW}/example_images/reconstructions32/${r.f}" alt="${r.l}" loading="lazy">
+      <div class="rlabel">${r.l}</div>
+    </div>`);
+});
+
+/* ─────────── TABS ─────────── */
+function switchTab(name, btn) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(b   => b.classList.remove("active"));
+  document.getElementById("panel-" + name).classList.add("active");
+  btn.classList.add("active");
+}
+
+/* ─────────── COPY BIBTEX ─────────── */
+function copyBibtex(btn) {
+  navigator.clipboard.writeText(document.getElementById("bibtex-text").innerText).then(() => {
+    btn.textContent = "✅ Copied!";
+    setTimeout(() => (btn.textContent = "📋 Copy"), 2200);
+  });
+}
+</script>
+
+</body>
+</html>
