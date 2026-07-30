@@ -66,7 +66,7 @@ RUN --mount=type=cache,target=/root/.cache/ccache \
     --standalone \
     --remove-output \
     --lto=no \
-    --jobs=auto \
+    --jobs=4 \
     --enable-plugin=torch \
     --enable-plugin=numpy \
     --nofollow-import-to=torch \
