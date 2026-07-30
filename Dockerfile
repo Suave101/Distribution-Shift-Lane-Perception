@@ -10,9 +10,10 @@ ENV CCACHE_DIR=/root/.cache/ccache \
     NUITKA_CACHE_DIR=/root/.cache/nuitka
 
 # Install C/C++ build tools required by Nuitka and torch-two-sample
+# Force IPv4 to prevent WSL2 TCP network timeouts during apt updates
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get -o Acquire::ForceIPv4=true update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     g++ \
@@ -44,17 +45,22 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # 3. Copy project files into the build environment
 COPY . /build
 
-# 4. Compile the project with Nuitka (persisting ccache and Nuitka compilation caches)
-# Flags:
-#   --standalone: Bundles the executable and shared libraries into a folder
-#   --enable-plugin=torch / numpy: Ensures PyTorch and NumPy C-extensions/DLLs are included
-#   --include-package: Ensures local submodules are included in the build
+# 4. Compile experiment.py with Nuitka (persisting ccache and Nuitka compilation caches)
 RUN --mount=type=cache,target=/root/.cache/ccache \
     --mount=type=cache,target=/root/.cache/nuitka \
     python3 -m nuitka \
     --standalone \
+    --remove-output \
+    --lto=no \
+    --jobs=auto \
     --enable-plugin=torch \
     --enable-plugin=numpy \
+    --nofollow-import-to=torch \
+    --nofollow-import-to=torchvision \
+    --nofollow-import-to=scipy \
+    --include-package=torch \
+    --include-package=torchvision \
+    --include-package=scipy \
     --include-package=data \
     --include-package=models \
     --include-package=utils \
@@ -62,15 +68,19 @@ RUN --mount=type=cache,target=/root/.cache/ccache \
     --output-filename=shift_detector \
     experiment.py
 
+# 5. Compress the output directory into a single tarball
+RUN tar -czf /build/experiment.tar.gz -C /build/dist experiment.dist
+
 # =========================================================
 # Stage 2: Minimal Runtime Image (Ubuntu 24.04 for GLIBC 2.38+)
 # =========================================================
 FROM ubuntu:24.04 AS runner
 
 # Install basic runtime C-libraries needed by Pillow/OpenCV/PyTorch
+# Force IPv4 to prevent WSL2 TCP network timeouts during apt updates
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
+    apt-get -o Acquire::ForceIPv4=true update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
@@ -79,8 +89,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 WORKDIR /app
 
-# Copy the compiled standalone distribution from the builder stage
-COPY --from=builder /build/dist/experiment.dist /app/experiment.dist
+# Copy the SINGLE compressed archive instead of tens of thousands of loose files
+COPY --from=builder /build/experiment.tar.gz /app/
+
+# Extract the archive in seconds and remove the tar file
+RUN tar -xzf experiment.tar.gz && rm experiment.tar.gz
 
 # Set working directory inside the compiled distribution
 WORKDIR /app/experiment.dist
