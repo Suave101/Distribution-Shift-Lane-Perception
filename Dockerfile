@@ -76,6 +76,9 @@ RUN tar -czf /build/experiment.tar.gz -C /build/dist experiment.dist
 # =========================================================
 FROM ubuntu:24.04 AS runner
 
+# Change the APT mirror to a more reliable one
+RUN sed -i 's/archive.ubuntu.com/azure.archive.ubuntu.com/g' /etc/apt/sources.list.d/ubuntu.sources
+
 # Install basic runtime C-libraries needed by Pillow/OpenCV/PyTorch
 # Force IPv4 to prevent WSL2 TCP network timeouts during apt updates
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \

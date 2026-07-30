@@ -1,0 +1,10 @@
+.git
+.gitignore
+*.tar.gz
+*.venv
+venv/
+datasets/
+logs/
+__pycache__/
+*.dist/
+*.build/
