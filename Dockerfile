@@ -25,15 +25,27 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 WORKDIR /build
 
 # 1. Install PyTorch, Nuitka, and core dependencies (using BuildKit pip cache)
+# -------------------------------------------------------------------------
+# [CPU Version - ACTIVE] (Fast download ~200MB, prevents broken pipes)
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install \
+    pip install --default-timeout=1000 --retries 10 \
     nuitka \
-    torch \
-    torchvision \
     scipy \
     tqdm \
     Pillow \
-    "numpy<2.0"
+    "numpy<2.0" \
+    torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# [GPU / CUDA Version - COMMENTED OUT] (Heavy ~2GB+, uncomment when GPU is required)
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     pip install --default-timeout=1000 --retries 10 \
+#     nuitka \
+#     scipy \
+#     tqdm \
+#     Pillow \
+#     "numpy<2.0" \
+#     torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# -------------------------------------------------------------------------
 
 # 2. Build and install the torch-two-sample C++ extension
 RUN --mount=type=cache,target=/root/.cache/pip \
