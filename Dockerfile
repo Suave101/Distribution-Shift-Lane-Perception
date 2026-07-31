@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.4
 
 # =========================================================
-# Stage 1: Builder Environment
+# Stage 1: Builder Environment (Pinned to Debian Bookworm)
 # =========================================================
-FROM python:3.10-slim AS builder
+FROM python:3.10-slim-bookworm AS builder
 
 # Set cache directory paths for ccache and Nuitka
 ENV CCACHE_DIR=/root/.cache/ccache \
@@ -69,12 +69,6 @@ RUN --mount=type=cache,target=/root/.cache/ccache \
     --jobs=4 \
     --enable-plugin=torch \
     --enable-plugin=numpy \
-    --nofollow-import-to=torch \
-    --nofollow-import-to=torchvision \
-    --nofollow-import-to=scipy \
-    --include-package=torch \
-    --include-package=torchvision \
-    --include-package=scipy \
     --include-package=data \
     --include-package=models \
     --include-package=utils \
