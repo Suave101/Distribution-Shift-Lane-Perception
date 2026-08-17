@@ -48,3 +48,5 @@ env/
 .vscode/
 .idea/
 *.iml
+*.sif
+*.sif

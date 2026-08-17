@@ -1,3 +1,22 @@
+# ==============================================================================
+# NUITKA + JAXLIB WORKAROUND (Nuitka Issue #3584)
+# Direct monkey-patch for Pybind11 MLIR sequence types
+# ==============================================================================
+try:
+    from jaxlib.mlir import ir as _ir
+
+    def _mlir_seq_iter(self):
+        for i in range(len(self)):
+            yield self[i]
+
+    # Target MLIR list classes directly bypassing hasattr C-slot checks
+    for _cls_name in ["BlockArgumentList", "BlockList", "OperationList", "ValueList"]:
+        if hasattr(_ir, _cls_name):
+            setattr(getattr(_ir, _cls_name), "__iter__", _mlir_seq_iter)
+except Exception:
+    pass
+# ==============================================================================
+
 import os
 import warnings
 import torch

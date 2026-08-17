@@ -1,0 +1,39 @@
+==========================================================
+Starting job 33963 on node01 at Sat Aug 15 07:27:45 PM EDT 2026
+==========================================================
+Loading apptainer/1.4.1-gcc-13.3.0-nmn2ykt
+  Loading requirement: glibc/2.35-gcc-14.2.0-4zx7bpo
+    python/3.11.9-gcc-11.4.0-oegc4h2 libseccomp/2.5.4-gcc-13.3.0-st6l5eo
+    conmon/2.1.12-gcc-13.3.0-p3lnvnx libfuse/3.16.2-gcc-13.3.0-oom4vwk
+    e2fsprogs/1.47.1-gcc-13.3.0-xfeunp6 fuse-overlayfs/1.13-gcc-13.3.0-usyewj5
+    go/1.23.2-gcc-13.3.0-47np2us gocryptfs/2.4.0-gcc-13.3.0-bohzxq3
+    libgpg-error/1.50-gcc-13.3.0-2kviidc squashfs/4.6.1-gcc-13.3.0-4l6a7u5
+    lzo/2.10-gcc-13.3.0-wrwkhds squashfuse/0.5.2-gcc-13.3.0-ezr54kz
+/app/experiment.dist/torch/utils/data/dataloader.py:431: UserWarning: This DataLoader will create 16 worker processes in total. Our suggested max number of worker in current system is 8, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+
+Initializing autoencoder...
+[Autoencoder] - Latent Dim: 32
+Using CPU for everything.
+
+[STEP 0] Encoding and caching all dataset features...
+[INFO] (/home1/adoyle2025/Datasets/Datasets/Curvelanes/train) → [0:2] (2 samples)
+/home1/adoyle2025/Datasets/Datasets/Curvelanes/train features loaded. Shape = (2, 32)
+
+Preloading Calibration Sets:   0%|          | 0/2 [00:00<?, ?it/s]Preloading Calibration Sets: 100%|██████████| 2/2 [00:00<00:00, 14.36it/s]Preloading Calibration Sets: 100%|██████████| 2/2 [00:00<00:00, 14.33it/s]
+-> Sanity Check features loaded.
+Preloading Target Sets:   0%|          | 0/2 [00:00<?, ?it/s]Preloading Target Sets: 100%|██████████| 2/2 [00:00<00:00, 19.93it/s]Preloading Target Sets: 100%|██████████| 2/2 [00:00<00:00, 19.86it/s]
+
+[STEP 1] Calibration using /home1/adoyle2025/Datasets/Datasets/Curvelanes/train (Sequential JAX)...
+Calculating Calibration:   0%|          | 0/2 [00:00<?, ?it/s]Calculating Calibration:  50%|█████     | 1/2 [00:01<00:01,  1.24s/it]Calculating Calibration: 100%|██████████| 2/2 [00:01<00:00,  1.57it/s]
+Traceback (most recent call last):
+  File "/app/experiment.dist/experiment.py", line 714, in <module>
+  File "/app/experiment.dist/experiment.py", line 596, in run
+  File "/app/experiment.dist/experiment.py", line 423, in calibrate
+  File "/app/experiment.dist/numpy/lib/function_base.py", line 4283, in percentile
+  File "/app/experiment.dist/numpy/lib/function_base.py", line 4555, in _quantile_unchecked
+  File "/app/experiment.dist/numpy/lib/function_base.py", line 3823, in _ureduce
+  File "/app/experiment.dist/numpy/lib/function_base.py", line 4722, in _quantile_ureduce_func
+  File "/app/experiment.dist/numpy/lib/function_base.py", line 4831, in _quantile
+IndexError: index -1 is out of bounds for axis 0 with size 0
+Calibration generated an exception for seed 42: jaxlib.mlir.dialects._stablehlo_ops_gen.AddOp() argument after * must be an iterable, not BlockArgumentList
+Calibration generated an exception for seed 43: jaxlib.mlir.dialects._stablehlo_ops_gen.AddOp() argument after * must be an iterable, not BlockArgumentList

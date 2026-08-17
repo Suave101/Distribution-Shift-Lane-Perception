@@ -1,0 +1,17 @@
+==========================================================
+Starting job 57069 on node01 at Mon Aug 17 09:44:25 AM EDT 2026
+==========================================================
+==========================================================
+[09:44:25] STARTING STEP: Running Apptainer Executable Experiment
+==========================================================
+/app/experiment.dist/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.
+
+Initializing autoencoder...
+[Autoencoder] - Latent Dim: 32
+Using CPU for everything.
+
+[STEP 0] Encoding and caching all dataset features...
+[INFO] (/home1/adoyle2025/Datasets/Datasets/Curvelanes/train) → [0:1000] (1000 samples)
+/home1/adoyle2025/Datasets/Datasets/Curvelanes/train features loaded. Shape = (1000, 32)
+
+Preloading Calibration Sets:   0%|          | 0/100 [00:00<?, ?it/s]

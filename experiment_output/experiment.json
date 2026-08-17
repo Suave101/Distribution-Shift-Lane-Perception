@@ -1,0 +1,391 @@
+{
+    "experiments": [
+        {
+            "arguments": {
+                "CodeMark": "4/11/2026",
+                "source_dir": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train",
+                "target_dir": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid",
+                "source_list_path": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/train.txt",
+                "target_list_path": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/valid.txt",
+                "sample_size": 50,
+                "num_runs": 2,
+                "block_idx": 0,
+                "batch_size": 50,
+                "image_size": 512,
+                "tau_threshold_percentile": 95.0,
+                "seed_base": 42,
+                "alpha": 0.05,
+                "deterministic": true,
+                "permutation_test_iterations": 0,
+                "latent_dim": 32,
+                "test_types": [
+                    "MMD",
+                    "MMD_Agg",
+                    "Energy",
+                    "BKS"
+                ],
+                "imagenet_weights": true,
+                "model_weights_path": "None",
+                "gaussian_sigma": 0.0,
+                "crop_image": false,
+                "rotation_angle": 0.0,
+                "width_shift_frac": 0.0,
+                "height_shift_frac": 0.0,
+                "shear_angle": 0.0,
+                "zoom_factor": 1.0,
+                "horizontal_flip": false,
+                "vertical_flip": false
+            },
+            "data": {
+                "Source Training Feature Shape": [
+                    50,
+                    32
+                ],
+                "Source Training Feature Image Paths": [
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/53f2771cab514d2f6d2dc832671231b4.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/7e0d1056f6423e9b97a2cc8ca9afcd63.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/cba960c50382782b29b8ec203a5fe865.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d8b5c90ef0a5225c5217c093c55ee361.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/febcb47bc5f7d981d53ecd5ab2e5415f.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/423e561d0579e6a0962260e12549ae0d.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6614ec71a8bb07b5e862ff2d88a19842.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/1576e08e69f81d9c8e6192ca87ada093.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/5f8840977d0f04b6fed39a28a4a20163.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/2d1dbe09f9c36c140f5de0f951168f2b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/1b5eb465767890213795baf9c7b42c57.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/effad50c83ec48bf8d79d79c9f4e07ea.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/a8eb05d6f282974a9750c1c04dce48c0.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/17687cd48b425cb86d2ee4f46ef57ae4.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/62df4077549ee7ba1ad1e2f0ec019263.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6db6a414f23eacd0077c597a994c7eb4.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/63fae4a74f4f08dba6df47180d3d2a3d.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/8deb9cc6aaa854c4355b60382948376e.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/a35c86e6f2a80b03143ab0e29cbedc4d.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/1d48f5fbf931fd618c135937963ae924.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/b715888680c4fa672650e34e3692cf8c.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/10ecf6c79226fb9cf06c33f2465bfa0f.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/f9c69923ef7f17c7e23b771f06addd0c.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/9657a575f8fce742b647f7fb29955269.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/bf69b8f0c084a5e704b640a0829db0c9.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/2395ac685464818a308a3ad9ff0f1411.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/0f34c738a2346088603cfd25bd1a8789.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/66be13300e17cb3e9385a488f4627ad4.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/beb276eac651764694989ffa15a5d18b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/26857135e14332a3539958315114d38b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/e84b3163d8e007da08309de20d1d7955.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/04bcd7e03b730838c17d94ba200d76c6.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/c3f3e847547fcd7ec12b7c41eb01dbae.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/1c23c0c6d39aa93647f48fc04200dcf9.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/bcb86d6e1d27272cc45a2fbb45466b12.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/66ba25013f42851bb0c71f519c758c4b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/45f4a1eaaf69720f48205c0e6d690850.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/cfddf135c24e6e0c60d1ad0fc9aa8915.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/f1307eea64ba4a9aa6350b0c03d4a143.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/b4ffb001c1595a591636ecd47a6b7b05.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/765525685730cae0511c03f68c9ea99b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/8eac10ca90324bbb0dfa7e5bde887291.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/88ab69da2f9757945f7619fe30e759fc.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/1d2eda7f8e228d05f3dec67ddb183ad3.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/11cff73be26743f6351a12110aea082b.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/96a8635f2ddd270ff8afddd236583d03.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/a04ffb613193c864e7a2f02337c7182d.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6b156abfcbe020ae10b643a73bb138ef.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/4c8fbd0349fff85f87317a6c7a45eea0.jpg",
+                    "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/284cbac4ae4453ee97405a9fff59bdb0.jpg"
+                ],
+                "Calibration": {
+                    "Uses": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train",
+                    "Result": {
+                        "MMD": {
+                            "Tau": 0.0045578256249427795,
+                            "Mean": 0.001478448510169983,
+                            "Std": 0.0034215301275253296
+                        },
+                        "MMD_Agg": {
+                            "Tau": 0.004557929193833843,
+                            "Mean": 0.001478562189731747,
+                            "Std": 0.0034215188934467733
+                        },
+                        "Energy": {
+                            "Tau": 0.05350902080535889,
+                            "Mean": 0.04808473587036133,
+                            "Std": 0.0060269832611083984
+                        },
+                        "BKS": {
+                            "Tau": 0.338,
+                            "Mean": 0.32,
+                            "Std": 0.020000000000000018
+                        }
+                    }
+                },
+                "Sanity Check": {
+                    "Image Paths": [
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/82528371745d692da16068274b12d6a2.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/18cfd7df88638daad61a2b91ba17bd27.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/b8479c5bb25021dd74c6bafddf740967.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/e2da19d35890fe3f0b1a8cac59d543ea.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/74e49cb40c6a40dbf4c6f2e7a732031d.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/21bdb8d8b25c0b87838e4e6d98a83de9.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/99eca22e476c67f0433d35f2bf2c0f74.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/2746782e5ef37ece7a2c6ebeae6bf04f.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/7095ded662614520b369724080ca70b0.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/3832db341ec942699f9ad11d11e73c2e.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/eb2ac1c8409f003ddb7184ad6909ed39.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/825bae530649e01c3d64f013762dddfe.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/42157f113a8e8efacbbab08e2465b881.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/867365189eb16054b0d27248fb1e1436.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/7035ff401deb75cb59749ee97fe57046.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/544e7b39fbc96645875a64c7009821cf.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/f55b4e7f3247f075aa45ea1f54eac5ac.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6bd43520f8bdd28c1d7a10ae0f5480f1.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/353fcd21e705d3395e31c41c3c84e641.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/2c2eb94251e2527b0f59aee38cb8aa8b.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/972f4f45865f397af09cf73d80508948.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/c5d26e911ac5556580ce84c8f5b377b3.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/8c7358cfba3a520007df35111766b020.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/e1c7b194bade9480229ae298f19413da.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/e64907727620a9abe03fa426d5631752.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6795b1b404449fd8f55d82f53cf15dc1.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/21757214b6ad8c98afe5715f0fc8b404.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6582641c863994cfa52046b26245d26f.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d1eae33d02e3a5a74e3ffdb579a9da9b.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/cde02b38435196dcce4ba8f86564229e.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/0fc08abeb7940fad3fee972f34d3e9d0.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/5bf8742c852663bf8db1a4081b87ba83.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/f0be531f69bd8bc6d0aa3348c3266276.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/7f134661f076723b58f3c248a514b4df.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/8bd5802dad43760017b303f3aa7205e1.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/2f9f274f84cff7a18a5501198dfa8f9e.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d6c43bba9a33ad9dd087a472b5adadd9.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/6a5d3db5d8605d80a92726e99817aa33.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/1ca4d28e24ca66a889f28b6a6d9dbb1a.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/d46d153378ea61c83f864b885caed2d1.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/a78ae211bfda060da429af0cd161db5c.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/7fa79c4ed8e201be0dde12609fa3f95e.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/ef6163ee806b293e84a42cc84168333f.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/a6d18fc4eef73a5195693b0dcbe7670f.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/17f0ad31ed6b5fdf4e0f1f5d4fc2f026.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/9cda0342baaca6386e633d3b9dd59772.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/bc0c99cd089a0b685cf192859dcc7f9f.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/e4d458495b974c85436a64658fb5cee8.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/72d10358dd6270f3904a51059cea8638.jpg",
+                        "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train/images/923c5729fed670510ddb914f163da384.jpg"
+                    ],
+                    "Results": {
+                        "MMD": {
+                            "Sanity Check Definition": "MMD(A=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train, B=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train)",
+                            "Stat": 0.0006818473339080811,
+                            "Tau": 0.0045578256249427795,
+                            "Shift Detected": false
+                        },
+                        "MMD_Agg": {
+                            "Sanity Check Definition": "MMD_Agg(A=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train, B=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train)",
+                            "Stat": 0.0006818518158979714,
+                            "Tau": 0.004557929193833843,
+                            "Shift Detected": false
+                        },
+                        "Energy": {
+                            "Sanity Check Definition": "Energy(A=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train, B=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train)",
+                            "Stat": 0.04605841636657715,
+                            "Tau": 0.05350902080535889,
+                            "Shift Detected": false
+                        },
+                        "BKS": {
+                            "Sanity Check Definition": "BKS(A=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train, B=/home1/adoyle2025/Datasets/Datasets/Curvelanes/train)",
+                            "Stat": 0.26,
+                            "Tau": 0.338,
+                            "Shift Detected": false
+                        }
+                    }
+                },
+                "Data Shift Test Data": {
+                    "Shift Parameters": {
+                        "Gaussian Noise": 0.0,
+                        "Crop Image": false,
+                        "Rotation Angle": 0.0,
+                        "Width Shift Fraction": 0.0,
+                        "Height Shift Fraction": 0.0,
+                        "Shear Angle": 0.0,
+                        "Zoom Factor": 1.0,
+                        "horizontal_flip": false,
+                        "vertical_flip": false
+                    },
+                    "Data Shift Test Definition": "/home1/adoyle2025/Datasets/Datasets/Curvelanes/train to /home1/adoyle2025/Datasets/Datasets/Curvelanes/valid",
+                    "Runs": 2,
+                    "Individual Test Data": [
+                        {
+                            "Image Paths": [
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b20086b589a9a5558d47d55b7343b869.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/4a3de117e6d817db2decd65f676268f2.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/8c6a7bb7a07c722a1cb2352710475478.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/241417b68a628f189c5498a8e89a890a.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/d3dbc21ab94a376d36c4316874f221c7.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/678c4cf87794aff0696eb3f57ce7a659.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a791882f3f0084e2da809a2c885be1ac.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/983c0a4044e3b525fa71a6c21bbae400.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a5793a2a5592b100fbdcc6ea6fb09d61.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/43e06399b3ae7e13c4b699c9594599aa.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b617601e5c55cbfd698608cb11f5f3b3.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/c470af7bc2d8fc24609f3eed1e8a5bc0.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/3d2f2bf59479db2644c104566d8308a5.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/d62c4b8dd86410084cdca1609edee3cb.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/6e5cd254768ab47fe75dd20e5fcbfd39.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/736fa5651a42f23b9419d396f517b656.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/874bb67f84f8e42bdd888d70998d4f71.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/38b51028712a88e1ee9dc6bd15cf4672.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/349db6a05a9f9e71e30ba10805e8030c.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/407016776e3454fcdf79445b06989942.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/ce8d9af89d4f1383deee52d180d272a2.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/dedfc8a910448c6aa0d26e1ffc58d11a.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/d57c32712818b1df4dd0ca6340814504.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/7338116c6c25e7c79ef78110ec430023.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/f48bea39337a294c713bffeb0f6baa5c.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/0811181932c9250cbcb24bc5bedb639d.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/76989e8dd8eebd84159e10de516b58fc.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/472194f4ad7d1ad50a84cb9b49e387b7.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/ca2a7386f7b3b67f3367996a3140e38e.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/73533855058cf24401b878b153f8ddf9.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/8f5f37d117c3df44f2d2c73bc40b2b4c.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/d04d5f42766a9c87e4cd49b28bea111f.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a1b5714345f7f5f6b969a3fa88545f3f.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/c4b1197eb72728b7bd067173d7e7fbf7.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/0a2aba57e1b1de0cee300a856d945d8b.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/f82179d2fb224df4343040ca0fe3b4fb.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/2de077d1d7fab5917c4f38245fc5c669.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/379cd1e4f5113abab81ddb2b8c45edf7.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/0f1579365c6192fe111a73d7cc712f03.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/ec61ca565ee5b7f28073642861c30b60.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/6f41ae6341cee3d807e59fe48e7a5f6e.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/d664a5c95651a5e4d8ec4c4beae35d4c.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/3bf9e618867206245da3b7dfedf4367f.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/bc29600b883d8409e6ba2f254d23dcf3.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/d4c50ea2a239f4458ad7d5296b3d7d71.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/465daec4b0805ba921c1a7fba1a1a5b9.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/3a64fed0bc95271296c15ecc48adaffe.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/4437cb4b8e7b4cf00edf0d707a33eb48.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b893c34251095d02c2fa47dd28e5e3b8.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a8db4952c782f36b2515787e68c07a66.jpg"
+                            ],
+                            "Seed": 44,
+                            "Run": 1,
+                            "Results": {
+                                "MMD": {
+                                    "Stat": 0.0045900046825408936,
+                                    "Shift Detected": true
+                                },
+                                "MMD_Agg": {
+                                    "Stat": 0.004590220749378204,
+                                    "Shift Detected": true
+                                },
+                                "Energy": {
+                                    "Stat": 0.05053114891052246,
+                                    "Shift Detected": false
+                                },
+                                "BKS": {
+                                    "Stat": 0.28,
+                                    "Shift Detected": false
+                                }
+                            }
+                        },
+                        {
+                            "Image Paths": [
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a64eac0e630dea46814055c4f341b5f5.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/645629c48d11f0f70d4b12d20674d097.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b99936af5a8e494bd1bfec8dbd4a888a.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/1462aae5e7f58db6a9b6537ba100b399.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/d9263fbf7e14a2815ee73bb1223ec0da.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b48312195f52154892a646a3f13d9290.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/6169b18f6957aeba45bc8ae78d91cbf3.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/5a7eb6c019a5b95f7c930e2592573b1f.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b72ed26935045e929f8e7d974712b20f.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/0069b93f894a96f43bd590b92ff28985.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/ef298ccc87d27ef939e3e1e7007d9b0e.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/f3b5d7daf734ffc53777b746d93f2556.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/6a388d254379a364af3bfe79708196f5.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a139d32dc295980a4c4965bf7ddf9ea4.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/ba7cd613df0efe0808539f4d02144569.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/f54875542b11bd3a6186a3a1d65b30c6.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/9473a5f89db20a22f8cfceba8032c784.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/0773303e5c8b21a312ee0a25fa651862.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/7572e39824d6c91f6f2fc86854be128b.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/82603305bb154016bed91991b5022213.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/5ee7922a3bb8a43384f50c6d9ea5e255.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/8edfbf2b17fab67f9089a35dd3f6c86f.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/943317539025f08619a84ff4587923f7.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b8ca129b803da2e82541c645432216fc.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b59e6c5b641042d16dde9383f0a246a5.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/67774aa559574fd3b9da40d4e54bc9a1.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/9b177853ba6667332c040b9f5dc5e051.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/ab1b4d6da868dc87c5c565b0e09795ed.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/cc8b917f5f69814fc2bb0f93a8176c76.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/b3a23495edb0e0c27712d9d17c9c3184.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/e21ba3516e8d678e9c787e387ab464c7.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/9c4e298e7d93f479ef7d580b0f97223d.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/c32213a852a40c64cc07f2c6ed68c2a6.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/dbe15531ce1ef23794b2fc92c6cd1227.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/0a442d20d20249e250d499146292171d.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/910c4e9804a5b57eb9806b7346dad977.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/4d51b051d1f37fc6437343d2f52b6d7c.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/0b3ce13f174b19de4931a30b3e936f1e.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/7fad8846cb3834a9b72efd6e98d8e28e.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a00060a93f19a446f5295e437eed6c63.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/f0b883bb35f5b25fdd643d0f0ad009fe.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/97f6b48171ae177d16ec75b618c75f73.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/4e724841ae9951d0f404042af178ec22.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/05cbe6adb13819bf6d6110293bc4119a.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/e7cdec0b751c8d5ce9de50a7860c67e7.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/1b1480dc225b0ed11c6a2ca70a54aa83.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/a78e0775bb378fe72ee11c1a90c9d28a.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/1d313b4a3d0eb05509f77bd945ea6619.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/2859003713477c7f5f9d5c097b2b1566.jpg",
+                                "/home1/adoyle2025/Datasets/Datasets/Curvelanes/valid/images/75b8417eeffccbe705d9023a6d457c62.jpg"
+                            ],
+                            "Seed": 45,
+                            "Run": 2,
+                            "Results": {
+                                "MMD": {
+                                    "Stat": 0.0009321868419647217,
+                                    "Shift Detected": false
+                                },
+                                "MMD_Agg": {
+                                    "Stat": 0.0009320171666331589,
+                                    "Shift Detected": false
+                                },
+                                "Energy": {
+                                    "Stat": 0.04768931865692139,
+                                    "Shift Detected": false
+                                },
+                                "BKS": {
+                                    "Stat": 0.26,
+                                    "Shift Detected": false
+                                }
+                            }
+                        }
+                    ],
+                    "Summary": {
+                        "MMD": {
+                            "TPR": 50.0,
+                            "Mean Stat": 0.0027610957622528076,
+                            "Std Stat": 0.001828908920288086
+                        },
+                        "MMD_Agg": {
+                            "TPR": 50.0,
+                            "Mean Stat": 0.0027611189580056816,
+                            "Std Stat": 0.0018291017913725227
+                        },
+                        "Energy": {
+                            "TPR": 0.0,
+                            "Mean Stat": 0.049110233783721924,
+                            "Std Stat": 0.0014209151268005371
+                        },
+                        "BKS": {
+                            "TPR": 0.0,
+                            "Mean Stat": 0.27,
+                            "Std Stat": 0.010000000000000009
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

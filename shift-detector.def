@@ -1,0 +1,116 @@
+# =========================================================
+# Stage 1: Builder Environment (Ubuntu 24.04 + Conda)
+# =========================================================
+Bootstrap: docker
+From: ubuntu:24.04
+Stage: builder
+
+%files
+    . /build
+
+%environment
+    export CCACHE_DIR=/root/.cache/ccache
+    export NUITKA_CACHE_DIR=/root/.cache/nuitka
+    export PATH=/opt/conda/bin:$PATH
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    export CCACHE_DIR=/root/.cache/ccache
+    export NUITKA_CACHE_DIR=/root/.cache/nuitka
+
+    apt-get -o Acquire::ForceIPv4=true update
+
+    # ca-certificates fixes the curl SSL Error 77
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        build-essential \
+        curl \
+        gcc \
+        g++ \
+        ccache \
+        patchelf \
+        git
+
+    update-ca-certificates
+
+    # Install Miniforge (Conda) quietly
+    curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh"
+    bash Miniforge3-Linux-x86_64.sh -b -p /opt/conda
+    rm Miniforge3-Linux-x86_64.sh
+
+    export PATH=/opt/conda/bin:$PATH
+
+    # libpython-static required by Nuitka in Conda environments
+    conda install -y python=3.10 libpython-static
+
+    # 1. Install PyTorch, JAX, Nuitka, and core dependencies using Conda's pip
+    pip install --default-timeout=1000 --retries 10 \
+        --extra-index-url https://download.pytorch.org/whl/cpu \
+        nuitka \
+        scipy \
+        tqdm \
+        Pillow \
+        "numpy<2.0" \
+        jax jaxlib \
+        torch torchvision
+
+    # 2. Build and install the torch-two-sample C++ extension
+    cd /tmp
+    git clone https://github.com/josipd/torch-two-sample.git
+    cd torch-two-sample
+    python setup.py install
+    cd ..
+    rm -rf torch-two-sample
+
+    # 3. Compile experiment.py with Nuitka
+    cd /build
+    python -m nuitka \
+        --standalone \
+        --remove-output \
+        --lto=no \
+        --jobs=16 \
+        --module-parameter=torch-disable-jit=yes \
+        --include-package=data \
+        --include-package=models \
+        --include-package=utils \
+        --include-package=jax \
+        --include-package=jaxlib \
+        --include-package-data=jaxlib \
+        --output-dir=/build/dist \
+        --output-filename=shift_detector \
+        experiment.py
+
+    # 4. Compress the output directory into a single tarball
+    tar -czf /build/experiment.tar.gz -C /build/dist experiment.dist
+
+
+# =========================================================
+# Stage 2: Minimal Runtime Image (Ubuntu 24.04)
+# =========================================================
+Bootstrap: docker
+From: ubuntu:24.04
+Stage: final
+
+%files from builder
+    /build/experiment.tar.gz /app/experiment.tar.gz
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Install basic runtime C-libraries needed by Pillow/OpenCV/PyTorch
+    apt-get -o Acquire::ForceIPv4=true update
+    apt-get install -y --no-install-recommends \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender1 \
+        ca-certificates
+
+    # Extract the archive and remove the tar file
+    cd /app
+    tar -xzf experiment.tar.gz
+    rm experiment.tar.gz
+
+%runscript
+    cd /app/experiment.dist
+    exec ./shift_detector "$@"
