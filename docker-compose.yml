@@ -1,8 +1,24 @@
+version: '3.8'
+
 services:
-  shift-detector:
+  backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
-    image: shift-detector:latest
-    stdin_open: true  # Keeps stdin open if your script requires interaction
-    tty: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/logs:/app/logs
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped

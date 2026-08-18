@@ -1,0 +1,8 @@
+services:
+  shift-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: shift-detector:latest
+    stdin_open: true  # Keeps stdin open if your script requires interaction
+    tty: true
