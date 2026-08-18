@@ -5,12 +5,21 @@ import asyncio
 from enum import Enum
 from typing import Dict, Any, Optional
 from fastapi import FastAPI, BackgroundTasks, HTTPException, status
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Distribution Shift Detection API",
     description="API Wrapper for compiled Distribution-Shift-Lane-Perception binary",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Path to the Nuitka compiled binary inside the container
@@ -68,13 +77,13 @@ class ExperimentRequest(BaseModel):
         None, description="Path to directory containing custom weights (Required if command=custom_weights)"
     )
 
-    @root_validator
-    def validate_custom_weights(cls, values):
-        command = values.get("command")
-        weights_path = values.get("model_weights_path")
-        if command == WeightCommand.custom_weights and not weights_path:
-            raise ValueError("model_weights_path is required when command is set to 'custom_weights'")
-        return values
+    @model_validator(mode="after")
+    def validate_custom_weights(self):
+        if self.command == WeightCommand.custom_weights and not self.model_weights_path:
+            raise ValueError(
+                "model_weights_path is required when command is set to 'custom_weights'"
+            )
+        return self
 
 
 class JobResponse(BaseModel):

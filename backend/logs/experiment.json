@@ -1,0 +1,95 @@
+{
+    "config": {
+        "source_dir": "/data/CULane/train",
+        "target_dir": "/data/CULane/val",
+        "source_list_path": "./datasets/CULane/list/train.txt",
+        "target_list_path": "/data/CULane/val/list.txt",
+        "sample_size": 100,
+        "num_runs": 5,
+        "block_idx": 0,
+        "batch_size": 128,
+        "image_size": 512,
+        "alpha": 0.05,
+        "seed_base": 42,
+        "permutation_test_iterations": 1000,
+        "latent_dim": 32,
+        "file_location": "logs",
+        "file_name": "experiment.json",
+        "gaussian_sigma": 0.0,
+        "rotation_angle": 0.0,
+        "width_shift_frac": 0.0,
+        "height_shift_frac": 0.0,
+        "shear_angle": 0.0,
+        "zoom_factor": 1.0,
+        "crop_image": false,
+        "horizontal_flip": false,
+        "vertical_flip": false,
+        "command": "imagenet_weights"
+    },
+    "calibration_tau": {
+        "MMD": 0.021394,
+        "Energy": 0.0405,
+        "BKS": 0.113751
+    },
+    "summary_tpr": {
+        "MMD": 0.2,
+        "Energy": 0.4
+    },
+    "individual_test_data": [
+        {
+            "run_id": 1,
+            "MMD": {
+                "statistic": 0.014742,
+                "shift_detected": false
+            },
+            "Energy": {
+                "statistic": 0.042594,
+                "shift_detected": true
+            }
+        },
+        {
+            "run_id": 2,
+            "MMD": {
+                "statistic": 0.021544,
+                "shift_detected": true
+            },
+            "Energy": {
+                "statistic": 0.047265,
+                "shift_detected": true
+            }
+        },
+        {
+            "run_id": 3,
+            "MMD": {
+                "statistic": 0.012698,
+                "shift_detected": false
+            },
+            "Energy": {
+                "statistic": 0.033158,
+                "shift_detected": false
+            }
+        },
+        {
+            "run_id": 4,
+            "MMD": {
+                "statistic": 0.011841,
+                "shift_detected": false
+            },
+            "Energy": {
+                "statistic": 0.027059,
+                "shift_detected": false
+            }
+        },
+        {
+            "run_id": 5,
+            "MMD": {
+                "statistic": 0.018974,
+                "shift_detected": false
+            },
+            "Energy": {
+                "statistic": 0.021296,
+                "shift_detected": false
+            }
+        }
+    ]
+}
