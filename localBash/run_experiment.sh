@@ -8,7 +8,7 @@
 #SBATCH --ntasks=1                     # Single process task
 #SBATCH --cpus-per-task=16             # Allocate 8 CPU threads
 #SBATCH --mem=32GB                     # Explicit RAM request (Required on AI.Panther)
-#SBATCH --time=04:00:00                # Max runtime (HH:MM:SS)
+#SBATCH --time=12:00:00                # Max runtime (HH:MM:SS)
 #SBATCH --output=logs/shift_%j.log     # Standard output log (%j = Slurm Job ID)
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=adoyle2025@my.fit.edu  # FIT TRACKS email notification

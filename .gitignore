@@ -29,6 +29,7 @@ datasets/
 # Local scripts / machine-specific helpers
 # -------------------------
 LocalBash/
+localBash/
 
 # -------------------------
 # Third-party / vendored directories
